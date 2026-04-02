@@ -152,4 +152,15 @@ export function TestimonialsSection() {
       </div>
     </section>
   )
+} 
+
+export function Sections() {
+  return (
+    <>
+      <ProofStrip />
+      <FeaturesRow />
+      <CompareSection />
+      <TestimonialsSection />
+    </>
+  )
 }
