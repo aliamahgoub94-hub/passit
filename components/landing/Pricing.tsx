@@ -98,3 +98,7 @@ export function PricingSection() {
     </section>
   )
 }
+
+export function Pricing() {
+  return <PricingSection />
+}
