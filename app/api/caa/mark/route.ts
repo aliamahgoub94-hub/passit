@@ -1,143 +1,43 @@
-import { NextResponse } from 'next/server'
-import { generateText } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getPromptForStandard } from '@/lib/caa-feedback'
-import type { CaaStandard } from '@/types'
 
-const VALID_STANDARDS: CaaStandard[] = ['US32405', 'US32403', 'US32406']
-
-export async function POST(req: Request) {
-  const supabase = createClient()
-  const { data: userData, error: userErr } = await supabase.auth.getUser()
-  if (userErr || !userData.user) {
-    return NextResponse.json({ error: 'Not signed in.' }, { status: 401 })
-  }
-
-  const body = await req.json().catch(() => null) as null | {
-    standard?: string
-    sessionId?: string
-    studentWork?: any
-  }
-
-  if (!body?.standard || !body?.sessionId || !body?.studentWork) {
-    return NextResponse.json(
-      { error: 'Missing required fields: standard, sessionId, studentWork' },
-      { status: 400 }
-    )
-  }
-
-  const { standard, sessionId, studentWork } = body
-
-  if (!VALID_STANDARDS.includes(standard as CaaStandard)) {
-    return NextResponse.json({ error: 'Invalid standard.' }, { status: 400 })
-  }
-
-  const { data: session } = await supabase
-    .from('caa_sessions')
-    .select('id, student_id')
-    .eq('id', sessionId)
-    .eq('student_id', userData.user.id)
-    .single()
-
-  if (!session) {
-    return NextResponse.json({ error: 'Session not found.' }, { status: 404 })
-  }
-
-  const systemPrompt = getPromptForStandard(standard as CaaStandard)
-
-  const userMessage = typeof studentWork === 'string'
-    ? studentWork
-    : JSON.stringify(studentWork)
-
-  let text: string
+export async function POST(req: NextRequest) {
   try {
-    const result = await generateText({
-      model: anthropic('claude-3-5-sonnet-20241022') as any,
-      system: systemPrompt,
-      messages: [{ role: 'user' as const, content: userMessage }],
-      maxTokens: 2000,
+    const { response_text, question, rubric, session_id } = await req.json()
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY!,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: `You are an NCEA NZ writing assessor. Return ONLY valid JSON:
+{"criteria":[{"name":"string","verdict":"met"|"partial"|"missing","note":"string"}],"overall":"string"}
+Use NZ English.`,
+        messages: [{ role: 'user', content: `Task: ${question}\nRubric: ${rubric}\nResponse: ${response_text}` }]
+      })
     })
-    text = result.text
-  } catch (aiErr: any) {
-    return NextResponse.json(
-      { error: 'AI call failed.', detail: aiErr?.message ?? String(aiErr) },
-      { status: 502 }
-    )
+
+    const data = await res.json()
+    const text = data.content[0].text
+    const result = JSON.parse(text.replace(/```json|```/g, '').trim())
+
+    const supabase = createClient()
+    await supabase
+      .from('practice_sessions')
+      .update({ 
+        feedback_json: result,
+        score_pct: Math.round((result.criteria.filter((c: any) => c.verdict === 'met').length / result.criteria.length) * 100),
+        error_state: false
+      })
+      .eq('id', session_id)
+
+    return NextResponse.json(result)
+  } catch (error) {
+    return NextResponse.json({ error: 'Marking failed' }, { status: 500 })
   }
-
-  let feedback: any
-  try {
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    feedback = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(text)
-  } catch {
-    return NextResponse.json(
-      { error: 'Failed to parse AI feedback.', raw: text },
-      { status: 500 }
-    )
-  }
-
-  if (standard === 'US32405') {
-    const criteria = feedback.criteria
-    if (criteria) {
-      const rows = Object.entries(criteria).map(([criterion, data]: [string, any]) => ({
-        session_id: sessionId,
-        criterion,
-        verdict: data.verdict,
-        feedback: data.feedback,
-      }))
-      await supabase.from('writing_results').insert(rows)
-
-      const verdictScores = { met: 100, partial: 50, missing: 0 }
-      const scores = rows.map(r => verdictScores[r.verdict as keyof typeof verdictScores] ?? 0)
-      const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-
-      await supabase
-        .from('caa_sessions')
-        .update({ score: avgScore, total: 100, completed: true })
-        .eq('id', sessionId)
-    }
-  } else if (standard === 'US32403') {
-    const questions = feedback.questions
-    if (questions) {
-      const rows = questions.map((q: any) => ({
-        session_id: sessionId,
-        question_number: q.question_number,
-        outcome: q.outcome,
-        correct: q.correct,
-        feedback: q.feedback,
-      }))
-      await supabase.from('reading_results').insert(rows)
-
-      const score = feedback.score ?? questions.filter((q: any) => q.correct).length
-      const total = feedback.total ?? questions.length
-
-      await supabase
-        .from('caa_sessions')
-        .update({ score, total, completed: true })
-        .eq('id', sessionId)
-    }
-  } else if (standard === 'US32406') {
-    const questions = feedback.questions
-    if (questions) {
-      const rows = questions.map((q: any) => ({
-        session_id: sessionId,
-        question_number: q.question_number,
-        outcome: q.outcome,
-        correct: q.correct,
-        feedback: q.feedback,
-      }))
-      await supabase.from('numeracy_results').insert(rows)
-
-      const score = feedback.score ?? questions.filter((q: any) => q.correct).length
-      const total = feedback.total ?? questions.length
-
-      await supabase
-        .from('caa_sessions')
-        .update({ score, total, completed: true })
-        .eq('id', sessionId)
-    }
-  }
-
-  return NextResponse.json({ feedback })
 }
