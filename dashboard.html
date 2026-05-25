@@ -222,6 +222,62 @@ footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48
 .footer-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
 .footer-disclaimer{font-size:.68rem;color:rgba(255,255,255,.2);max-width:500px;line-height:1.6}
 
+/* ── View My Feedback Report button (in summary bar) ──────────── */
+.feedback-report-btn{
+  margin-left:auto;padding:9px 22px;background:var(--navy);color:#fff;
+  border:none;border-radius:40px;font-family:inherit;font-size:.82rem;font-weight:700;
+  cursor:pointer;transition:opacity .15s;white-space:nowrap;flex-shrink:0;
+}
+.feedback-report-btn:hover{opacity:.88}
+
+/* ── Inline feedback section ──────────────────────────────────── */
+.inline-fb-section{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;
+  animation:fbSlideDown .22s ease-out;
+}
+@keyframes fbSlideDown{
+  from{opacity:0;transform:translateY(-10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.inline-fb-head{
+  background:var(--navy);color:#fff;padding:22px 26px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.inline-fb-eyebrow{
+  font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  color:rgba(255,255,255,.45);margin-bottom:5px;
+}
+.inline-fb-title{
+  font-family:'Fraunces',serif;font-size:1.2rem;font-weight:800;
+  color:#fff;letter-spacing:-.3px;line-height:1.2;
+}
+.inline-fb-sub{font-size:.8rem;color:rgba(255,255,255,.55);margin-top:5px;line-height:1.55}
+.inline-fb-close{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.8);font-family:inherit;font-size:.78rem;font-weight:700;
+  padding:7px 16px;border-radius:8px;cursor:pointer;transition:background .15s;
+  white-space:nowrap;align-self:flex-start;
+}
+.inline-fb-close:hover{background:rgba(255,255,255,.2)}
+
+.inline-fb-body{padding:20px 24px;display:flex;flex-direction:column;gap:0}
+.inline-fb-loading{text-align:center;padding:32px 0;display:none}
+
+.inline-fb-session{padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.inline-fb-session:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.inline-fb-session-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+
+.inline-fb-state{text-align:center;padding:32px 16px;display:none}
+.inline-fb-state-icon{font-size:2rem;display:block;margin-bottom:12px}
+.inline-fb-state-title{
+  font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;
+  color:var(--navy);margin-bottom:6px;
+}
+.inline-fb-state-body{font-size:.84rem;color:var(--ink-2);line-height:1.65;max-width:380px;margin:0 auto}
+.inline-fb-state-body a{color:var(--orange);font-weight:700;text-decoration:none}
+.inline-fb-state-body a:hover{text-decoration:underline}
+
 @media(max-width:768px){
   nav .nav-links{display:none}
   .login-card{flex-direction:column}
@@ -229,8 +285,10 @@ footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48
   .footer-links{gap:24px}
   .footer-top{flex-direction:column}
   .summary-row{flex-direction:column;gap:8px}
+  .feedback-report-btn{margin-left:0;width:100%}
   .session-header{gap:8px}
   .nzqa-report-head{flex-direction:column}
+  .inline-fb-head{flex-direction:column}
 }
 </style>
 </head>
@@ -268,6 +326,45 @@ footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48
       <div class="meta"><strong id="meta-count">0</strong> sessions</div>
       <div class="meta">Date range: <strong id="meta-range">—</strong></div>
       <div class="meta">Student: <strong id="meta-email">—</strong></div>
+      <button class="feedback-report-btn" id="feedback-report-btn" onclick="showFeedbackReport()">
+        View My Feedback Report →
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Inline NZQA Feedback Report (hidden until button click) ── -->
+  <div class="inline-fb-section" id="inline-feedback-section" style="display:none">
+    <div class="inline-fb-head">
+      <div>
+        <div class="inline-fb-eyebrow">NZQA Skill Gap Report</div>
+        <div class="inline-fb-title">Where your marks are slipping</div>
+        <div class="inline-fb-sub">
+          Back-engineered from the skills recorded in your unscored sessions —
+          every area the marker flagged, explained in plain language.
+        </div>
+      </div>
+      <button class="inline-fb-close" onclick="hideFeedbackReport()">✕ Close</button>
+    </div>
+    <div class="inline-fb-body">
+      <div class="inline-fb-loading" id="fb-loading">
+        <div class="spinner"></div><p>Fetching your feedback…</p>
+      </div>
+      <div id="fb-report-list"></div>
+      <div class="inline-fb-state" id="fb-state-allgood">
+        <span class="inline-fb-state-icon">🎉</span>
+        <div class="inline-fb-state-title">All your sessions have been scored!</div>
+        <div class="inline-fb-state-body">
+          No unscored sessions found — your feedback is already showing in the session cards below.
+        </div>
+      </div>
+      <div class="inline-fb-state" id="fb-state-noskills">
+        <span class="inline-fb-state-icon">📋</span>
+        <div class="inline-fb-state-title">No skill data to work from</div>
+        <div class="inline-fb-state-body">
+          Your unscored sessions don't have enough skill data recorded to generate feedback.
+          <a href="simulator-pro.html">Complete another practice session →</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -648,6 +745,84 @@ window.togglePlan=function(idx){
   if(btn) btn.textContent=el.classList.contains('open')?'📋 Your 45-minute practice plan ▴':'📋 Your 45-minute practice plan ▾';
 };
 
+// ── Inline Feedback Report ─────────────────────────────────────
+let _fbFetched=false;
+
+function showFeedbackReport(){
+  const sec=$('inline-feedback-section');
+  sec.style.display='block';
+  // Slight delay so display:block has painted before scrolling
+  requestAnimationFrame(()=>sec.scrollIntoView({behavior:'smooth',block:'start'}));
+  if(!_fbFetched){
+    const email=($('email-input').value||'').trim()||localStorage.getItem('passit_email')||'';
+    if(email) fetchFeedbackReport(email);
+  }
+}
+
+function hideFeedbackReport(){
+  $('inline-feedback-section').style.display='none';
+}
+
+async function fetchFeedbackReport(email){
+  // Reset inner state
+  $('fb-loading').style.display='block';
+  $('fb-report-list').innerHTML='';
+  $('fb-state-allgood').style.display='none';
+  $('fb-state-noskills').style.display='none';
+
+  try{
+    const url=SUPABASE_URL+'/rest/v1/practice_sessions'
+      +'?student_email=eq.'+encodeURIComponent(email)
+      +'&or=(score_pct.eq.0,score_pct.is.null)'
+      +'&weak_skills=not.is.null'
+      +'&order=session_date.desc&limit=50';
+
+    const res=await fetch(url,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    $('fb-loading').style.display='none';
+
+    // Client-side filter: weak_skills must parse to non-empty array with LOOKUP matches
+    const actionable=rows.filter(s=>{
+      let ws=s.weak_skills;
+      if(typeof ws==='string'){try{ws=JSON.parse(ws);}catch(e){ws=[];}}
+      return Array.isArray(ws)&&ws.length>0&&backEngineerFeedback(ws,String(s.standard||''));
+    });
+
+    if(!actionable.length){
+      $('fb-state-allgood').style.display='block';
+      _fbFetched=true;
+      return;
+    }
+
+    const list=$('fb-report-list');
+    actionable.forEach(s=>{
+      const stdKey=String(s.standard||'');
+      const standardName=STD_MAP[stdKey]||stdKey;
+      const chipCls=stdKey==='32403'?'chip-blue':stdKey==='32405'?'chip-green':stdKey==='32406'?'chip-amber':'chip-gray';
+      let ws=s.weak_skills;
+      if(typeof ws==='string'){try{ws=JSON.parse(ws);}catch(e){ws=[];}}
+      const result=backEngineerFeedback(ws,stdKey);
+      if(!result) return;
+
+      let html='<div class="inline-fb-session">';
+      html+='<div class="inline-fb-session-meta">';
+      html+='<span class="chip '+chipCls+'">'+esc(standardName)+'</span>';
+      html+='<span class="session-date">'+esc(s.session_date?fmtDate(s.session_date):'—')+'</span>';
+      html+='</div>';
+      html+=renderNzqaReport(result,standardName);
+      html+='</div>';
+      list.insertAdjacentHTML('beforeend',html);
+    });
+
+    _fbFetched=true;
+  }catch(err){
+    console.error('Feedback fetch failed:',err);
+    $('fb-loading').style.display='none';
+    $('fb-state-noskills').style.display='block';
+  }
+}
+
 $('email-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search();}});
 $('search-btn').addEventListener('click',search);
 
@@ -665,6 +840,10 @@ async function search(){
   $('sessions-list').innerHTML='';
   $('empty').style.display='none';
   $('sim-link-wrap').style.display='none';
+  // Reset inline feedback panel so a new search re-fetches
+  $('inline-feedback-section').style.display='none';
+  $('fb-report-list').innerHTML='';
+  _fbFetched=false;
 
   try{
     const url=SUPABASE_URL+'/rest/v1/practice_sessions?student_email=eq.'+encodeURIComponent(email)+'&order=session_date.desc&limit=100';
