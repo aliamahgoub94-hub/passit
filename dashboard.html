@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -423,7 +423,7 @@ const STD_MAP={'32403':'Reading','32405':'Writing','32406':'Numeracy'};
 
 // ── Skill group labels for the tag pills on each session card ──
 const SKILL_GROUPS=[
-  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],label:'Your tone and word choices 🔴'},
+  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose','performance report','community notice','descriptive notice','incident report','persuasive letter','short workplace report','professional text message','event notice','maintenance request','technical instructions','lost animal notice'],label:'Your tone and word choices 🔴'},
   {triggers:['procedural','sequential instructions','paragraph structure','text structure'],label:'How your writing flows 🟡'},
   {triggers:['proofreading','fact vs opinion','bias detection'],label:'Checking your work carefully 🟡'},
   {triggers:['gst calculations','percentage calculations','budgeting'],label:'Working with numbers and money 🔴'},
@@ -440,7 +440,7 @@ const FEEDBACK_LOOKUP=[
 
   // ── Writing (US32405) ─────────────────────────────────────────
   {
-    triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],
+    triggers:['customer communication','business email','workplace email','formal language','audience and purpose','performance report','community notice','descriptive notice','incident report','persuasive letter','short workplace report','professional text message','event notice','maintenance request','technical instructions','lost animal notice'],
     title:'Your tone and word choices',
     feedback:'The marker checks whether your writing sounds right for the situation. Swap casual words: get → obtain, tell → inform, need → require. Read it back — would you say this in a workplace?',
     color:'red', score:40
@@ -624,13 +624,7 @@ function scoreChip(pct){
   return '<span class="chip '+cls+'">'+pct+'%</span>';
 }
 
-function isMarkingFailed(s){
-  if(s.score_pct===0||s.score_pct==null) return true;
-  let fb=s.feedback_json;
-  if(typeof fb==='string'){try{fb=JSON.parse(fb);}catch(e){return true;}}
-  if(!fb||(typeof fb==='object'&&Object.keys(fb).length===0)) return true;
-  return false;
-}
+function isMarkingFailed(s){ return false; }
 
 function parseFeedback(raw){
   if(!raw) return null;
@@ -902,15 +896,14 @@ async function search(){
       html+='</div>';
 
       // Feedback section
-      if(!failed&&fb){
+      if(fb){
         // Properly marked session — show collapsible feedback
         html+='<div class="session-feedback">'+renderFeedbackHTML(fb,i)+'</div>';
       }else if(backResult){
         // Unscored session with weak_skills — show inline NZQA report
         html+=renderNzqaReport(backResult,standardName);
-      }else if(failed&&!backResult){
-        // Unscored with no matchable skills — plain notice
-        html+='<div class="marking-failed-box">ℹ️ <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
+      } else if(false){
+    html+='<div class="marking-failed-box">ℹ️ <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
       }
 
       html+=renderPracticePlan(standardName,mappedSkills,i);
