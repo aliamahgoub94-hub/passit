@@ -72,6 +72,57 @@ export interface DashboardData {
   currentLevelSummary: CreditSummary
 }
 
+// ─── CAA Standards ───────────────────────────────────────────
+
+export type CaaStandard = 'US32405' | 'US32403' | 'US32406'
+export type WritingVerdict = 'met' | 'partial' | 'missing'
+export type WritingCriterion = 'ideas_content' | 'structure_flow' | 'tone_language' | 'accuracy'
+export type ReadingOutcome = 'outcome_1' | 'outcome_2' | 'outcome_3'
+export type NumeracyOutcome = 'outcome_1' | 'outcome_2' | 'outcome_3'
+
+export interface CaaSession {
+  id: string
+  student_id: string
+  standard: CaaStandard
+  created_at: string
+  score: number | null
+  total: number | null
+  completed: boolean
+}
+
+export interface WritingResult {
+  session_id: string
+  criterion: WritingCriterion
+  verdict: WritingVerdict
+  feedback: string
+}
+
+export interface ReadingResult {
+  session_id: string
+  question_number: number
+  outcome: ReadingOutcome
+  correct: boolean
+  feedback: string
+}
+
+export interface NumeracyResult {
+  session_id: string
+  question_number: number
+  outcome: NumeracyOutcome
+  correct: boolean
+  feedback: string
+}
+
+export interface ParentSummary {
+  standard: CaaStandard
+  standardLabel: string
+  sessions: CaaSession[]
+  latestScore: number | null
+  summaryLabel: string
+  weakestArea: string | null
+  practiseTip: string | null
+}
+
 // ─── Chat ─────────────────────────────────────────────────────
 
 export interface ChatMessage {
