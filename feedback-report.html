@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Feedback Report — Passit CAA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1f47;--navy-dark:#0a1880;--orange:#f97316;--sky:#eef3ff;
+  --surface:#fff;--ink:#0f1f47;--ink-2:#3d4f6f;--ink-3:#6b7a96;
+  --green:#0F6E56;--green-light:#e6f4f0;
+  --blue:#3b82f6;--blue-light:#dbeafe;
+  --amber:#D68910;--amber-light:#fdf4dc;
+  --red:#C0392B;--red-light:#fceae8;
+  --border:#c8d8ee;
+  --shadow:0 2px 16px rgba(15,31,71,.08),0 1px 4px rgba(15,31,71,.04);
+  --shadow-lg:0 12px 40px rgba(15,31,71,.12);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── Nav ─────────────────────────────────────────────────────── */
+nav{
+  position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 5vw;
+}
+.nav-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--orange)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:.82rem;font-weight:600;color:var(--ink-2);text-decoration:none;transition:color .15s}
+.nav-link:hover,.nav-link.active{color:var(--navy)}
+.nav-link.active{color:var(--orange)}
+.nav-cta{
+  background:var(--navy);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.82rem;font-weight:700;padding:8px 20px;border-radius:40px;
+  text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;
+}
+.nav-cta:hover{opacity:.92}
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.hero{background:var(--navy);color:#fff;padding:52px 5vw 44px;text-align:center}
+.hero-eyebrow{
+  display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:12px;
+}
+.hero h1{
+  font-family:'Fraunces',serif;font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;
+  letter-spacing:-.5px;margin-bottom:12px;line-height:1.15;
+}
+.hero h1 em{font-style:italic;color:#f9c74f}
+.hero-sub{color:rgba(255,255,255,.65);max-width:520px;margin:0 auto;font-size:.93rem;line-height:1.7}
+.hero-how{
+  display:flex;justify-content:center;gap:24px;margin-top:24px;flex-wrap:wrap;
+}
+.hero-how-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:.8rem;font-weight:600;color:rgba(255,255,255,.55);
+}
+.hero-how-num{
+  width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:800;color:rgba(255,255,255,.6);flex-shrink:0;
+}
+
+/* ── Login card ──────────────────────────────────────────────── */
+.login-wrap{max-width:440px;margin:-28px auto 0;padding:0 20px;position:relative;z-index:10}
+.login-card{
+  background:var(--surface);border-radius:16px;padding:24px 28px;
+  box-shadow:var(--shadow-lg);display:flex;gap:12px;align-items:center;
+}
+.login-card input{
+  flex:1;padding:13px 16px;border:2px solid var(--border);border-radius:12px;
+  font-family:inherit;font-size:.95rem;color:var(--ink);background:var(--sky);
+  outline:none;transition:border-color .15s;
+}
+.login-card input:focus{border-color:var(--orange);background:#fff}
+.login-card button{
+  padding:13px 24px;background:var(--orange);color:#fff;border:none;border-radius:12px;
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;
+  transition:filter .15s;white-space:nowrap;
+}
+.login-card button:hover{filter:brightness(1.06)}
+.login-card button:disabled{opacity:.5;pointer-events:none}
+
+/* ── Main content ────────────────────────────────────────────── */
+.main-area{max-width:760px;margin:36px auto 64px;padding:0 20px}
+
+.loading{text-align:center;padding:56px 0;display:none}
+.spinner{
+  width:44px;height:44px;border-radius:50%;margin:0 auto 14px;
+  border:3px solid rgba(15,31,71,.12);border-top-color:var(--orange);
+  animation:spin .75s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--ink-2);font-size:.9rem}
+
+/* Summary bar */
+.summary-bar{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 20px;margin-bottom:20px;display:none;
+  display:none;flex-wrap:wrap;gap:16px;align-items:center;
+}
+.summary-bar.visible{display:flex}
+.smeta{font-size:.82rem;color:var(--ink-2)}
+.smeta strong{color:var(--ink);font-weight:700}
+
+/* Session cards */
+.session-card{
+  background:var(--surface);border-radius:var(--r);border:1px solid var(--border);
+  margin-bottom:18px;box-shadow:var(--shadow);overflow:hidden;
+}
+.session-card.std-writing{border-left:4px solid var(--green)}
+.session-card.std-reading{border-left:4px solid var(--blue)}
+.session-card.std-numeracy{border-left:4px solid var(--amber)}
+
+.session-meta{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:18px 22px 14px;border-bottom:1px solid var(--border);background:#fafbfd;
+}
+.session-date{font-size:.84rem;font-weight:600;color:var(--ink-2)}
+
+/* Standard chips */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;font-weight:800;font-size:.76rem}
+.chip-green{background:var(--green-light);color:var(--green)}
+.chip-blue{background:var(--blue-light);color:var(--blue)}
+.chip-amber{background:var(--amber-light);color:var(--amber)}
+.chip-gray{background:#f1f5f9;color:#94a3b8}
+
+/* ── NZQA Feedback Report card ───────────────────────────────── */
+.nzqa-report{padding:20px 22px 0}
+
+.nzqa-report-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
+  padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.nzqa-report-eyebrow{
+  font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.13em;
+  color:var(--ink-3);margin-bottom:4px;
+}
+.nzqa-report-title{
+  font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;
+  color:var(--navy);line-height:1.2;
+}
+.nzqa-report-sub{font-size:.78rem;color:var(--ink-2);margin-top:4px;line-height:1.55}
+.nzqa-overall-badge{
+  font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  padding:4px 12px;border-radius:999px;flex-shrink:0;align-self:flex-start;margin-top:2px;
+}
+.badge-gaps{background:var(--red-light);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.badge-almost{background:var(--amber-light);color:var(--amber);border:1px solid rgba(214,137,16,.25)}
+
+.nzqa-criteria-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+
+.nzqa-crit-item{border-radius:10px;border:1px solid;padding:13px 15px}
+.nzqa-crit-item.is-red{background:#fdf5f4;border-color:rgba(192,57,43,.2)}
+.nzqa-crit-item.is-amber{background:#fdfaea;border-color:rgba(214,137,16,.22)}
+
+.nzqa-crit-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:7px}
+.nzqa-crit-name{font-size:.87rem;font-weight:700;color:var(--navy);line-height:1.3}
+
+.nzqa-badge{
+  font-size:.67rem;font-weight:800;padding:3px 10px;border-radius:999px;
+  white-space:nowrap;text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;margin-top:1px;
+}
+.nzqa-badge-red{background:var(--red-light);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.nzqa-badge-amber{background:var(--amber-light);color:var(--amber);border:1px solid rgba(214,137,16,.25)}
+
+.nzqa-tip{font-size:.83rem;color:var(--ink-2);line-height:1.7}
+
+.nzqa-overall{
+  padding:12px 15px;border-radius:10px;background:#f4f7fb;border:1px solid var(--border);
+  font-size:.81rem;color:var(--ink-2);line-height:1.65;margin-bottom:16px;
+}
+.nzqa-overall strong{color:var(--ink)}
+
+/* CTA footer inside card */
+.card-footer{
+  padding:14px 22px;border-top:1px solid var(--border);background:#fafbfd;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.card-footer-note{font-size:.78rem;color:var(--ink-3)}
+.card-cta{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--orange);color:#fff;font-family:inherit;font-size:.82rem;font-weight:700;
+  padding:9px 18px;border-radius:40px;text-decoration:none;border:none;cursor:pointer;
+  transition:filter .15s;white-space:nowrap;
+}
+.card-cta:hover{filter:brightness(1.08)}
+
+/* Empty / success states */
+.state-box{
+  text-align:center;padding:60px 24px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);
+  display:none;
+}
+.state-box.visible{display:block}
+.state-icon{font-size:2.8rem;display:block;margin-bottom:14px}
+.state-title{
+  font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;
+  color:var(--navy);margin-bottom:8px;
+}
+.state-body{font-size:.875rem;color:var(--ink-2);max-width:400px;margin:0 auto;line-height:1.7}
+.state-body a{color:var(--orange);font-weight:700;text-decoration:none}
+.state-body a:hover{text-decoration:underline}
+.state-actions{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;
+  font-family:inherit;font-size:.88rem;font-weight:700;padding:11px 22px;border-radius:40px;
+  text-decoration:none;transition:filter .15s;
+}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--ink-2);
+  font-family:inherit;font-size:.88rem;font-weight:600;padding:11px 22px;border-radius:40px;
+  text-decoration:none;border:1.5px solid var(--border);transition:border-color .15s,color .15s;
+}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48px 5vw 32px}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:800;color:white;letter-spacing:-.5px;display:block;margin-bottom:8px;text-decoration:none}
+.footer-logo em{font-style:italic;color:#f0c060}
+.footer-tagline{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;max-width:240px}
+.footer-links{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:12px}
+.footer-link{display:block;font-size:.78rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-link:hover{color:rgba(255,255,255,.8)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
+.footer-disclaimer{font-size:.68rem;color:rgba(255,255,255,.2);max-width:500px;line-height:1.6}
+
+@media(max-width:640px){
+  nav .nav-links{display:none}
+  .login-card{flex-direction:column}
+  .login-card input,.login-card button{width:100%}
+  .hero-how{flex-direction:column;align-items:center;gap:12px}
+  .nzqa-report-head{flex-direction:column}
+  .card-footer{flex-direction:column;align-items:flex-start}
+  .footer-links{gap:24px}
+  .footer-top{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────── -->
+<nav>
+  <a href="index.html" class="nav-logo">pass<em>it</em></a>
+  <div class="nav-links">
+    <a href="index.html#standards" class="nav-link">The Exams</a>
+    <a href="simulator-pro.html" class="nav-link">Simulator</a>
+    <a href="dashboard.html" class="nav-link">My Sessions</a>
+    <a href="feedback-report.html" class="nav-link active">My Feedback</a>
+    <a href="parent-dashboard.html" class="nav-link">Parent View</a>
+  </div>
+  <a href="simulator-pro.html" class="nav-cta">Start Practising →</a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-eyebrow">NZQA Literacy &amp; Numeracy Co-requisite</div>
+  <h1>Your <em>feedback</em> report</h1>
+  <p class="hero-sub">
+    Some sessions don't produce a score straight away — but the skill data is always recorded.
+    This page reads that data and generates NZQA-aligned feedback for every unscored session.
+  </p>
+  <div class="hero-how">
+    <div class="hero-how-item"><span class="hero-how-num">1</span> Enter your email</div>
+    <div class="hero-how-item"><span class="hero-how-num">2</span> We find your unscored sessions</div>
+    <div class="hero-how-item"><span class="hero-how-num">3</span> Read your feedback &amp; practise</div>
+  </div>
+</section>
+
+<!-- ── Email input ───────────────────────────────────────────── -->
+<div class="login-wrap">
+  <div class="login-card">
+    <input type="email" id="email-input" placeholder="your@email.com" autocomplete="email">
+    <button id="search-btn">Get my feedback</button>
+  </div>
+</div>
+
+<!-- ── Main content ──────────────────────────────────────────── -->
+<div class="main-area">
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Finding your sessions…</p>
+  </div>
+
+  <div class="summary-bar" id="summary-bar">
+    <div class="smeta"><strong id="meta-count">0</strong> unscored sessions with feedback</div>
+    <div class="smeta">Student: <strong id="meta-email">—</strong></div>
+  </div>
+
+  <div id="sessions-list"></div>
+
+  <!-- No unscored sessions — good news -->
+  <div class="state-box" id="state-allgood">
+    <span class="state-icon">🎉</span>
+    <div class="state-title">All your sessions have been marked!</div>
+    <p class="state-body">
+      We didn't find any unscored sessions for this email — your feedback is already showing
+      in your <a href="dashboard.html">session history</a>.
+    </p>
+    <div class="state-actions">
+      <a href="dashboard.html" class="btn-primary">View my sessions →</a>
+      <a href="simulator-pro.html" class="btn-ghost">Start a new session</a>
+    </div>
+  </div>
+
+  <!-- No sessions at all -->
+  <div class="state-box" id="state-empty">
+    <span class="state-icon">📝</span>
+    <div class="state-title">No sessions found</div>
+    <p class="state-body" id="state-empty-body">
+      We couldn't find any sessions for this email. Complete a practice session in the simulator first.
+    </p>
+    <div class="state-actions">
+      <a href="simulator-pro.html" class="btn-primary">Start a practice session →</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Footer ────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="footer-logo">pass<em>it</em></a>
+        <p class="footer-tagline">NCEA co-requisite preparation for NZ students, parents and whānau.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Product</div>
+          <a href="index.html#standards" class="footer-link">CAA Simulator</a>
+          <a href="dashboard.html" class="footer-link">My Sessions</a>
+          <a href="feedback-report.html" class="footer-link">My Feedback</a>
+          <a href="pricing.html" class="footer-link">Pricing</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <a href="https://ncea.education.govt.nz" target="_blank" class="footer-link">ncea.education.govt.nz</a>
+          <a href="https://www2.nzqa.govt.nz/ncea/subjects/litnum/" target="_blank" class="footer-link">NZQA Literacy &amp; Numeracy</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <a href="contact.html" class="footer-link">Contact</a>
+          <a href="privacy.html" class="footer-link">Privacy</a>
+          <a href="terms.html" class="footer-link">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Passit. All rights reserved.</div>
+      <div class="footer-disclaimer">Questions are based on published NZQA achievement criteria. Passit is an independent preparation tool and is not affiliated with NZQA or the Ministry of Education.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://soojtogwwakrkcvpudnu.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvb2p0b2d3d2FrcmtjdnB1ZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTY2MjcsImV4cCI6MjA5MDY3MjYyN30.uAGLxv59vanJp9JSZ-wkT3mvKwVukrFQDRIvop8AWVs';
+
+const STD_MAP = { '32403': 'Reading', '32405': 'Writing', '32406': 'Numeracy' };
+const STD_CHIP = { '32403': 'chip-blue', '32405': 'chip-green', '32406': 'chip-amber' };
+const STD_CARD = { '32403': 'std-reading', '32405': 'std-writing', '32406': 'std-numeracy' };
+const STD_LABEL = {
+  '32403': 'US32403 — Reading',
+  '32405': 'US32405 — Writing',
+  '32406': 'US32406 — Numeracy',
+};
+
+// ── NZQA-aligned feedback lookup ─────────────────────────────
+// color: 'red' → Needs work  |  'amber' → Almost there
+const FEEDBACK_LOOKUP = [
+
+  // Writing — US32405
+  {
+    triggers: ['customer communication', 'business email', 'workplace email', 'formal language', 'audience and purpose'],
+    title: 'Your tone and word choices',
+    feedback: 'The marker checks whether your writing sounds right for the situation. Swap casual words: get → obtain, tell → inform, need → require. Read it back — would you say this in a workplace?',
+    color: 'red', score: 40,
+  },
+  {
+    triggers: ['procedural instructions', 'sequential instructions', 'paragraph structure', 'text structure'],
+    title: 'How your writing flows',
+    feedback: 'Use linking words: First, Then, Next, Finally. One idea per step. Could someone follow this without asking questions?',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['proofreading', 'spelling', 'grammar', 'punctuation'],
+    title: 'Spelling, grammar and punctuation',
+    feedback: 'Read your work aloud once you\'re finished — your ear catches mistakes your eyes miss. Check every sentence has a subject and a verb, and that tenses stay consistent throughout.',
+    color: 'amber', score: 50,
+  },
+
+  // Reading — US32403
+  {
+    triggers: ['locating specific information', 'locating multiple pieces', 'main idea'],
+    title: 'Finding the right information',
+    feedback: 'The marker checks whether you can identify exactly where the answer is in the text. Go back and find the specific sentence or phrase that answers the question — the information is always directly there.',
+    color: 'red', score: 40,
+  },
+  {
+    triggers: ['understanding purpose', 'author intent', 'author purpose', 'identifying bias'],
+    title: 'Understanding why the text was written',
+    feedback: 'Ask yourself why the author wrote this. Is it to inform, persuade, or instruct? The purpose shapes every word choice.',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['interpreting meaning', 'inference', 'comparing texts'],
+    title: 'Reading between the lines',
+    feedback: 'The marker checks whether you understand what the text implies, not just what it says. Look for clues in word choices and tone.',
+    color: 'red', score: 40,
+  },
+  {
+    triggers: ['vocabulary in context'],
+    title: 'Working out word meanings',
+    feedback: 'Look at the words around the unfamiliar word. The sentence usually gives you a clue — try replacing it with a simpler word and check the sentence still makes sense.',
+    color: 'amber', score: 50,
+  },
+
+  // Numeracy — US32406
+  {
+    triggers: ['unit conversion', 'measurement', 'unit conversion cm³ to litres', 'volume calculation'],
+    title: 'Converting measurements',
+    feedback: 'Write down what you are converting from and to before you calculate. cm÷100 = m, g÷1000 = kg, mL÷1000 = L. Show every step.',
+    color: 'red', score: 40,
+  },
+  {
+    triggers: ['gst', 'gst calculations', 'percentages', 'percentage calculations'],
+    title: 'Percentages and GST',
+    feedback: 'For GST: multiply by 1.15 to add it, divide by 1.15 to remove it. For percentages: write the formula before you calculate.',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['speed', 'rates', 'rate and reasonableness', 'time calculations', 'timetable reading', 'ratios and proportions'],
+    title: 'Rates and ratios',
+    feedback: 'Read the question twice. Write down what you know and what you need to find before you start calculating. Check your units match.',
+    color: 'red', score: 40,
+  },
+  {
+    triggers: ['budgeting', 'money', 'totals', 'addition', 'subtraction'],
+    title: 'Working with money',
+    feedback: 'Set up the calculation before you start. Check whether the question is asking for a total, a difference, or a per-item amount.',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['statistics interpretation', 'probability scale'],
+    title: 'Data and probability',
+    feedback: 'Read the question carefully — check if it asks for a fraction, decimal, or percentage. Count the total outcomes first, then the favourable ones.',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['compass direction', 'angle estimation'],
+    title: 'Direction and angles',
+    feedback: 'Remember: North is up, East is right. For angles, a right angle is 90° — estimate by comparing to that.',
+    color: 'amber', score: 50,
+  },
+  {
+    triggers: ['claim verification'],
+    title: 'Checking if claims are correct',
+    feedback: 'Do the calculation yourself before deciding whether the claim is right. Don\'t trust a rounded number — work it out exactly, then compare.',
+    color: 'red', score: 40,
+  },
+];
+
+// ── Match weak_skills → feedback entries ──────────────────────
+function backEngineerFeedback(weakSkills) {
+  if (!Array.isArray(weakSkills) || !weakSkills.length) return null;
+  const matched = [];
+  const seen = new Set();
+  weakSkills.forEach(raw => {
+    const k = String(raw || '').trim().toLowerCase();
+    if (!k) return;
+    for (const entry of FEEDBACK_LOOKUP) {
+      if (seen.has(entry.title)) continue;
+      for (const t of entry.triggers) {
+        if (k.includes(t) || t.includes(k)) {
+          seen.add(entry.title);
+          matched.push(entry);
+          break;
+        }
+      }
+    }
+  });
+  if (!matched.length) return null;
+  const avgScore = Math.round(matched.reduce((a, m) => a + m.score, 0) / matched.length);
+  return { matched, score_pct: avgScore };
+}
+
+// ── Render inline NZQA feedback report ───────────────────────
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function renderNzqaReport(result, stdKey) {
+  if (!result || !result.matched || !result.matched.length) return '';
+
+  const stdLabel = STD_LABEL[stdKey] || stdKey;
+  const redCount = result.matched.filter(m => m.color === 'red').length;
+  const overallText = redCount >= 2 ? 'Gaps to close' : 'Almost there';
+  const overallCls = redCount >= 2 ? 'badge-gaps' : 'badge-almost';
+  const focusList = result.matched.map(m => m.title).join(', ');
+
+  let h = '<div class="nzqa-report">';
+
+  // Header
+  h += '<div class="nzqa-report-head">';
+  h += '<div>';
+  h += '<div class="nzqa-report-eyebrow">NZQA Feedback Report — ' + esc(stdLabel) + '</div>';
+  h += '<div class="nzqa-report-title">Where your marks are slipping</div>';
+  h += '<div class="nzqa-report-sub">Based on the skills recorded in this session. Work through each area before your next attempt.</div>';
+  h += '</div>';
+  h += '<span class="nzqa-overall-badge ' + overallCls + '">' + overallText + '</span>';
+  h += '</div>';
+
+  // Criteria cards
+  h += '<div class="nzqa-criteria-list">';
+  result.matched.forEach(entry => {
+    const badgeLabel = entry.color === 'red' ? 'Needs work' : 'Almost there';
+    h += '<div class="nzqa-crit-item is-' + entry.color + '">';
+    h += '<div class="nzqa-crit-row">';
+    h += '<span class="nzqa-crit-name">' + esc(entry.title) + '</span>';
+    h += '<span class="nzqa-badge nzqa-badge-' + entry.color + '">' + badgeLabel + '</span>';
+    h += '</div>';
+    h += '<p class="nzqa-tip">' + esc(entry.feedback) + '</p>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Overall next-steps summary
+  h += '<div class="nzqa-overall"><strong>What to do next:</strong> Focus on ' + esc(focusList) + '. Each session you complete builds toward the 5 credits you need.</div>';
+
+  h += '</div>'; // .nzqa-report
+  return h;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function show(id) { document.getElementById(id).classList.add('visible'); }
+function hide(id) { document.getElementById(id).classList.remove('visible'); }
+function $ (id) { return document.getElementById(id); }
+
+// ── Search ────────────────────────────────────────────────────
+$('email-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
+$('search-btn').addEventListener('click', search);
+
+// Pre-fill from localStorage
+const saved = (localStorage.getItem('passit_email') || '').trim();
+if (saved) $('email-input').value = saved;
+
+async function search() {
+  const email = $('email-input').value.trim().toLowerCase();
+  if (!email || !email.includes('@')) return;
+
+  // Reset UI
+  $('search-btn').disabled = true;
+  $('search-btn').textContent = 'Searching…';
+  $('loading').style.display = 'block';
+  $('sessions-list').innerHTML = '';
+  hide('summary-bar');
+  $('state-allgood').classList.remove('visible');
+  $('state-empty').classList.remove('visible');
+
+  try {
+    // Fetch only sessions where score_pct = 0 or null AND weak_skills is not null
+    const url =
+      SUPABASE_URL + '/rest/v1/practice_sessions' +
+      '?student_email=eq.' + encodeURIComponent(email) +
+      '&or=(score_pct.eq.0,score_pct.is.null)' +
+      '&weak_skills=not.is.null' +
+      '&order=session_date.desc' +
+      '&limit=50';
+
+    const res = await fetch(url, {
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+
+    $('loading').style.display = 'none';
+    localStorage.setItem('passit_email', email);
+
+    // Check whether the student has any sessions at all (for the empty state messaging)
+    const anyUrl =
+      SUPABASE_URL + '/rest/v1/practice_sessions' +
+      '?student_email=eq.' + encodeURIComponent(email) +
+      '&limit=1&select=id';
+    const anyRes = await fetch(anyUrl, {
+      headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }
+    });
+    const anyRows = anyRes.ok ? await anyRes.json() : [];
+
+    if (!anyRows.length) {
+      // No sessions at all
+      $('state-empty').classList.add('visible');
+      return;
+    }
+
+    // Filter client-side: ensure weak_skills parses to a non-empty array
+    // AND backEngineerFeedback returns matches
+    const actionable = rows.filter(s => {
+      let ws = s.weak_skills;
+      if (typeof ws === 'string') { try { ws = JSON.parse(ws); } catch (e) { ws = []; } }
+      return Array.isArray(ws) && ws.length > 0;
+    });
+
+    if (!actionable.length) {
+      // Sessions found but none with usable skill data → "all good" state
+      $('state-allgood').classList.add('visible');
+      return;
+    }
+
+    // Render session cards
+    $('meta-count').textContent = actionable.length;
+    $('meta-email').textContent = email;
+    show('summary-bar');
+
+    const list = $('sessions-list');
+
+    actionable.forEach(s => {
+      const stdKey = String(s.standard || '');
+      const standardName = STD_MAP[stdKey] || stdKey;
+      const cardCls = STD_CARD[stdKey] || '';
+      const chipCls = STD_CHIP[stdKey] || 'chip-gray';
+
+      let ws = s.weak_skills;
+      if (typeof ws === 'string') { try { ws = JSON.parse(ws); } catch (e) { ws = []; } }
+
+      const result = backEngineerFeedback(ws);
+      if (!result) return; // skip if no FEEDBACK_LOOKUP matches
+
+      let html = '<div class="session-card ' + cardCls + '">';
+
+      // Session meta bar
+      html += '<div class="session-meta">';
+      html += '<span class="chip ' + chipCls + '">' + esc(standardName) + '</span>';
+      html += '<span class="session-date">' + esc(fmtDate(s.session_date)) + '</span>';
+      html += '</div>';
+
+      // Inline NZQA feedback report
+      html += renderNzqaReport(result, stdKey);
+
+      // Card footer with CTA
+      html += '<div class="card-footer">';
+      html += '<span class="card-footer-note">Ready to improve? Complete another session to track your progress.</span>';
+      html += '<a href="simulator-pro.html" class="card-cta">Practise ' + esc(standardName) + ' →</a>';
+      html += '</div>';
+
+      html += '</div>'; // .session-card
+      list.insertAdjacentHTML('beforeend', html);
+    });
+
+  } catch (err) {
+    console.error('Search failed:', err);
+    $('loading').style.display = 'none';
+    $('state-empty-body').innerHTML = 'Something went wrong loading your sessions. Please try again or <a href="contact.html">contact us</a>.';
+    $('state-empty').classList.add('visible');
+  } finally {
+    $('search-btn').disabled = false;
+    $('search-btn').textContent = 'Get my feedback';
+  }
+}
+</script>
+</body>
+</html>
