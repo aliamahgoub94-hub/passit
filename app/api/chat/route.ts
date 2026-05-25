@@ -131,7 +131,7 @@ export async function POST(req: Request) {
     .slice(-20)
 
   const result = streamText({
-    model: anthropic('claude-3-5-sonnet-20241022'),
+    model: anthropic('claude-3-5-sonnet-20241022') as any,
     system,
     messages: contextMessages,
     maxTokens: 900,
