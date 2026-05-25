@@ -6,38 +6,40 @@
 <title>My Sessions — Passit CAA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --navy:#0f1f47;--navy-dark:#0a1880;--orange:#f97316;--sky:#eef3ff;
   --surface:#fff;--ink:#0f1f47;--ink-2:#3d4f6f;--ink-3:#6b7a96;
-  --green:#16a34a;--green-light:#dcfce7;--blue:#3b82f6;--blue-light:#dbeafe;
-  --amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;
+  --green:#0F6E56;--green-light:#e6f4f0;
+  --blue:#3b82f6;--blue-light:#dbeafe;
+  --amber:#D68910;--amber-light:#fdf4dc;
+  --red:#C0392B;--red-light:#fceae8;
   --border:#c8d8ee;--shadow:0 2px 16px rgba(15,31,71,.08),0 1px 4px rgba(15,31,71,.04);
   --shadow-lg:0 12px 40px rgba(15,31,71,.12);--r:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
 nav{
   position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;
 }
-.nav-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;text-decoration:none}
+.nav-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;text-decoration:none}
 .nav-logo em{font-style:italic;color:var(--orange)}
 .nav-links{display:flex;align-items:center;gap:28px}
 .nav-link{font-size:.82rem;font-weight:600;color:var(--ink-2);text-decoration:none;transition:color .15s}
 .nav-link:hover{color:var(--navy)}
 .nav-cta{
-  background:var(--navy);color:#fff;font-family:'DM Sans',sans-serif;
+  background:var(--navy);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;
   font-size:.82rem;font-weight:700;padding:8px 20px;border-radius:40px;
   text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;
 }
 .nav-cta:hover{opacity:.92}
 
 .hero{background:var(--navy);color:#fff;padding:48px 5vw 40px;text-align:center}
-.hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
 .hero p{color:rgba(255,255,255,.7);max-width:480px;margin:0 auto;font-size:.92rem}
 
 .login-wrap{max-width:420px;margin:-28px auto 0;padding:0 20px;position:relative;z-index:10}
@@ -94,7 +96,7 @@ nav{
 
 .empty{text-align:center;padding:48px 20px;display:none}
 .empty-icon{font-size:2.4rem;margin-bottom:12px;display:block}
-.empty-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.empty-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
 .empty-body{font-size:.85rem;color:var(--ink-2);max-width:380px;margin:0 auto;line-height:1.65}
 .empty-body a{color:var(--orange);font-weight:700;text-decoration:none}
 .empty-body a:hover{text-decoration:underline}
@@ -145,10 +147,71 @@ nav{
 .plan-time{font-size:.76rem;font-weight:700;color:var(--navy);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
 .plan-desc{font-size:.84rem;color:var(--ink-2);line-height:1.65}
 
+/* ── NZQA Back-Engineered Feedback Report ────────────────────── */
+.nzqa-report{
+  margin-top:16px;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;
+  background:var(--surface);
+}
+.nzqa-report-head{
+  padding:14px 20px 12px;border-bottom:1px solid var(--border);background:#f7f9fc;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.nzqa-report-left{}
+.nzqa-report-eyebrow{
+  font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--ink-3);margin-bottom:3px;
+}
+.nzqa-report-title{
+  font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.25;
+}
+.nzqa-report-sub{font-size:.78rem;color:var(--ink-2);margin-top:3px;line-height:1.5}
+.nzqa-report-badge{
+  font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  padding:4px 12px;border-radius:999px;white-space:nowrap;align-self:flex-start;margin-top:2px;
+  background:var(--red-light);color:var(--red);border:1px solid rgba(192,57,43,.2);
+}
+
+.nzqa-criteria-list{padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+
+.nzqa-crit-item{
+  border-radius:10px;border:1px solid;padding:12px 16px;
+}
+.nzqa-crit-item.is-red{
+  background:#fdf5f4;border-color:rgba(192,57,43,.22);
+}
+.nzqa-crit-item.is-amber{
+  background:#fdf9ee;border-color:rgba(214,137,16,.25);
+}
+
+.nzqa-crit-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;
+}
+.nzqa-crit-name{
+  font-size:.86rem;font-weight:700;color:var(--navy);line-height:1.3;
+}
+.nzqa-badge{
+  font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.05em;flex-shrink:0;
+}
+.nzqa-badge-red{
+  background:var(--red-light);color:var(--red);border:1px solid rgba(192,57,43,.25);
+}
+.nzqa-badge-amber{
+  background:var(--amber-light);color:var(--amber);border:1px solid rgba(214,137,16,.3);
+}
+
+.nzqa-tip{font-size:.82rem;color:var(--ink-2);line-height:1.7}
+
+.nzqa-overall{
+  padding:12px 20px;border-top:1px solid var(--border);background:#f7f9fc;
+  font-size:.8rem;color:var(--ink-2);line-height:1.6;
+}
+.nzqa-overall strong{color:var(--ink)}
+
 footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48px 5vw 32px}
 .footer-inner{max-width:1000px;margin:0 auto}
 .footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
-.footer-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:white;letter-spacing:-.5px;display:block;margin-bottom:8px;text-decoration:none}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:800;color:white;letter-spacing:-.5px;display:block;margin-bottom:8px;text-decoration:none}
 .footer-logo em{font-style:italic;color:#f0c060}
 .footer-tagline{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;max-width:240px}
 .footer-links{display:flex;gap:48px;flex-wrap:wrap}
@@ -167,6 +230,7 @@ footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48
   .footer-top{flex-direction:column}
   .summary-row{flex-direction:column;gap:8px}
   .session-header{gap:8px}
+  .nzqa-report-head{flex-direction:column}
 }
 </style>
 </head>
@@ -260,73 +324,115 @@ const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const STD_MAP={'32403':'Reading','32405':'Writing','32406':'Numeracy'};
 
+// ── Skill group labels for the tag pills on each session card ──
 const SKILL_GROUPS=[
-  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],label:'Your tone and word choices \u{1F534}'},
-  {triggers:['procedural','sequential instructions','paragraph structure','text structure'],label:'How your writing flows \u{1F7E1}'},
-  {triggers:['proofreading','fact vs opinion','bias detection'],label:'Checking your work carefully \u{1F7E1}'},
-  {triggers:['gst calculations','percentage calculations','budgeting'],label:'Working with numbers and money \u{1F534}'},
-  {triggers:['ratios and proportions','measurement','unit conversion','volume calculation'],label:'Measurement and proportions \u{1F7E1}'},
-  {triggers:['statistics interpretation','probability scale'],label:'Reading data and probability \u{1F7E1}'},
-  {triggers:['rate and reasonableness','time calculations','timetable reading'],label:'Rates, time, and timetables \u{1F7E1}'},
-  {triggers:['compass direction','angle estimation'],label:'Direction and angles \u{1F7E1}'},
-  {triggers:['claim verification'],label:'Checking if claims are correct \u{1F7E1}'}
+  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],label:'Your tone and word choices 🔴'},
+  {triggers:['procedural','sequential instructions','paragraph structure','text structure'],label:'How your writing flows 🟡'},
+  {triggers:['proofreading','fact vs opinion','bias detection'],label:'Checking your work carefully 🟡'},
+  {triggers:['gst calculations','percentage calculations','budgeting'],label:'Working with numbers and money 🔴'},
+  {triggers:['ratios and proportions','measurement','unit conversion','volume calculation'],label:'Measurement and proportions 🟡'},
+  {triggers:['statistics interpretation','probability scale'],label:'Reading data and probability 🟡'},
+  {triggers:['rate and reasonableness','time calculations','timetable reading'],label:'Rates, time, and timetables 🟡'},
+  {triggers:['compass direction','angle estimation'],label:'Direction and angles 🟡'},
+  {triggers:['claim verification'],label:'Checking if claims are correct 🟡'}
 ];
 
+// ── NZQA-aligned feedback lookup (back-engineered report) ──────
+// Each entry: triggers (string[] for matching), title, feedback, color ('red'|'amber'), score
 const FEEDBACK_LOOKUP=[
-  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],
-   title:'Your tone and word choices',
-   feedback:'Your writing needs to sound more professional throughout. Swap casual words: get\u2009\u2192\u2009obtain, tell\u2009\u2192\u2009inform, need\u2009\u2192\u2009require. Read it back \u2014 would you say this at work?',
-   score:40},
-  {triggers:['procedural','procedural instructions','sequential instructions','paragraph structure','text structure'],
-   title:'How your writing flows',
-   feedback:'Use linking words \u2014 First, Then, Next, After that, Finally. One idea per step. Read it back \u2014 could someone follow without asking questions?',
-   score:40},
-  {triggers:['proofreading','fact vs opinion','bias detection'],
-   title:'Checking your work carefully',
-   feedback:'After you write, read it twice: once for spelling and punctuation, once for whether it makes sense. Look for missing full stops and capital letters.',
-   score:40},
-  {triggers:['locating specific information','locating multiple pieces','main idea'],
-   title:'Finding information in the text',
-   feedback:'Go back and find the exact sentence that answers the question. The answer is always directly in the text \u2014 don\u2019t guess.',
-   score:40},
-  {triggers:['identifying bias','comparing texts','bias detection','inference','author purpose'],
-   title:'Reading between the lines',
-   feedback:'These questions ask why the author wrote something, not just what they wrote. Ask yourself: what is the author trying to make me think or feel?',
-   score:40},
-  {triggers:['vocabulary in context'],
-   title:'Working out word meanings',
-   feedback:'Look at the words around the tricky word. The sentence usually gives you a clue about what it means \u2014 try replacing it with a simpler word and see if the sentence still works.',
-   score:40},
-  {triggers:['unit conversion','measurement','unit conversion cm\u00B3 to litres','volume calculation'],
-   title:'Converting measurements',
-   feedback:'Write down what you\u2019re converting from and to before you calculate. Common ones: cm\u2009\u2192\u2009m \u00F7100, g\u2009\u2192\u2009kg \u00F7\u20091000, mL\u2009\u2192\u2009L \u00F7\u20091000.',
-   score:40},
-  {triggers:['gst','gst calculations','percentages','percentage calculations','budgeting'],
-   title:'Percentages and money',
-   feedback:'For GST: multiply by 1.15 to add GST, divide by 1.15 to remove it. For percentages: divide by 100 first, then multiply.',
-   score:40},
-  {triggers:['speed','rates','rate and reasonableness','time','time calculations','timetable reading'],
-   title:'Rates and measurement',
-   feedback:'Use the formula triangle: Speed = Distance \u00F7 Time. Write the formula before you start and check your units match.',
-   score:40},
-  {triggers:['statistics interpretation','probability scale'],
-   title:'Data and probability',
-   feedback:'Read the question carefully \u2014 check if it asks for a fraction, decimal, or percentage. Count the total outcomes first, then the favourable ones.',
-   score:40},
-  {triggers:['compass direction','angle estimation'],
-   title:'Direction and angles',
-   feedback:'Remember: North is up, East is right. For angles, a right angle is 90\u00B0 \u2014 estimate by comparing to that.',
-   score:40},
-  {triggers:['claim verification'],
-   title:'Checking claims',
-   feedback:'Do the calculation yourself before deciding if the claim is correct. Don\u2019t trust the rounded number \u2014 work it out exactly.',
-   score:40},
-  {triggers:['ratios and proportions'],
-   title:'Ratios and proportions',
-   feedback:'Set up the ratio as a fraction and simplify. Check both sides are in the same units before comparing.',
-   score:40}
+
+  // ── Writing (US32405) ─────────────────────────────────────────
+  {
+    triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],
+    title:'Your tone and word choices',
+    feedback:'The marker checks whether your writing sounds right for the situation. Swap casual words: get → obtain, tell → inform, need → require. Read it back — would you say this in a workplace?',
+    color:'red', score:40
+  },
+  {
+    triggers:['procedural instructions','sequential instructions','paragraph structure','text structure'],
+    title:'How your writing flows',
+    feedback:'Use linking words: First, Then, Next, Finally. One idea per step. Could someone follow this without asking questions?',
+    color:'amber', score:50
+  },
+  {
+    triggers:['proofreading','spelling','grammar','punctuation'],
+    title:'Spelling, grammar and punctuation',
+    feedback:'Read your work aloud once it’s finished. Your ear catches mistakes your eyes miss. Check every sentence has a subject and a verb, and that tenses stay consistent throughout.',
+    color:'amber', score:50
+  },
+
+  // ── Reading (US32403) ─────────────────────────────────────────
+  {
+    triggers:['locating specific information','locating multiple pieces','main idea'],
+    title:'Finding the right information',
+    feedback:'The marker checks whether you can identify exactly where the answer is in the text. Go back and find the specific sentence or phrase that answers the question — the information is always directly there.',
+    color:'red', score:40
+  },
+  {
+    triggers:['understanding purpose','author intent','author purpose','identifying bias'],
+    title:'Understanding why the text was written',
+    feedback:'Ask yourself why the author wrote this. Is it to inform, persuade, or instruct? The purpose shapes every word choice.',
+    color:'amber', score:50
+  },
+  {
+    triggers:['interpreting meaning','inference','comparing texts'],
+    title:'Reading between the lines',
+    feedback:'The marker checks whether you understand what the text implies, not just what it says. Look for clues in word choices and tone.',
+    color:'red', score:40
+  },
+  {
+    triggers:['vocabulary in context'],
+    title:'Working out word meanings',
+    feedback:'Look at the words around the unfamiliar word. The sentence usually gives you a clue — try replacing it with a simpler word and check the sentence still makes sense.',
+    color:'amber', score:50
+  },
+
+  // ── Numeracy (US32406) ────────────────────────────────────────
+  {
+    triggers:['unit conversion','measurement','unit conversion cm³ to litres','volume calculation'],
+    title:'Converting measurements',
+    feedback:'Write down what you are converting from and to before you calculate. cm÷100 = m, g÷1000 = kg, mL÷1000 = L. Show every step.',
+    color:'red', score:40
+  },
+  {
+    triggers:['gst','gst calculations','percentages','percentage calculations'],
+    title:'Percentages and GST',
+    feedback:'For GST: multiply by 1.15 to add it, divide by 1.15 to remove it. For percentages: write the formula before you calculate.',
+    color:'amber', score:50
+  },
+  {
+    triggers:['speed','rates','rate and reasonableness','time calculations','timetable reading','ratios and proportions'],
+    title:'Rates and ratios',
+    feedback:'Read the question twice. Write down what you know and what you need to find before you start calculating. Check your units match.',
+    color:'red', score:40
+  },
+  {
+    triggers:['budgeting','money','totals','addition','subtraction'],
+    title:'Working with money',
+    feedback:'Set up the calculation before you start. Check whether the question is asking for a total, a difference, or a per-item amount.',
+    color:'amber', score:50
+  },
+  {
+    triggers:['statistics interpretation','probability scale'],
+    title:'Data and probability',
+    feedback:'Read the question carefully — check if it asks for a fraction, decimal, or percentage. Count the total outcomes first, then the favourable ones.',
+    color:'amber', score:50
+  },
+  {
+    triggers:['compass direction','angle estimation'],
+    title:'Direction and angles',
+    feedback:'Remember: North is up, East is right. For angles, a right angle is 90° — estimate by comparing to that.',
+    color:'amber', score:50
+  },
+  {
+    triggers:['claim verification'],
+    title:'Checking if claims are correct',
+    feedback:'Do the calculation yourself before deciding whether the claim is right. Don’t trust a rounded number — work it out exactly, then compare.',
+    color:'red', score:40
+  }
 ];
 
+// ── Back-engineer feedback from weak_skills ───────────────────
 function backEngineerFeedback(weakSkills, standard){
   if(!Array.isArray(weakSkills)||!weakSkills.length) return null;
   const matched=[];
@@ -347,47 +453,42 @@ function backEngineerFeedback(weakSkills, standard){
   });
   if(!matched.length) return null;
   const avgScore=Math.round(matched.reduce((a,m)=>a+m.score,0)/matched.length);
-  return {
-    criteria:matched.map(m=>({name:m.title,met:false,feedback:m.feedback})),
-    overall_feedback:'Based on your practice session, focus on: '+matched.map(m=>m.title).join(', ')+'. Keep practising \u2014 each session builds your skills.',
-    score_pct:avgScore,
-    correct:0,
-    total:matched.length
-  };
+  return {matched, score_pct:avgScore};
 }
 
+// ── Practice plans ────────────────────────────────────────────
 const PRACTICE_PLANS={
   Reading:{
     warmup:'Read through a short text (news article, brochure, or email) and highlight the main idea in each paragraph.',
     focused:{
-      'Your tone and word choices \u{1F534}':'Read two texts on the same topic \u2014 one written for teenagers, one for professionals. Note how word choices and tone change for different audiences.',
-      'Checking your work carefully \u{1F7E1}':'Read a short article and separate facts from opinions. Highlight any biased or misleading language and explain why it might be one-sided.',
-      'Checking if claims are correct \u{1F7E1}':'Read a short article with claims. For each one, find evidence in the text that supports or contradicts it. Write a sentence explaining your reasoning.',
-      'How your writing flows \u{1F7E1}':'Read a well-structured article. Identify how the author organises ideas \u2014 introduction, supporting points, and conclusion. Note any signal words (firstly, however, finally).',
-      _default:'Choose a text and practice identifying the author\u2019s purpose, the main ideas, and any unfamiliar vocabulary. Write brief notes for each.'
+      'Your tone and word choices 🔴':'Read two texts on the same topic — one written for teenagers, one for professionals. Note how word choices and tone change for different audiences.',
+      'Checking your work carefully 🟡':'Read a short article and separate facts from opinions. Highlight any biased or misleading language and explain why it might be one-sided.',
+      'Checking if claims are correct 🟡':'Read a short article with claims. For each one, find evidence in the text that supports or contradicts it. Write a sentence explaining your reasoning.',
+      'How your writing flows 🟡':'Read a well-structured article. Identify how the author organises ideas — introduction, supporting points, and conclusion. Note any signal words (firstly, however, finally).',
+      _default:'Choose a text and practice identifying the author’s purpose, the main ideas, and any unfamiliar vocabulary. Write brief notes for each.'
     },
-    apply:'Read a full passage and write short answers to 3 comprehension questions \u2014 focus on using evidence from the text to support your answers.',
-    review:'Re-read your answers. Check that you\u2019ve answered each question fully and used evidence from the text.'
+    apply:'Read a full passage and write short answers to 3 comprehension questions — focus on using evidence from the text to support your answers.',
+    review:'Re-read your answers. Check that you’ve answered each question fully and used evidence from the text.'
   },
   Writing:{
     warmup:'Write 3 sentences describing your morning. Focus on clear, complete sentences with correct punctuation.',
     focused:{
-      'Your tone and word choices \u{1F534}':'Write a short reply to a customer who received the wrong order. Focus on polite, professional tone and appropriate language for the audience.',
-      'How your writing flows \u{1F7E1}':'Write a set of 5 step-by-step instructions for a simple task (e.g. making a cup of tea). Make sure each step follows logically from the last.',
-      'Checking your work carefully \u{1F7E1}':'Write a short paragraph about your weekend, then proofread it twice. First check spelling and punctuation, then check that each sentence makes sense.',
+      'Your tone and word choices 🔴':'Write a short reply to a customer who received the wrong order. Focus on polite, professional tone and appropriate language for the audience.',
+      'How your writing flows 🟡':'Write a set of 5 step-by-step instructions for a simple task (e.g. making a cup of tea). Make sure each step follows logically from the last.',
+      'Checking your work carefully 🟡':'Write a short paragraph about your weekend, then proofread it twice. First check spelling and punctuation, then check that each sentence makes sense.',
       _default:'Write a short email responding to a workplace scenario. Include a greeting, clear body paragraph, and a professional sign-off.'
     },
-    apply:'Write a full email responding to a scenario \u2014 include a greeting, body, and sign-off. Make sure your tone matches the audience and purpose.',
-    review:'Re-read your work. Check spelling, tone, and that you\u2019ve answered the question fully.'
+    apply:'Write a full email responding to a scenario — include a greeting, body, and sign-off. Make sure your tone matches the audience and purpose.',
+    review:'Re-read your work. Check spelling, tone, and that you’ve answered the question fully.'
   },
   Numeracy:{
     warmup:'Do 5 quick mental maths questions: try adding and subtracting with decimals, or estimating percentages of everyday prices.',
     focused:{
-      'Working with numbers and money \u{1F534}':'Calculate GST (15%) on 5 different prices. Then create a simple weekly budget \u2014 list income and expenses and check if the budget balances.',
-      'Measurement and proportions \u{1F7E1}':'Convert between units (e.g. cm to m, mL to L). Then calculate the volume of a box and convert cm\u00B3 to litres.',
-      'Reading data and probability \u{1F7E1}':'Read a bar chart and answer 3 questions about what the data shows. Then place 5 everyday events on a probability scale from impossible to certain.',
-      'Rates, time, and timetables \u{1F7E1}':'Read a bus timetable and plan a journey with one transfer. Calculate how long each leg takes and the total travel time.',
-      'Direction and angles \u{1F7E1}':'Use a compass rose to give directions between points on a simple map. Then estimate 3 different angles without using a protractor.',
+      'Working with numbers and money 🔴':'Calculate GST (15%) on 5 different prices. Then create a simple weekly budget — list income and expenses and check if the budget balances.',
+      'Measurement and proportions 🟡':'Convert between units (e.g. cm to m, mL to L). Then calculate the volume of a box and convert cm³ to litres.',
+      'Reading data and probability 🟡':'Read a bar chart and answer 3 questions about what the data shows. Then place 5 everyday events on a probability scale from impossible to certain.',
+      'Rates, time, and timetables 🟡':'Read a bus timetable and plan a journey with one transfer. Calculate how long each leg takes and the total travel time.',
+      'Direction and angles 🟡':'Use a compass rose to give directions between points on a simple map. Then estimate 3 different angles without using a protractor.',
       _default:'Work through 5 mixed numeracy problems covering percentages, measurement, and basic calculations. Show your working.'
     },
     apply:'Solve a real-world problem: plan a small event budget including GST, timing, and quantities needed for catering.',
@@ -404,7 +505,7 @@ function fmtDate(iso){
 }
 
 function mapWeakSkills(rawSkills){
-  if(!Array.isArray(rawSkills)||!rawSkills.length) return ['Looking good \u2705'];
+  if(!Array.isArray(rawSkills)||!rawSkills.length) return ['Looking good ✅'];
   const matched=new Set();
   rawSkills.forEach(raw=>{
     const k=String(raw||'').trim().toLowerCase();
@@ -417,11 +518,11 @@ function mapWeakSkills(rawSkills){
       if(hit) break;
     }
   });
-  return matched.size?[...matched]:['Looking good \u2705'];
+  return matched.size?[...matched]:['Looking good ✅'];
 }
 
 function scoreChip(pct){
-  if(pct==null||pct===0) return '<span class="chip chip-gray">\u2014</span>';
+  if(pct==null||pct===0) return '<span class="chip chip-gray">—</span>';
   const cls=pct>=80?'chip-green':pct>=50?'chip-amber':'chip-red';
   return '<span class="chip '+cls+'">'+pct+'%</span>';
 }
@@ -440,6 +541,7 @@ function parseFeedback(raw){
   return(typeof raw==='object')?raw:null;
 }
 
+// ── Render standard feedback (properly marked sessions) ────────
 function renderFeedbackHTML(fb,idx){
   if(!fb) return '';
   let html='<button class="fb-toggle" onclick="toggleFb('+idx+')">Show feedback details</button>';
@@ -457,9 +559,59 @@ function renderFeedbackHTML(fb,idx){
   return html;
 }
 
+// ── Render NZQA back-engineered feedback report (inline) ───────
+function renderNzqaReport(result, standardName){
+  if(!result||!result.matched||!result.matched.length) return '';
+
+  const stdLabels={
+    'Writing':'US32405 — Writing',
+    'Reading':'US32403 — Reading',
+    'Numeracy':'US32406 — Numeracy'
+  };
+  const stdLabel=stdLabels[standardName]||standardName;
+
+  const redCount=result.matched.filter(m=>m.color==='red').length;
+  const overallBadge=redCount>=2?'Gaps to close':'Almost there';
+
+  let html='<div class="nzqa-report">';
+
+  // Header
+  html+='<div class="nzqa-report-head">';
+  html+='<div class="nzqa-report-left">';
+  html+='<div class="nzqa-report-eyebrow">NZQA Feedback Report — '+esc(stdLabel)+'</div>';
+  html+='<div class="nzqa-report-title">Where your marks are slipping</div>';
+  html+='<div class="nzqa-report-sub">Based on the skills you practised in this session. Work through each area below before your next attempt.</div>';
+  html+='</div>';
+  html+='<span class="nzqa-report-badge">'+esc(overallBadge)+'</span>';
+  html+='</div>';
+
+  // Criteria cards
+  html+='<div class="nzqa-criteria-list">';
+  result.matched.forEach(entry=>{
+    const colorCls='is-'+entry.color;
+    const badgeCls='nzqa-badge-'+entry.color;
+    const badgeLabel=entry.color==='red'?'Needs work':'Almost there';
+    html+='<div class="nzqa-crit-item '+colorCls+'">';
+    html+='<div class="nzqa-crit-row">';
+    html+='<span class="nzqa-crit-name">'+esc(entry.title)+'</span>';
+    html+='<span class="nzqa-badge '+badgeCls+'">'+badgeLabel+'</span>';
+    html+='</div>';
+    html+='<p class="nzqa-tip">'+esc(entry.feedback)+'</p>';
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Overall summary
+  const focusedOn=result.matched.map(m=>m.title).join(', ');
+  html+='<div class="nzqa-overall"><strong>What to do next:</strong> Focus on '+esc(focusedOn)+'. Each session you complete builds your skills toward the 5 credits you need.</div>';
+
+  html+='</div>';
+  return html;
+}
+
 function renderPracticePlan(standardName,mappedSkills,idx){
   const plan=PRACTICE_PLANS[standardName]||PRACTICE_PLANS.Reading;
-  const focus=mappedSkills.filter(s=>s!=='Looking good \u2705').slice(0,2);
+  const focus=mappedSkills.filter(s=>s!=='Looking good ✅').slice(0,2);
   let focusedDesc;
   if(focus.length===1){
     focusedDesc=plan.focused[focus[0]]||plan.focused._default;
@@ -472,33 +624,14 @@ function renderPracticePlan(standardName,mappedSkills,idx){
   }
 
   let h='<div class="practice-plan-card">';
-  h+='<button class="plan-toggle" onclick="togglePlan('+idx+')">\u{1F4CB} Your 45-minute practice plan \u25BE</button>';
+  h+='<button class="plan-toggle" onclick="togglePlan('+idx+')">📋 Your 45-minute practice plan ▾</button>';
   h+='<div class="plan-body" id="plan-'+idx+'">';
-  h+='<div class="plan-step"><div class="plan-time">0\u201310 min: Warm-up</div><p class="plan-desc">'+plan.warmup+'</p></div>';
-  h+='<div class="plan-step"><div class="plan-time">10\u201330 min: Focused practice</div><p class="plan-desc">'+focusedDesc+'</p></div>';
-  h+='<div class="plan-step"><div class="plan-time">30\u201340 min: Apply it</div><p class="plan-desc">'+plan.apply+'</p></div>';
-  h+='<div class="plan-step"><div class="plan-time">40\u201345 min: Review</div><p class="plan-desc">'+plan.review+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">0–10 min: Warm-up</div><p class="plan-desc">'+plan.warmup+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">10–30 min: Focused practice</div><p class="plan-desc">'+focusedDesc+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">30–40 min: Apply it</div><p class="plan-desc">'+plan.apply+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">40–45 min: Review</div><p class="plan-desc">'+plan.review+'</p></div>';
   h+='</div></div>';
   return h;
-}
-
-function renderBackFeedbackHTML(fb,idx){
-  if(!fb) return '';
-  let html='<button class="fb-toggle" onclick="toggleFb('+idx+')">Show NZQA feedback</button>';
-  html+='<div class="fb-detail" id="fb-'+idx+'">';
-  if(fb.criteria&&Array.isArray(fb.criteria)){
-    fb.criteria.forEach(c=>{
-      html+='<div style="margin-bottom:14px">';
-      html+='<div style="font-weight:700;color:var(--navy);font-size:.86rem;margin-bottom:4px">\u{1F4CC} '+esc(c.name)+'</div>';
-      html+='<div style="font-size:.82rem;color:var(--ink-2);line-height:1.65">'+esc(c.feedback)+'</div>';
-      html+='</div>';
-    });
-  }
-  if(fb.overall_feedback){
-    html+='<div style="margin-top:10px;padding:10px 14px;background:rgba(15,31,71,.04);border-radius:8px;font-size:.82rem;color:var(--ink);line-height:1.6;font-weight:600">'+esc(fb.overall_feedback)+'</div>';
-  }
-  html+='</div>';
-  return html;
 }
 
 window.toggleFb=function(idx){
@@ -512,7 +645,7 @@ window.togglePlan=function(idx){
   const el=$('plan-'+idx);if(!el) return;
   const btn=el.previousElementSibling;
   el.classList.toggle('open');
-  if(btn) btn.textContent=el.classList.contains('open')?'\u{1F4CB} Your 45-minute practice plan \u25B4':'\u{1F4CB} Your 45-minute practice plan \u25BE';
+  if(btn) btn.textContent=el.classList.contains('open')?'📋 Your 45-minute practice plan ▴':'📋 Your 45-minute practice plan ▾';
 };
 
 $('email-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search();}});
@@ -526,7 +659,7 @@ async function search(){
   if(!email||!email.includes('@')) return;
 
   $('search-btn').disabled=true;
-  $('search-btn').textContent='Searching\u2026';
+  $('search-btn').textContent='Searching…';
   $('loading').style.display='block';
   $('summary').style.display='none';
   $('sessions-list').innerHTML='';
@@ -549,7 +682,7 @@ async function search(){
       const fmt=d=>d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
       const oldest=fmt(new Date(Math.min(...dates)));
       const newest=fmt(new Date(Math.max(...dates)));
-      $('meta-range').textContent=oldest===newest?newest:oldest+' \u2014 '+newest;
+      $('meta-range').textContent=oldest===newest?newest:oldest+' — '+newest;
     }
     $('summary').style.display='block';
 
@@ -567,29 +700,38 @@ async function search(){
       const failed=isMarkingFailed(s);
       const fb=parseFeedback(s.feedback_json);
       const hasWeakSkills=Array.isArray(ws)&&ws.length>0;
-      const backFb=failed&&hasWeakSkills?backEngineerFeedback(ws,stdKey):null;
+
+      // Build back-engineered feedback for unscored sessions with weak_skills
+      const backResult=(failed&&hasWeakSkills)?backEngineerFeedback(ws,stdKey):null;
 
       let html='<div class="session-card '+stdCls+'">';
 
+      // Session header row
       html+='<div class="session-header">';
-      html+='<span class="session-date">'+esc(s.session_date?fmtDate(s.session_date):'\u2014')+'</span>';
+      html+='<span class="session-date">'+esc(s.session_date?fmtDate(s.session_date):'—')+'</span>';
       html+='<span class="chip '+chipCls+'">'+esc(standardName)+'</span>';
-      if(!failed) html+=scoreChip(s.score_pct);
-      else if(backFb) html+=scoreChip(backFb.score_pct);
+      if(!failed){
+        html+=scoreChip(s.score_pct);
+      }else if(backResult){
+        html+=scoreChip(backResult.score_pct);
+      }
       html+='</div>';
 
-      if(failed&&!backFb){
-        html+='<div class="marking-failed-box">\u2139\uFE0F <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
-      }
-
+      // Skill tags
       html+='<div class="session-skills">';
       mappedSkills.forEach(label=>{html+='<span class="skill-tag">'+esc(label)+'</span>';});
       html+='</div>';
 
+      // Feedback section
       if(!failed&&fb){
+        // Properly marked session — show collapsible feedback
         html+='<div class="session-feedback">'+renderFeedbackHTML(fb,i)+'</div>';
-      }else if(backFb){
-        html+='<div class="session-feedback">'+renderBackFeedbackHTML(backFb,i)+'</div>';
+      }else if(backResult){
+        // Unscored session with weak_skills — show inline NZQA report
+        html+=renderNzqaReport(backResult,standardName);
+      }else if(failed&&!backResult){
+        // Unscored with no matchable skills — plain notice
+        html+='<div class="marking-failed-box">ℹ️ <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
       }
 
       html+=renderPracticePlan(standardName,mappedSkills,i);
@@ -598,6 +740,7 @@ async function search(){
     });
 
     $('sim-link-wrap').style.display='block';
+    localStorage.setItem('passit_email',email);
   }catch(err){
     console.error('Search failed:',err);
     $('loading').style.display='none';
