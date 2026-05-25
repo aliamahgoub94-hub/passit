@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passit — Parent dashboard</title>
+<meta name="description" content="See how your child is tracking on Passit CAA practice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1f47;
+  --navy-dark:#0a1880;
+  --orange:#f97316;
+  --sky:#eef3ff;
+  --surface:#ffffff;
+  --ink:#0f1f47;
+  --ink-2:#3d4f6f;
+  --ink-3:#6b7a96;
+  --green:#16a34a;
+  --green-light:#dcfce7;
+  --blue:#3b82f6;
+  --blue-light:#dbeafe;
+  --amber:#d97706;
+  --amber-light:#fef3c7;
+  --red:#dc2626;
+  --red-light:#fee2e2;
+  --border:#c8d8ee;
+  --shadow:0 2px 16px rgba(15,31,71,.08),0 1px 4px rgba(15,31,71,.04);
+  --shadow-lg:0 12px 40px rgba(15,31,71,.12);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* Nav/footer: structure matches index.html; fonts + colours use design tokens */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;
+}
+.nav-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--orange)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:.82rem;font-weight:600;color:var(--ink-2);text-decoration:none;transition:color .15s}
+.nav-link:hover{color:var(--navy)}
+.nav-cta{
+  background:var(--navy);color:#fff;font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:700;padding:8px 20px;border-radius:40px;
+  text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;
+}
+.nav-cta:hover{opacity:.92}
+.nav-mobile-toggle{display:none;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--ink)}
+
+.lookup-hero{
+  background:var(--navy);color:#fff;padding:52px 5vw 40px;text-align:center;
+}
+.lookup-hero h1{
+  font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);
+  font-weight:800;letter-spacing:-.5px;margin-bottom:12px;line-height:1.15;
+}
+.lookup-hero p{color:rgba(255,255,255,.75);max-width:520px;margin:0 auto 22px;font-size:.95rem}
+.lookup-form{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.lookup-form input{
+  width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.1);color:#fff;font-size:1rem;font-family:inherit;outline:none;
+}
+.lookup-form input::placeholder{color:rgba(255,255,255,.45)}
+.lookup-form input:focus{border-color:var(--orange);background:rgba(255,255,255,.14)}
+.lookup-form button{
+  padding:14px;border:none;border-radius:12px;background:var(--orange);color:#fff;font-weight:800;
+  font-size:.95rem;cursor:pointer;font-family:inherit;box-shadow:0 8px 28px rgba(249,115,22,.4);transition:filter .15s;
+}
+.lookup-form button:hover{filter:brightness(1.06)}
+.lookup-error{margin-top:14px;font-size:.88rem;font-weight:600;color:#fecaca;display:none}
+.lookup-error.show{display:block}
+
+.loading{padding:56px 5vw;text-align:center;display:none}
+.loading.show{display:block}
+.spinner{
+  width:44px;height:44px;border-radius:50%;margin:0 auto 14px;
+  border:3px solid rgba(15,31,71,.12);border-top-color:var(--orange);
+  animation:spin .75s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--ink-2)}
+
+main.dashboard{padding:28px 5vw 64px;max-width:1040px;margin:0 auto;display:none}
+main.dashboard.show{display:block}
+
+.dash-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.dash-head h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.35rem,3vw,1.75rem);font-weight:800;color:var(--navy)}
+.btn-change{
+  background:transparent;border:1.5px solid var(--border);color:var(--navy);
+  font-weight:700;padding:10px 16px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.85rem;
+}
+.btn-change:hover{border-color:var(--navy);background:rgba(255,255,255,.8)}
+.dash-meta{color:var(--ink-2);font-size:.9rem;margin-bottom:22px}
+
+.readiness-hero{
+  background:var(--navy);color:#fff;border-radius:20px;padding:28px 24px;margin-bottom:20px;
+  box-shadow:var(--shadow-lg);
+}
+.readiness-hero-inner{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
+@media(max-width:720px){.readiness-hero-inner{grid-template-columns:1fr;justify-items:center;text-align:center}}
+
+.ring-wrap{position:relative;width:180px;height:180px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.18);stroke-width:12}
+.ring-fg{
+  fill:none;stroke-width:12;stroke-linecap:round;
+  stroke-dasharray:302;stroke-dashoffset:302;
+  transition:stroke-dashoffset 1.2s ease;
+}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'DM Mono',monospace,ui-monospace,monospace;font-size:2rem;font-weight:700}
+.ring-sub{font-size:.78rem;font-weight:700;opacity:.85;margin-top:4px}
+
+.verdict-tag{
+  display:inline-block;margin-top:10px;padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.v-clear{background:var(--green-light);color:var(--green)}
+.v-mostly{background:var(--blue-light);color:var(--blue)}
+.v-partial{background:var(--amber-light);color:var(--amber)}
+.v-not-yet{background:var(--red-light);color:var(--red)}
+.v-start-practice{
+  background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35);
+  max-width:100%;text-transform:none;letter-spacing:0;font-weight:700;font-size:.72rem;line-height:1.35;
+}
+
+.rh-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:8px}
+.rh-sub{font-size:.9rem;color:rgba(255,255,255,.82);line-height:1.65;max-width:560px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+@media(max-width:720px){.pills{justify-content:center}}
+.pill{
+  font-size:.75rem;font-weight:700;padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;
+}
+
+.std-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:900px){.std-grid{grid-template-columns:1fr}}
+.std-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);
+}
+.std-card h4{font-family:'Bricolage Grotesque',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy)}
+.std-card .avg{font-size:1.5rem;font-weight:800;margin:6px 0;font-family:'DM Mono',monospace,ui-monospace,monospace}
+.avg-clear{color:var(--green)}.avg-mostly{color:var(--blue)}.avg-partial{color:var(--amber)}.avg-not-yet{color:var(--red)}
+.readiness-calibration{
+  margin:-6px 0 20px;
+  text-align:center;
+  font-size:12px;
+  color:var(--ink-3);
+  font-style:italic;
+}
+.std-meta{font-size:.82rem;color:var(--ink-2);margin:8px 0}
+.std-card ul{margin:10px 0 0;padding-left:18px;color:var(--ink-2);font-size:.86rem}
+.tips-box{background:var(--sky);border-radius:10px;padding:12px 14px;margin-top:12px}
+.tips-box-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:6px}
+.tips-box ul{margin:0;padding-left:16px;font-size:.82rem;color:var(--ink-2);line-height:1.65}
+.tips-box li{margin:4px 0}
+.tips-box .no-tips{font-size:.82rem;color:var(--ink-3);font-style:italic}
+
+.section-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy);margin:26px 0 10px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card ul{margin:0;padding-left:18px;color:var(--ink-2)}
+.card li{margin:6px 0}
+
+.gap-item{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.gap-item:last-child{border-bottom:none}
+
+table.sessions{width:100%;border-collapse:collapse;font-size:.88rem}
+table.sessions th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:10px 8px;border-bottom:1px solid var(--border)}
+table.sessions td{padding:11px 8px;border-bottom:1px solid var(--border);color:var(--ink-2)}
+table.sessions tr:last-child td{border-bottom:none}
+.chip{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
+@media(max-width:640px){
+  table.sessions .col-time,table.sessions .col-time-h{display:none}
+}
+
+.stat-callout{
+  background:var(--navy);color:#fff;border-radius:18px;padding:28px 24px;margin:22px 0;text-align:center;
+}
+.stat-callout .big{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.5rem,8vw,3.5rem);font-weight:900;color:var(--orange);line-height:1}
+.stat-callout p{margin-top:12px;color:rgba(255,255,255,.85);max-width:560px;margin-left:auto;margin-right:auto;font-size:.95rem}
+
+.cta-wrap{text-align:center;padding:24px 0}
+.cta-wrap a{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--orange);color:#fff;font-weight:800;padding:14px 26px;border-radius:999px;text-decoration:none;
+  font-size:.92rem;box-shadow:0 8px 28px rgba(249,115,22,.35);
+}
+.cta-wrap a:hover{filter:brightness(1.05)}
+
+footer{
+  background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);
+  padding:48px 5vw 32px;
+}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
+.footer-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:white;letter-spacing:-.5px;display:block;margin-bottom:8px;text-decoration:none}
+.footer-logo em{font-style:italic;color:#f0c060}
+.footer-tagline{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;max-width:240px}
+.footer-links{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:12px}
+.footer-link{display:block;font-size:.78rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-link:hover{color:rgba(255,255,255,.8)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
+.footer-disclaimer{font-size:.68rem;color:rgba(255,255,255,.2);max-width:500px;line-height:1.6}
+
+@media(max-width:768px){
+  nav .nav-links{display:none}
+  .nav-mobile-toggle{display:block}
+  .footer-links{gap:24px}
+  .footer-top{flex-direction:column}
+}
+
+#score-trend-wrap .chart-bar-box{min-height:140px;position:relative;width:100%;margin-bottom:8px}
+#score-trend-wrap .chart-line-box{height:260px;position:relative;width:100%;margin-top:8px}
+#score-trend-wrap canvas{display:block;max-width:100%}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">pass<em>it</em></a>
+  <div class="nav-links">
+    <a href="index.html#standards" class="nav-link">The Exams</a>
+    <a href="index.html#how" class="nav-link">How it works</a>
+    <a href="index.html#videos" class="nav-link">Free Videos</a>
+    <a href="dashboard.html" class="nav-link">Student Dashboard</a>
+    <a href="parent-dashboard.html" class="nav-link">Parent Dashboard</a>
+  </div>
+  <button class="nav-cta" onclick="openReg()">Get Started Free →</button>
+  <button class="nav-mobile-toggle" onclick="this.nextElementSibling&&alert('Menu')">☰</button>
+</nav>
+
+<section class="lookup-hero" id="lookup-stage">
+  <h1>See how your child is tracking</h1>
+  <p>Enter the email your child used in Passit. We’ll load their practice sessions from the last 50 attempts.</p>
+  <div class="lookup-form">
+    <input type="email" id="parent-email-input" placeholder="your@email.com" autocomplete="email" aria-label="Child email">
+    <button type="button" id="btn-view-results">View Results</button>
+  </div>
+  <p class="lookup-error" id="lookup-error" role="alert"></p>
+</section>
+
+<div class="loading" id="loading-stage">
+  <div class="spinner" aria-hidden="true"></div>
+  <p>Loading sessions…</p>
+</div>
+
+<main class="dashboard" id="dashboard-stage">
+  <div class="dash-head">
+    <h2 id="dash-title">CAA Readiness</h2>
+    <button type="button" class="btn-change" id="btn-change-email">← Change email</button>
+  </div>
+  <p class="dash-meta" id="dash-meta"></p>
+
+  <div class="readiness-hero" id="readiness-hero">
+    <div class="readiness-hero-inner">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120" width="180" height="180" aria-hidden="true">
+          <circle class="ring-bg" cx="60" cy="60" r="48"></circle>
+          <circle class="ring-fg" id="overall-ring" cx="60" cy="60" r="48" stroke="#fff"></circle>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-pct" id="ring-pct">0%</div>
+          <div class="ring-sub">Overall average</div>
+        </div>
+      </div>
+      <div>
+        <span class="verdict-tag" id="verdict-tag">—</span>
+        <div class="rh-title" id="rh-headline"></div>
+        <p class="rh-sub" id="rh-sub"></p>
+        <div class="pills" id="std-pills"></div>
+      </div>
+    </div>
+  </div>
+  <p class="readiness-calibration">Demonstration levels are aligned to NZQA's CAA skill rubric. The CAA is graded Achieved or Not Achieved — Passit scores track skill development towards that outcome.</p>
+
+  <div class="std-grid" id="std-cards"></div>
+
+  <div class="card" id="score-trend-wrap" style="display:none">
+    <div class="section-title" style="margin-top:0;margin-bottom:14px">📊 Score trend over time</div>
+    <p style="font-size:.82rem;color:var(--ink-2);margin-bottom:10px">Average score per standard (sessions with data)</p>
+    <div class="chart-bar-box">
+      <canvas id="scoreBarCanvas" aria-label="Average score by standard"></canvas>
+    </div>
+    <div class="section-title" style="margin-top:22px;margin-bottom:10px;font-size:1rem">Sessions over time</div>
+    <p style="font-size:.82rem;color:var(--ink-2);margin-bottom:10px">Score progression by session date</p>
+    <div class="chart-line-box">
+      <canvas id="scoreTrendCanvas" aria-label="Score progression per standard over time"></canvas>
+    </div>
+  </div>
+
+  <div class="section-title">What this means</div>
+  <div class="card" id="what-means"><ul id="what-means-list"></ul></div>
+
+  <div class="section-title">Gap summary</div>
+  <div class="card" id="gap-summary"></div>
+
+  <div class="section-title">Recent sessions</div>
+  <div class="card" style="padding:0;overflow-x:auto">
+    <table class="sessions">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Standard</th>
+          <th>Score</th>
+          <th class="col-time-h">Time</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody id="sessions-body"></tbody>
+    </table>
+  </div>
+
+  <div class="stat-callout">
+    <div class="big">1 in 4</div>
+    <p>More than one in four Year 11 students did not achieve the CAA co-requisite in 2025. Regular, targeted practice is the best way to change that outcome for your child.</p>
+  </div>
+
+  <div class="cta-wrap">
+    <a href="#" id="cta-sim-link">Send this link</a>
+  </div>
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="#" class="footer-logo">pass<em>it</em></a>
+        <p class="footer-tagline">NCEA co-requisite preparation for NZ students, parents and whānau.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Product</div>
+          <a href="index.html#standards" class="footer-link">CAA Simulator</a>
+          <a href="index.html#videos" class="footer-link">Free Videos</a>
+          <a href="pricing.html" class="footer-link">Pricing</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <a href="https://ncea.education.govt.nz" target="_blank" class="footer-link">ncea.education.govt.nz</a>
+          <a href="https://www2.nzqa.govt.nz/ncea/subjects/litnum/" target="_blank" class="footer-link">NZQA Literacy & Numeracy</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <a href="/contact.html" class="footer-link">Contact</a>
+          <a href="/privacy.html" class="footer-link">Privacy</a>
+          <a href="/terms.html" class="footer-link">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Passit. All rights reserved.</div>
+      <div class="footer-disclaimer">Questions are based on published NZQA achievement criteria. Passit is an independent preparation tool and is not affiliated with NZQA or the Ministry of Education.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function openReg(){ window.location.href = 'index.html'; }
+
+(function(){
+  var scoreBarChart=null;
+  var scoreLineChart=null;
+
+  const SUPABASE_URL='https://soojtogwwakrkcvpudnu.supabase.co';
+  const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvb2p0b2d3d2FrcmtjdnB1ZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTY2MjcsImV4cCI6MjA5MDY3MjYyN30.uAGLxv59vanJp9JSZ-wkT3mvKwVukrFQDRIvop8AWVs';
+
+  const STD_NAMES={ '32403':'Reading','32405':'Writing','32406':'Numeracy' };
+  const STDS=['32403','32405','32406'];
+  const CHART_COLORS={ '32403':'#60a5fa','32405':'#a78bfa','32406':'#34d399' };
+
+  function canonicalStd(r){
+    if(!r||r.standard==null||r.standard==='') return null;
+    var v=r.standard;
+    if(typeof v==='number'){
+      if(v===32403) return '32403';
+      if(v===32405) return '32405';
+      if(v===32406) return '32406';
+    }
+    var s=String(v).trim();
+    if(STDS.indexOf(s)>=0) return s;
+    var low=s.toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(low==='reading'||low==='us32403'||low==='r'||s==='Reading') return '32403';
+    if(low==='writing'||low==='us32405'||low==='w'||s==='Writing') return '32405';
+    if(low==='numeracy'||low==='us32406'||low==='n'||s==='Numeracy') return '32406';
+    return null;
+  }
+
+  function normalizeRows(rows){
+    if(!Array.isArray(rows)) return [];
+    return rows.map(function(r){
+      var c=canonicalStd(r);
+      if(!c) return null;
+      return Object.assign({}, r, { standard: c });
+    }).filter(Boolean);
+  }
+
+  const SKILL_MAP={
+    'bias detection':'Spotting one-sided or misleading writing',
+    'comparing texts':'Finding differences between two pieces of writing',
+    'bias detection, comparing texts':'Spotting bias and comparing different viewpoints',
+    'main idea':'Finding the most important point in a text',
+    'inference':'Reading between the lines',
+    'author purpose':'Understanding why something was written',
+    'vocabulary in context':'Working out word meanings from context',
+    'text structure':'Understanding how a text is organised',
+    'fact vs opinion':'Telling facts apart from personal views',
+    'persuasive techniques':'Recognising how writers try to persuade you',
+    'formal language':'Using the right tone for work or official writing',
+    'audience and purpose':'Writing for the right reader in the right way',
+    'paragraph structure':'Organising ideas clearly in paragraphs',
+    'proofreading':'Checking and correcting written work',
+    'gst calculations':'Working out prices including or excluding GST',
+    'budgeting':'Balancing income and spending',
+    'ratios and proportions':'Comparing amounts and scaling quantities',
+    'measurement':'Using correct units and converting between them',
+    'statistics interpretation':'Reading graphs, charts, and data tables',
+    'percentage calculations':'Working with percentages in real situations',
+    'time calculations':'Solving problems involving time and schedules'
+  };
+
+  const PRACTICE_TIPS={
+    'sequential instructions':'Practise writing step-by-step instructions in order.',
+    'customer communication':'Write a short customer reply — keep it polite and clear.',
+    'business email — formal request':'Draft a formal email to a manager requesting time off.',
+    'gst calculations':'Practise adding/removing 15% GST from prices.',
+    'budgeting':'Create a simple weekly budget with income and expenses.',
+    'percentage calculations':'Work out sale prices, discounts and tip amounts.',
+    'ratios and proportions':'Scale a recipe up or down and check the amounts.',
+    'measurement':'Convert between mm, cm, m and km in real examples.',
+    'time calculations':'Plan a bus trip using a timetable — add up travel and wait times.',
+    'statistics interpretation':'Read a bar chart and write three facts it shows.',
+    'main idea':'Read a short article and write the main point in one sentence.',
+    'inference':'Read a paragraph and list what is implied but not directly stated.',
+    'author purpose':'Read two ads for the same product and compare their purpose.',
+    'vocabulary in context':'Highlight unfamiliar words in a text and guess meanings from context.',
+    'bias detection':'Read an opinion piece and underline loaded language.',
+    'comparing texts':'Read two short texts on the same topic and list differences.',
+    'fact vs opinion':'Sort ten statements into facts and opinions.',
+    'formal language':'Rewrite a casual text message as a formal email.',
+    'audience and purpose':'Write the same message for two different audiences.',
+    'paragraph structure':'Write a paragraph with a topic sentence, detail, and conclusion.',
+    'proofreading':'Find and correct five deliberate errors in a short passage.',
+    'persuasive techniques':'Identify three persuasive techniques in an advertisement.'
+  };
+
+  const $=(id)=>document.getElementById(id);
+
+  function translateSkill(raw){
+    const k=String(raw||'').trim().toLowerCase().replace(/\s+/g,' ');
+    if(SKILL_MAP[k]) return SKILL_MAP[k];
+    const t=String(raw||'').trim();
+    if(!t) return '';
+    return t.charAt(0).toUpperCase()+t.slice(1);
+  }
+
+  function firstNameFromEmail(email){
+    const local=(String(email).split('@')[0]||'').split(/[.\-_]/)[0]||'Your child';
+    return local.charAt(0).toUpperCase()+local.slice(1).toLowerCase();
+  }
+
+  function verdictFromPct(p){
+    if(p>=80) return { key:'clear', label:'Clearly Demonstrated', cls:'v-clear', stroke:'#16a34a' };
+    if(p>=65) return { key:'mostly', label:'Mostly Demonstrated', cls:'v-mostly', stroke:'#3b82f6' };
+    if(p>=50) return { key:'partial', label:'Partially Demonstrated', cls:'v-partial', stroke:'#d97706' };
+    return { key:'notyet', label:'Not Yet Demonstrated', cls:'v-not-yet', stroke:'#dc2626' };
+  }
+
+  function cardAvgClass(p){
+    if(p>=80) return 'avg-clear';
+    if(p>=65) return 'avg-mostly';
+    if(p>=50) return 'avg-partial';
+    return 'avg-not-yet';
+  }
+
+  function fmtDate(iso){
+    const d=new Date(iso);
+    return d.toLocaleDateString('en-GB',{ weekday:'short', day:'numeric', month:'short' });
+  }
+
+  function fmtChartDayMonth(dayKey){
+    const d=new Date(String(dayKey).length<=10?dayKey+'T12:00:00':dayKey);
+    if(isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('en-GB',{ day:'numeric', month:'short' });
+  }
+
+  function dayKeyFromSession(iso){
+    return String(iso||'').slice(0,10);
+  }
+
+  function updateScoreCharts(rows){
+    var wrap=$('score-trend-wrap');
+    var barEl=$('scoreBarCanvas');
+    var lineEl=$('scoreTrendCanvas');
+    if(!wrap||!barEl||!lineEl) return;
+    if(scoreBarChart){ try{ scoreBarChart.destroy(); }catch(e){} scoreBarChart=null; }
+    if(scoreLineChart){ try{ scoreLineChart.destroy(); }catch(e){} scoreLineChart=null; }
+    if(typeof Chart==='undefined'){
+      wrap.style.display='none';
+      return;
+    }
+    if(!rows||!rows.length){
+      wrap.style.display='none';
+      return;
+    }
+    var barLabels=[];
+    var barVals=[];
+    var barBg=[];
+    var barNoScore=[];
+    STDS.forEach(function(std){
+      var stdRows=rows.filter(function(r){ return r.standard===std; });
+      if(!stdRows.length) return;
+      var pts=stdRows.map(function(r){ return Number(r.score_pct); }).filter(function(x){ return !isNaN(x); });
+      if(!pts.length) return;
+      var a=Math.round(pts.reduce(function(x,y){ return x+y; },0)/pts.length);
+      var noScore=a===0;
+      barLabels.push(STD_NAMES[std]);
+      barVals.push(noScore?0:a);
+      barBg.push(noScore?'#cbd5e1':CHART_COLORS[std]);
+      barNoScore.push(noScore);
+    });
+    if(!barLabels.length){
+      wrap.style.display='none';
+      return;
+    }
+    wrap.style.display='block';
+    var daySet=new Set();
+    rows.forEach(function(r){ daySet.add(dayKeyFromSession(r.session_date)); });
+    var days=[].slice.call(daySet).filter(Boolean).sort();
+    var lineLabels=days.map(fmtChartDayMonth);
+    var lineDatasets=STDS.map(function(std){
+      var seq=rows.filter(function(r){ return r.standard===std; }).sort(function(a,b){
+        return new Date(a.session_date)-new Date(b.session_date);
+      });
+      var byDay={};
+      seq.forEach(function(r){
+        byDay[dayKeyFromSession(r.session_date)]=Number(r.score_pct);
+      });
+      var data=days.map(function(d){ return byDay[d]!==undefined?byDay[d]:null; });
+      var nonNull=data.filter(function(v){ return v!==null&&v!==undefined; });
+      return {
+        label: STD_NAMES[std],
+        data: data,
+        borderColor: CHART_COLORS[std],
+        backgroundColor: 'transparent',
+        pointBackgroundColor: CHART_COLORS[std],
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        tension: 0.3,
+        spanGaps: false,
+        pointRadius: nonNull.length<=1?6:4,
+        pointHoverRadius: 7,
+        borderWidth: 2.5,
+        fill: false,
+        showLine: nonNull.length>1
+      };
+    }).filter(function(ds){
+      return ds.data.some(function(v){ return v!==null&&v!==undefined; });
+    });
+    function paint(){
+      var barBox=wrap.querySelector('.chart-bar-box');
+      if(barBox) barBox.style.height=Math.max(110, barLabels.length*44+32)+'px';
+      scoreBarChart=new Chart(barEl.getContext('2d'),{
+        type: 'bar',
+        data: {
+          labels: barLabels,
+          datasets: [{
+            label: 'Average %',
+            data: barVals,
+            backgroundColor: barBg,
+            borderRadius: 8,
+            barThickness: 26,
+            minBarLength: 14
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx){
+                  var i=ctx.dataIndex;
+                  if(barNoScore[i]) return barLabels[i]+': No score recorded';
+                  return barLabels[i]+': '+ctx.parsed.x+'%';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 100,
+              ticks: {
+                stepSize: 20,
+                callback: function(v){ return v+'%'; }
+              },
+              grid: { color: 'rgba(15,31,71,.08)' }
+            },
+            y: {
+              grid: { display: false }
+            }
+          }
+        },
+        plugins: [{
+          id: 'barEndLabels',
+          afterDatasetsDraw: function(chart){
+            var ctx=chart.ctx;
+            chart.data.datasets.forEach(function(ds, di){
+              var meta=chart.getDatasetMeta(di);
+              meta.data.forEach(function(bar, i){
+                var v=ds.data[i];
+                if(v==null) return;
+                var pos=bar.tooltipPosition();
+                ctx.save();
+                ctx.fillStyle='#0f1f47';
+                ctx.font=barNoScore[i]?'600 11px DM Sans, sans-serif':'600 12px DM Sans, sans-serif';
+                ctx.textAlign='left';
+                ctx.textBaseline='middle';
+                ctx.fillText(barNoScore[i]?'No score recorded':(v+'%'), pos.x+8, pos.y);
+                ctx.restore();
+              });
+            });
+          }
+        }]
+      });
+      if(!lineDatasets.length||!days.length){
+        lineEl.style.display='none';
+        return;
+      }
+      lineEl.style.display='block';
+      scoreLineChart=new Chart(lineEl.getContext('2d'),{
+        type: 'line',
+        data: { labels: lineLabels, datasets: lineDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+            tooltip: {
+              callbacks: {
+                title: function(){ return ''; },
+                label: function(ctx){
+                  var v=ctx.parsed.y;
+                  if(v==null) return '';
+                  var idx=ctx.dataIndex;
+                  return ctx.dataset.label+': '+v+'% · '+lineLabels[idx];
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              ticks: {
+                stepSize: 20,
+                callback: function(v){ return v+'%'; }
+              },
+              grid: { color: 'rgba(15,31,71,.08)' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 12 }
+            }
+          }
+        }
+      });
+    }
+    requestAnimationFrame(function(){
+      requestAnimationFrame(paint);
+    });
+  }
+
+  function fmtMin(sec){
+    const s=Number(sec)||0;
+    const m=Math.max(1, Math.round(s/60));
+    return m+' min';
+  }
+
+  function avg(arr){
+    if(!arr.length) return null;
+    return Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+  }
+
+  function trendArrow(prev, cur){
+    if(prev==null||cur==null) return '→';
+    if(cur>prev) return '↑';
+    if(cur<prev) return '↓';
+    return '→';
+  }
+
+  function topSkillsForStd(rows, std, n){
+    const freq=new Map();
+    rows.filter(r=>r.standard===std).forEach(r=>{
+      const ws=Array.isArray(r.weak_skills)?r.weak_skills:(r.weak_skills?[]:[]);
+      ws.forEach(x=>{
+        const k=String(x||'').trim().toLowerCase().replace(/\s+/g,' ');
+        if(!k) return;
+        freq.set(k,(freq.get(k)||0)+1);
+      });
+    });
+    return [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,c])=>({ raw:k, label:translateSkill(k), count:c }));
+  }
+
+  function topSkillsGlobal(rows, n){
+    const freq=new Map();
+    rows.forEach(r=>{
+      const ws=Array.isArray(r.weak_skills)?r.weak_skills:(r.weak_skills?[]:[]);
+      ws.forEach(x=>{
+        const k=String(x||'').trim().toLowerCase().replace(/\s+/g,' ');
+        if(!k) return;
+        freq.set(k,(freq.get(k)||0)+1);
+      });
+    });
+    return [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,c])=>({ raw:k, label:translateSkill(k), count:c }));
+  }
+
+  function setRing(pct, verdict, opts){
+    opts=opts||{};
+    const ring=$('overall-ring');
+    const C=302;
+    const tag=$('verdict-tag');
+    tag.style.background='';
+    tag.style.color='';
+    tag.style.border='';
+    if(opts.unset){
+      ring.setAttribute('stroke','#94a3b8');
+      ring.style.strokeDasharray=String(C);
+      ring.style.strokeDashoffset=String(C);
+      $('ring-pct').textContent='—';
+      tag.className='verdict-tag v-start-practice';
+      tag.textContent='Start practising to see your readiness score';
+      return;
+    }
+    ring.setAttribute('stroke', verdict.stroke);
+    ring.style.strokeDasharray=String(C);
+    ring.style.strokeDashoffset=String(C);
+    requestAnimationFrame(()=>{ ring.style.strokeDashoffset=String(C-(C*pct/100)); });
+    $('ring-pct').textContent=pct+'%';
+    tag.className='verdict-tag '+verdict.cls;
+    tag.textContent=verdict.label;
+  }
+
+  function whatMeansBullets(fn, key, overallUnset){
+    const n=fn;
+    if(overallUnset) return [
+      'Complete practice sessions with scores recorded to see '+n+'’s overall readiness and standard breakdown.',
+      'Short, regular sessions build familiarity with the question styles used in the co-requisite.',
+      'Once scores appear, use the gap summary to focus on the skills that need the most attention.'
+    ];
+    if(key==='clear') return [
+      n+"'s averages show they are generally meeting the bar across the standards they have practised.",
+      'Short, consistent sessions between now and the exam window help lock in these skills.',
+      'Use the gap summary below to spot any remaining topics worth a final polish.'
+    ];
+    if(key==='mostly') return [
+      n+' is close in one or more areas — focused practice on flagged skills usually moves scores quickly.',
+      'Aim for little-and-often practice rather than long cramming sessions.',
+      'Review the recent session trend arrows to see where momentum is building (or slipping).'
+    ];
+    if(key==='partial') return [
+      n+' is building momentum, and focused practice on key gaps should move scores up quickly.',
+      'Aim for little-and-often practice rather than long cramming sessions.',
+      'Review the recent session trend arrows to see where momentum is building (or slipping).'
+    ];
+    return [
+      n+' would benefit from more targeted practice on the weakest skills listed below.',
+      'Pick one skill at a time and repeat short drills until it feels easy — then move to the next.',
+      'If scores are trending down, shorten sessions and rebuild confidence with easier wins first.'
+    ];
+  }
+
+  function render(rows, email){
+    rows=normalizeRows(rows||[]);
+    const fn=firstNameFromEmail(email);
+    $('dash-title').textContent=fn+"'s CAA Readiness";
+
+    const dates=rows.map(r=>new Date(r.session_date).getTime());
+    const first=new Date(Math.min(...dates));
+    const last=new Date(Math.max(...dates));
+    $('dash-meta').textContent=rows.length+' session'+(rows.length!==1?'s':'')+' · First: '+fmtDate(first.toISOString())+' · Most recent: '+fmtDate(last.toISOString());
+
+    const byStd={};
+    STDS.forEach(s=>{ byStd[s]=[]; });
+    rows.forEach(r=>{ if(byStd[r.standard]!=null) byStd[r.standard].push(Number(r.score_pct)||0); });
+    const avgs=STDS.map(s=>({ std:s, v:avg(byStd[s]) })).filter(x=>x.v!==null);
+    const overall=avgs.length?Math.round(avgs.reduce((a,x)=>a+x.v,0)/avgs.length):null;
+    const overallUnset=overall===null||overall===0;
+    const verdict=overallUnset?{ key:'unset', label:'', cls:'' }:verdictFromPct(overall);
+    setRing(overallUnset?0:overall, verdict, { unset: overallUnset });
+
+    if(overallUnset){
+      $('rh-headline').textContent='Scores will appear after practice adds up';
+      $('rh-sub').textContent='When sessions include recorded scores, you’ll see '+fn+'’s overall readiness here — keep encouraging short, regular practice.';
+    }else{
+      $('rh-headline').textContent=verdict.key==='clear'
+        ? fn+' is clearly demonstrating the skills needed for the CAA.'
+        : verdict.key==='mostly'
+          ? fn+' is mostly demonstrating the required skills.'
+          : verdict.key==='partial'
+            ? fn+' is partially demonstrating the required skills.'
+            : fn+' needs more practice to demonstrate these skills.';
+      $('rh-sub').textContent=verdict.key==='clear'
+        ? 'Scores are consistently strong across practice sessions. Keep it up to stay sharp.'
+        : verdict.key==='mostly'
+          ? 'Good progress — a few specific skills need more practice before exam day.'
+          : verdict.key==='partial'
+            ? "There's solid work happening, but the gap report below shows where to focus next."
+            : "Don't panic — this is exactly what Passit is here for. Start with the top gap skills below.";
+    }
+
+    $('std-pills').innerHTML=STDS.map(s=>{
+      const v=avg(byStd[s]);
+      if(v===null) return '<span class="pill">'+STD_NAMES[s]+': —</span>';
+      return '<span class="pill">'+STD_NAMES[s]+': '+v+'%</span>';
+    }).join('');
+
+    $('std-cards').innerHTML=STDS.map(s=>{
+      const list=rows.filter(r=>r.standard===s).sort((a,b)=>new Date(b.session_date)-new Date(a.session_date));
+      const cnt=list.length;
+      const v=avg(byStd[s]);
+      const lastD=cnt?fmtDate(list[0].session_date):'—';
+      const top=topSkillsForStd(rows, s, 3);
+      const badge=v!=null?verdictFromPct(v):null;
+      const avgCls=v!=null?cardAvgClass(v):'';
+      const scoreHtml=v!=null?'<div class="avg '+avgCls+'">'+(v)+'%</div>':'<div class="avg" style="color:var(--ink-3)">—</div>';
+      const badgeHtml=badge?'<span class="verdict-tag '+badge.cls+'">'+badge.label+'</span>':'<span class="verdict-tag" style="background:var(--sky);color:var(--ink-3)">No sessions yet</span>';
+      const topHtml=top.length?('<ul>'+top.map(t=>'<li>'+escapeHtml(t.label)+'</li>').join('')+'</ul>'):'<p class="std-meta">No weak-skill flags recorded yet.</p>';
+      const tips=top.map(t=>{
+        const k=t.raw.toLowerCase();
+        return PRACTICE_TIPS[k]||null;
+      }).filter(Boolean).slice(0,3);
+      const tipsHtml='<div class="tips-box"><div class="tips-box-title">What to practise next</div>'+(tips.length?'<ul>'+tips.map(t=>'<li>'+escapeHtml(t)+'</li>').join('')+'</ul>':'<p class="no-tips">Complete more sessions to unlock practice tips.</p>')+'</div>';
+      return '<div class="std-card">'+
+        '<h4>'+STD_NAMES[s]+'</h4>'+
+        scoreHtml+
+        badgeHtml+
+        '<p class="std-meta">Sessions: '+cnt+' · Last: '+lastD+'</p>'+
+        '<p class="std-meta" style="font-weight:700">Focus areas</p>'+topHtml+
+        tipsHtml+
+        '</div>';
+    }).join('');
+
+    updateScoreCharts(rows);
+
+    const bullets=whatMeansBullets(fn, verdict.key, overallUnset);
+    $('what-means-list').innerHTML=bullets.map(b=>'<li>'+escapeHtml(b)+'</li>').join('');
+
+    const gap=topSkillsGlobal(rows, 5);
+    $('gap-summary').innerHTML=gap.length
+      ? gap.map(g=>'<div class="gap-item"><span>'+escapeHtml(g.label)+'</span><span>Flagged '+g.count+'×</span></div>').join('')
+      : '<p style="color:var(--ink-2);font-size:.9rem">No weak-skill data recorded across these sessions yet.</p>';
+
+    const ten=rows.slice(0,10);
+    $('sessions-body').innerHTML=ten.map((r,i)=>{
+      const prevIdx=ten.findIndex((x,j)=>j>i&&x.standard===r.standard);
+      const prev=prevIdx>=0?Number(ten[prevIdx].score_pct):null;
+      const cur=Number(r.score_pct);
+      const tr=trendArrow(prev, cur);
+      const v=verdictFromPct(cur);
+      const chipCls=v.key==='clear'
+        ? 'background:var(--green-light);color:var(--green)'
+        : v.key==='mostly'
+          ? 'background:var(--blue-light);color:var(--blue)'
+          : v.key==='partial'
+            ? 'background:var(--amber-light);color:var(--amber)'
+            : 'background:var(--red-light);color:var(--red)';
+      return '<tr>'+
+        '<td>'+fmtDate(r.session_date)+'</td>'+
+        '<td>'+(STD_NAMES[r.standard]||r.standard)+'</td>'+
+        '<td><span class="chip" style="'+chipCls+'">'+cur+'%</span></td>'+
+        '<td class="col-time">'+fmtMin(r.time_seconds)+'</td>'+
+        '<td>'+tr+'</td>'+
+        '</tr>';
+    }).join('');
+
+    const cta=$('cta-sim-link');
+    cta.textContent='Send '+fn+' this link';
+    cta.href='simulator-pro.html?email='+encodeURIComponent(email);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showLookup(){
+    $('loading-stage').classList.remove('show');
+    $('dashboard-stage').classList.remove('show');
+    $('lookup-stage').style.display='';
+    $('lookup-error').classList.remove('show');
+    $('lookup-error').textContent='';
+  }
+
+  function showLoading(){
+    $('lookup-error').classList.remove('show');
+    $('dashboard-stage').classList.remove('show');
+    $('lookup-stage').style.display='none';
+    $('loading-stage').classList.add('show');
+  }
+
+  function showDashboard(){
+    $('loading-stage').classList.remove('show');
+    $('lookup-stage').style.display='none';
+    $('dashboard-stage').classList.add('show');
+  }
+
+  /** Prefer @supabase/supabase-js (sets apikey + Authorization correctly). Falls back to REST fetch. */
+  let __sbClient=null;
+  let __sbImport=null;
+  async function getSupabaseClient(){
+    if(__sbClient===false) return null;
+    if(__sbClient) return __sbClient;
+    if(!__sbImport){
+      __sbImport=import('https://esm.sh/@supabase/supabase-js@2.49.1').then(function(m){
+        __sbClient=m.createClient(SUPABASE_URL,SUPABASE_ANON,{
+          auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
+          global:{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON}}
+        });
+        return __sbClient;
+      }).catch(function(e){
+        console.warn('[Passit parent] supabase-js import failed (using fetch fallback).',e);
+        __sbClient=false;
+        return null;
+      });
+    }
+    await __sbImport;
+    return __sbClient&&__sbClient!==false?__sbClient:null;
+  }
+
+  async function loadSessions(email){
+    const em=String(email||'').trim();
+    const client=await getSupabaseClient();
+    if(client){
+      var r=await client.from('practice_sessions').select('*').eq('student_email',em).order('session_date',{ascending:false}).limit(50);
+      if(r.error){
+        console.error('[Passit parent] Supabase client error:',r.error.message,r.error.code||'',r.error.details||'',r.error.hint||'');
+        return{ok:false,status:r.error.status||400,rows:null,bodyText:String(r.error.message||'')};
+      }
+      console.log('[Passit parent] supabase-js OK, rows:',(r.data&&r.data.length)||0);
+      return{ok:true,status:200,rows:Array.isArray(r.data)?r.data:[]};
+    }
+    var base=SUPABASE_URL.replace(/\/$/,'');
+    var u=new URL(base+'/rest/v1/practice_sessions');
+    u.searchParams.set('select','*');
+    u.searchParams.set('student_email','eq.'+em);
+    u.searchParams.set('order','session_date.desc');
+    u.searchParams.set('limit','50');
+    console.log('[Passit parent] REST GET:',u.toString());
+    var res=await fetch(u.toString(),{
+      method:'GET',
+      headers:{
+        apikey:SUPABASE_ANON,
+        Authorization:'Bearer '+SUPABASE_ANON,
+        Accept:'application/json'
+      }
+    });
+    var txt=await res.text();
+    if(!res.ok){
+      console.error('[Passit parent] REST failed:',res.status,res.statusText,txt);
+      return{ok:false,status:res.status,rows:null,bodyText:txt};
+    }
+    var rows;
+    try{ rows=JSON.parse(txt);}catch(parseErr){
+      console.error('[Passit parent] Invalid JSON:',parseErr,txt);
+      return{ok:false,status:500,rows:null,bodyText:txt};
+    }
+    console.log('[Passit parent] REST OK, rows:',Array.isArray(rows)?rows.length:0);
+    return{ok:true,status:res.status,rows:Array.isArray(rows)?rows:[]};
+  }
+
+  async function runLookup(){
+    const input=$('parent-email-input');
+    const err=$('lookup-error');
+    const email=(input.value||'').trim();
+    err.classList.remove('show');
+    if(!email||!email.includes('@')||!email.includes('.')){
+      err.textContent='Please enter a valid email.';
+      err.classList.add('show');
+      return;
+    }
+    showLoading();
+    try{
+      var out=await loadSessions(email);
+      if(out.status===401||out.status===403){
+        console.log('[Passit parent]',out.status,'— check Supabase RLS: allow anon SELECT on practice_sessions (or a policy matching student_email). Body:',out.bodyText);
+      }
+      if(!out.ok){
+        showLookup();
+        err.textContent='Could not load sessions. Open the browser console (F12) for details.';
+        err.classList.add('show');
+        return;
+      }
+      var data=out.rows;
+      if(!Array.isArray(data)||data.length===0){
+        showLookup();
+        err.textContent='No sessions found for '+email+'. Make sure your child has entered this email in Passit before starting a session.';
+        err.classList.add('show');
+        return;
+      }
+      render(data,email);
+      showDashboard();
+      window.scrollTo(0,0);
+    }catch(e){
+      console.error('[Passit parent] runLookup error:',e);
+      showLookup();
+      err.textContent='Something went wrong. Check the console (F12) for the exact error.';
+      err.classList.add('show');
+    }
+  }
+
+  $('btn-view-results').addEventListener('click', runLookup);
+  $('parent-email-input').addEventListener('keydown',function(ev){
+    if(ev.key==='Enter'){ ev.preventDefault(); runLookup(); }
+  });
+  $('btn-change-email').addEventListener('click',function(){
+    showLookup();
+    $('parent-email-input').focus();
+    window.scrollTo(0,0);
+  });
+})();
+</script>
+</body>
+</html>

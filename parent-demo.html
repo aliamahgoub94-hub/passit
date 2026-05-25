@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passit — Parent dashboard (demo)</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1f47;
+  --navy-dark:#0a1880;
+  --orange:#f97316;
+  --sky:#eef3ff;
+  --surface:#ffffff;
+  --ink:#0f1f47;
+  --ink-2:#3d4f6f;
+  --ink-3:#6b7a96;
+  --green:#16a34a;
+  --green-light:#dcfce7;
+  --blue:#3b82f6;
+  --blue-light:#dbeafe;
+  --amber:#d97706;
+  --amber-light:#fef3c7;
+  --red:#dc2626;
+  --red-light:#fee2e2;
+  --border:#c8d8ee;
+  --shadow:0 2px 16px rgba(15,31,71,.08),0 1px 4px rgba(15,31,71,.04);
+  --shadow-lg:0 12px 40px rgba(15,31,71,.12);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* Minimal nav */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,.95);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  height:60px;display:flex;align-items:center;justify-content:flex-start;gap:12px;
+  padding:0 5vw;
+}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px}
+.nav-logo em{font-style:italic;color:var(--orange)}
+.demo-badge{
+  font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:var(--orange);color:#fff;padding:4px 10px;border-radius:999px;
+}
+
+.demo-banner{
+  background:var(--orange);color:#fff;text-align:center;
+  padding:10px 5vw;font-size:.86rem;font-weight:600;line-height:1.45;
+}
+
+main.demo-main{padding:28px 5vw 48px;max-width:1040px;margin:0 auto}
+
+.dash-head{margin-bottom:8px}
+.dash-head h1{
+  font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.35rem,3vw,1.85rem);
+  font-weight:800;color:var(--navy);line-height:1.15;
+}
+.dash-meta{color:var(--ink-2);font-size:.9rem;margin-bottom:22px}
+
+.readiness-hero{
+  background:var(--navy);color:#fff;border-radius:20px;padding:28px 24px;margin-bottom:20px;
+  box-shadow:var(--shadow-lg);
+}
+.readiness-hero-inner{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
+@media(max-width:720px){.readiness-hero-inner{grid-template-columns:1fr;justify-items:center;text-align:center}}
+
+.ring-wrap{position:relative;width:180px;height:180px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.18);stroke-width:12}
+.ring-fg{
+  fill:none;stroke-width:12;stroke-linecap:round;
+  stroke-dasharray:302;stroke-dashoffset:302;
+  stroke:#d97706;
+  transition:stroke-dashoffset 1.2s ease;
+}
+.ring-fg.is-on{stroke-dashoffset:117.78}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'DM Mono',monospace;font-size:2rem;font-weight:700}
+.ring-sub{font-size:.78rem;font-weight:700;opacity:.85;margin-top:4px}
+
+.verdict-tag{
+  display:inline-block;margin-top:10px;padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase;
+}
+.v-mostly{background:var(--blue-light);color:var(--blue)}
+.v-partial{background:var(--amber-light);color:var(--amber)}
+.v-not-yet{background:var(--red-light);color:var(--red)}
+
+.rh-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:8px}
+.rh-sub{font-size:.9rem;color:rgba(255,255,255,.82);line-height:1.65;max-width:560px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+@media(max-width:720px){.pills{justify-content:center}}
+.pill{
+  font-size:.75rem;font-weight:700;padding:6px 12px;border-radius:999px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;
+}
+.pill-b{border-color:rgba(59,130,246,.55);background:rgba(59,130,246,.2);color:#dbeafe}
+.pill-a{border-color:rgba(217,119,6,.5);background:rgba(254,243,199,.25);color:#fef3c7}
+.pill-r{border-color:rgba(220,38,38,.5);background:rgba(254,226,226,.15);color:#fecaca}
+
+.std-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:900px){.std-grid{grid-template-columns:1fr}}
+.std-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);
+}
+.std-card h2{font-family:'Bricolage Grotesque',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy)}
+.std-card .avg{font-size:1.5rem;font-weight:800;margin:6px 0;font-family:'DM Mono',monospace}
+.avg-b{color:var(--blue)}.avg-a{color:var(--amber)}.avg-r{color:var(--red)}
+.std-meta{font-size:.82rem;color:var(--ink-2);margin:8px 0}
+.std-card .tagline{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-top:10px}
+.std-card ul{margin:8px 0 0;padding-left:18px;color:var(--ink-2);font-size:.86rem}
+
+.demo-std-chart-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:22px;
+  box-shadow:var(--shadow);
+}
+.demo-std-chart-card h2{
+  font-family:'Bricolage Grotesque',sans-serif;font-size:1.12rem;font-weight:800;color:var(--navy);margin-bottom:6px;
+}
+.demo-std-chart-card .chart-sub{color:var(--ink-3);font-size:.88rem;margin-bottom:18px;line-height:1.5}
+.demo-std-chart-card .chart-canvas-wrap{height:200px;position:relative;width:100%}
+
+.demo-summary-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);
+}
+@media(max-width:720px){
+  .demo-summary-row{grid-template-columns:1fr;}
+}
+.demo-summary-box{
+  text-align:center;padding:18px 14px;background:var(--sky);min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);
+}
+.demo-summary-box:last-child{border-right:none}
+@media(max-width:720px){
+  .demo-summary-box{border-right:none;border-bottom:1px solid var(--border);}
+  .demo-summary-box:last-child{border-bottom:none}
+}
+.demo-summary-pct{font-family:'DM Mono',monospace;font-size:clamp(1.75rem,4vw,2.25rem);font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:10px}
+.summary-badge{display:inline-block;padding:5px 12px;border-radius:999px;font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-top:4px}
+.summary-badge.mostly{background:var(--blue-light);color:var(--blue)}
+.summary-badge.partial{background:var(--amber-light);color:var(--amber)}
+.summary-badge.not-yet{background:var(--red-light);color:var(--red)}
+
+.section-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.05rem;font-weight:800;color:var(--navy);margin:26px 0 10px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card ul{margin:0;padding-left:18px;color:var(--ink-2)}
+.card li{margin:6px 0}
+
+.gap-item{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.gap-item:last-child{border-bottom:none}
+.gap-item strong{color:var(--navy)}
+.gap-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.gap-flag{font-size:.78rem;font-weight:700;color:var(--orange)}
+
+table.sessions{width:100%;border-collapse:collapse;font-size:.88rem}
+table.sessions th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:10px 8px;border-bottom:1px solid var(--border)}
+table.sessions td{padding:11px 8px;border-bottom:1px solid var(--border);color:var(--ink-2)}
+table.sessions tr:last-child td{border-bottom:none}
+.chip{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
+.chip-b{background:var(--blue-light);color:var(--blue)}
+.chip-g{background:var(--green-light);color:var(--green)}
+.chip-a{background:var(--amber-light);color:var(--amber)}
+.chip-r{background:var(--red-light);color:var(--red)}
+.readiness-calibration{
+  margin:-6px 0 20px;
+  text-align:center;
+  font-size:12px;
+  color:var(--ink-3);
+  font-style:italic;
+}
+@media(max-width:640px){
+  table.sessions .col-time,table.sessions .col-time-h{display:none}
+}
+
+.stat-callout{
+  background:var(--navy);color:#fff;border-radius:18px;padding:28px 24px;margin:22px 0;text-align:center;
+}
+.stat-callout .big{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.5rem,8vw,3.5rem);font-weight:900;color:var(--orange);line-height:1}
+.stat-callout p{margin-top:12px;color:rgba(255,255,255,.85);max-width:560px;margin-left:auto;margin-right:auto;font-size:.95rem}
+
+.demo-contact{
+  background:var(--navy);color:#fff;border-radius:20px;padding:36px 28px;text-align:center;margin-top:8px;
+  box-shadow:var(--shadow-lg);
+}
+.demo-contact h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.2rem,3vw,1.5rem);font-weight:800;margin-bottom:12px}
+.demo-contact p{color:rgba(255,255,255,.78);max-width:520px;margin:0 auto 22px;font-size:.92rem;line-height:1.65}
+.demo-contact a{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--orange);color:#fff;font-weight:800;padding:14px 28px;border-radius:999px;text-decoration:none;
+  font-size:.92rem;box-shadow:0 8px 28px rgba(249,115,22,.35);
+}
+.demo-contact a:hover{filter:brightness(1.06)}
+
+footer.demo-footer{
+  background:var(--navy-dark);color:rgba(255,255,255,.45);
+  padding:28px 5vw;text-align:center;font-size:.82rem;
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<nav aria-label="Demo">
+  <div class="nav-brand">
+    <span class="nav-logo">pass<em>it</em></span>
+    <span class="demo-badge">DEMO MODE</span>
+  </div>
+</nav>
+
+<div class="demo-banner" role="note">
+  This is a demonstration using sample student data. No real student information is shown.
+</div>
+
+<main class="demo-main">
+  <header class="dash-head">
+    <h1>Jamie's CAA Readiness</h1>
+  </header>
+  <p class="dash-meta">8 sessions · First: Mon 7 Apr · Most recent: Mon 4 May</p>
+
+  <div class="readiness-hero">
+    <div class="readiness-hero-inner">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 120 120" width="180" height="180" aria-hidden="true">
+          <circle class="ring-bg" cx="60" cy="60" r="48"></circle>
+          <circle class="ring-fg" id="demo-ring" cx="60" cy="60" r="48" fill="none"></circle>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-pct">61%</div>
+          <div class="ring-sub">Overall average</div>
+        </div>
+      </div>
+      <div>
+        <span class="verdict-tag v-partial">Partially Demonstrated</span>
+        <p class="rh-title">Jamie is partially demonstrating the required skills.</p>
+        <p class="rh-sub">Scores are improving in Reading, but Writing and Numeracy need more focused practice before exam day.</p>
+        <div class="pills">
+          <span class="pill pill-b">Reading: 74%</span>
+          <span class="pill pill-a">Writing: 61%</span>
+          <span class="pill pill-r">Numeracy: 48%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="readiness-calibration">Demonstration levels are aligned to NZQA's CAA skill rubric. The CAA is graded Achieved or Not Achieved — Passit scores track skill development towards that outcome.</p>
+
+  <div class="std-grid">
+    <article class="std-card">
+      <h2>Reading</h2>
+      <div class="avg avg-b">74%</div>
+      <p class="std-meta">Mostly Demonstrated · 3 sessions · Last: Mon 28 Apr</p>
+      <p class="tagline">Focus areas</p>
+      <ul>
+        <li>Spotting one-sided writing</li>
+        <li>Understanding why something was written</li>
+        <li>Reading between the lines</li>
+      </ul>
+    </article>
+    <article class="std-card">
+      <h2>Writing</h2>
+      <div class="avg avg-a">61%</div>
+      <p class="std-meta">Partially Demonstrated · 3 sessions · Last: Wed 30 Apr</p>
+      <p class="tagline">Focus areas</p>
+      <ul>
+        <li>Using the right tone for work writing</li>
+        <li>Organising ideas clearly in paragraphs</li>
+        <li>Writing for the right reader</li>
+      </ul>
+    </article>
+    <article class="std-card">
+      <h2>Numeracy</h2>
+      <div class="avg avg-r">48%</div>
+      <p class="std-meta">Not Yet Demonstrated · 2 sessions · Last: Mon 4 May</p>
+      <p class="tagline">Focus areas</p>
+      <ul>
+        <li>Working out prices including GST</li>
+        <li>Comparing amounts and scaling quantities</li>
+        <li>Working with percentages</li>
+      </ul>
+    </article>
+  </div>
+
+  <section class="demo-std-chart-card" aria-labelledby="jamie-std-chart-title">
+    <h2 id="jamie-std-chart-title">📊 How Jamie is tracking across each standard</h2>
+    <p class="chart-sub">Average score across all practice sessions</p>
+    <div class="chart-canvas-wrap">
+      <canvas id="jamieStdBarChart" aria-label="Average scores by standard"></canvas>
+    </div>
+    <div class="demo-summary-row">
+      <div class="demo-summary-box">
+        <div class="demo-summary-pct">74%</div>
+        <span class="summary-badge mostly">Mostly Demonstrated</span>
+      </div>
+      <div class="demo-summary-box">
+        <div class="demo-summary-pct">61%</div>
+        <span class="summary-badge partial">Partially Demonstrated</span>
+      </div>
+      <div class="demo-summary-box">
+        <div class="demo-summary-pct">48%</div>
+        <span class="summary-badge not-yet">Not Yet Demonstrated</span>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="section-title">What this means</h2>
+  <div class="card">
+    <ul>
+      <li>Progress is happening</li>
+      <li>Target the gap areas</li>
+      <li>Aim for 2–3 sessions a week</li>
+    </ul>
+  </div>
+
+  <h2 class="section-title">Gap summary</h2>
+  <div class="card">
+    <div class="gap-item">
+      <div class="gap-meta">
+        <strong>1. GST calculations</strong>
+        <span class="gap-flag">Flagged 4×</span>
+      </div>
+      <span>Working out prices including GST</span>
+    </div>
+    <div class="gap-item">
+      <div class="gap-meta">
+        <strong>2. Formal language</strong>
+        <span class="gap-flag">Flagged 4×</span>
+      </div>
+      <span>Using the right tone for work writing</span>
+    </div>
+    <div class="gap-item">
+      <div class="gap-meta">
+        <strong>3. Bias detection</strong>
+        <span class="gap-flag">Flagged 3×</span>
+      </div>
+      <span>Spotting one-sided writing</span>
+    </div>
+    <div class="gap-item">
+      <div class="gap-meta">
+        <strong>4. Paragraph structure</strong>
+        <span class="gap-flag">Flagged 3×</span>
+      </div>
+      <span>Organising ideas clearly</span>
+    </div>
+    <div class="gap-item">
+      <div class="gap-meta">
+        <strong>5. Ratios and proportions</strong>
+        <span class="gap-flag">Flagged 2×</span>
+      </div>
+      <span>Comparing amounts</span>
+    </div>
+  </div>
+
+  <h2 class="section-title">Recent sessions</h2>
+  <div class="card" style="padding:0;overflow-x:auto">
+    <table class="sessions">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Standard</th>
+          <th>Score</th>
+          <th class="col-time-h">Time</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Mon 4 May</td>
+          <td>Numeracy</td>
+          <td><span class="chip chip-r">48%</span></td>
+          <td class="col-time">18m 32s</td>
+          <td>→</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Wed 30 Apr</td>
+          <td>Writing</td>
+          <td><span class="chip chip-a">64%</span></td>
+          <td class="col-time">22m 10s</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Mon 28 Apr</td>
+          <td>Reading</td>
+          <td><span class="chip chip-b">74%</span></td>
+          <td class="col-time">19m 45s</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Thu 24 Apr</td>
+          <td>Writing</td>
+          <td><span class="chip chip-a">58%</span></td>
+          <td class="col-time">21m 03s</td>
+          <td>↓</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Mon 21 Apr</td>
+          <td>Numeracy</td>
+          <td><span class="chip chip-r">48%</span></td>
+          <td class="col-time">20m 17s</td>
+          <td>→</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Wed 16 Apr</td>
+          <td>Reading</td>
+          <td><span class="chip chip-b">71%</span></td>
+          <td class="col-time">18m 55s</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td>Mon 14 Apr</td>
+          <td>Writing</td>
+          <td><span class="chip chip-a">61%</span></td>
+          <td class="col-time">23m 30s</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Mon 7 Apr</td>
+          <td>Reading</td>
+          <td><span class="chip chip-b">68%</span></td>
+          <td class="col-time">20m 12s</td>
+          <td>→</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="stat-callout">
+    <div class="big">1 in 4</div>
+    <p>More than one in four Year 11 students did not achieve the CAA co-requisite in 2025. Regular, targeted practice is the best way to change that outcome for your child.</p>
+  </div>
+
+  <section class="demo-contact" aria-labelledby="demo-contact-heading">
+    <h2 id="demo-contact-heading">Interested in Passit for your students?</h2>
+    <p>We offer free trials for NZ schools. Get in touch to discuss how Passit can support your Year 10 cohort.</p>
+    <a href="mailto:hello@passit.co.nz">Contact Us → hello@passit.co.nz</a>
+  </section>
+</main>
+
+<footer class="demo-footer">© 2026 Passit</footer>
+
+<script>
+(function(){
+  var ring=document.getElementById('demo-ring');
+  if(!ring) return;
+  requestAnimationFrame(function(){
+    ring.classList.add('is-on');
+  });
+})();
+(function(){
+  if(typeof Chart==='undefined') return;
+  var canvas=document.getElementById('jamieStdBarChart');
+  if(!canvas) return;
+  var STD_LABELS=['Reading','Writing','Numeracy'];
+  var VALUES=[74,61,48];
+  var COLORS=['#3b82f6','#d97706','#dc2626'];
+  new Chart(canvas.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:STD_LABELS,
+      datasets:[{
+        data:VALUES,
+        backgroundColor:COLORS,
+        borderRadius:6,
+        barThickness:32
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:function(ctx){
+              return STD_LABELS[ctx.dataIndex]+': '+VALUES[ctx.dataIndex]+'%';
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          min:0,
+          max:100,
+          ticks:{
+            stepSize:25,
+            callback:function(v){ return v+'%'; },
+            color:'#6b7a96'
+          },
+          grid:{
+            color:'rgba(15,31,71,.08)',
+            drawBorder:false
+          },
+          border:{display:false}
+        },
+        y:{
+          ticks:{
+            font:{weight:'700',size:13},
+            color:'#0f1f47'
+          },
+          grid:{
+            color:'rgba(15,31,71,.06)',
+            drawBorder:false
+          },
+          border:{display:false}
+        }
+      }
+    },
+    plugins:[{
+      id:'jamieBarEndLabels',
+      afterDatasetsDraw:function(chart){
+        var ctx=chart.ctx;
+        chart.data.datasets.forEach(function(ds,di){
+          var meta=chart.getDatasetMeta(di);
+          meta.data.forEach(function(bar,i){
+            var v=ds.data[i];
+            if(v==null) return;
+            var pos=bar.tooltipPosition();
+            ctx.save();
+            ctx.fillStyle='#0f1f47';
+            ctx.font='600 12px DM Sans, sans-serif';
+            ctx.textAlign='left';
+            ctx.textBaseline='middle';
+            ctx.fillText(v+'%', pos.x+8, pos.y);
+            ctx.restore();
+          });
+        });
+      }
+    }]
+  });
+})();
+</script>
+</body>
+</html>

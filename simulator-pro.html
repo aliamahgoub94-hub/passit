@@ -1,0 +1,2540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passit — CAA Practice Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #12100e;
+  --ink-2: #4a4540;
+  --ink-3: #9a928a;
+  --paper: #f7f4f0;
+  --paper-2: #efecea;
+  --paper-3: #e5e0d8;
+  --surface: #ffffff;
+  --navy: #1c3557;
+  --navy-mid: #2d5080;
+  --navy-light: #eef2f8;
+  --gold: #c08a28;
+  --gold-light: #fdf5e4;
+  --green: #16a34a;
+  --green-light: #dcfce7;
+  --blue: #3b82f6;
+  --blue-light: #dbeafe;
+  --red: #aa3428;
+  --red-light: #fdf0ee;
+  --amber: #c47a18;
+  --r: 14px;
+  --shadow: 0 2px 12px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ─── SCREENS ─── */
+.screen{display:none}
+.screen.active{display:flex}
+
+/* ─── LANDING ─── */
+#s-landing{
+  min-height:100vh;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 20px;background:var(--paper);
+  background-image:radial-gradient(circle at 70% 20%, rgba(28,53,87,.05) 0%, transparent 55%),
+                   radial-gradient(circle at 20% 80%, rgba(192,138,40,.06) 0%, transparent 50%);
+}
+.landing-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--navy-light);color:var(--navy);
+  font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 14px;border-radius:40px;border:1px solid #c8d8ee;
+  margin-bottom:28px;
+}
+.landing-logo{
+  font-family:'Fraunces',serif;font-size:3.2rem;font-weight:700;
+  color:var(--navy);letter-spacing:-2px;line-height:1;margin-bottom:8px;
+}
+.landing-logo em{font-style:italic;color:var(--gold)}
+.landing-sub{color:var(--ink-2);font-size:1.05rem;font-weight:300;margin-bottom:22px;text-align:center}
+
+.email-gate-wrap{max-width:480px;width:100%;margin:0 auto 32px}
+.email-gate-card{
+  border:1.5px solid var(--paper-3);border-radius:18px;
+  box-shadow:var(--shadow);padding:26px 24px 22px;text-align:left;
+  background-color:var(--surface);
+  background-image:radial-gradient(ellipse 120% 80% at 100% 0%, rgba(26,63,196,.06), transparent 55%);
+}
+.email-gate-card .eg-title{
+  font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--navy);
+  margin-bottom:6px;letter-spacing:-.3px;
+}
+.email-gate-card .eg-sub{
+  font-size:.82rem;color:var(--ink-2);line-height:1.55;margin-bottom:18px;
+}
+.email-gate-card label.eg-label{
+  display:block;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:8px;letter-spacing:.02em;
+}
+.email-gate-card input#student-email-input{
+  width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--paper-3);
+  font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--ink);background:var(--paper);
+  outline:none;transition:border-color .15s, box-shadow .15s;
+}
+.email-gate-card input#student-email-input:focus{
+  border-color:var(--navy-mid);background:var(--surface);box-shadow:0 0 0 3px rgba(26,63,196,.12);
+}
+.email-gate-card .eg-continue{
+  width:100%;margin-top:14px;padding:13px 18px;border:none;border-radius:12px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:800;color:#fff;
+  background:var(--gold);box-shadow:0 6px 22px rgba(255,107,0,.28);transition:background .15s, transform .12s;
+}
+.email-gate-card .eg-continue:hover{background:var(--gold-mid);transform:translateY(-1px)}
+.email-gate-card .eg-hint{
+  margin-top:14px;font-size:.76rem;color:var(--ink-3);line-height:1.55;
+}
+.email-gate-card .eg-welcome{
+  font-size:.95rem;color:var(--ink);line-height:1.6;margin-bottom:4px;
+}
+.email-gate-card .eg-welcome strong{color:var(--navy)}
+.email-gate-card .eg-edit{
+  display:inline-block;margin-top:10px;font-size:.78rem;font-weight:700;color:var(--navy);
+  cursor:pointer;text-decoration:underline;text-underline-offset:3px;background:none;border:none;padding:0;font-family:inherit;
+}
+.email-gate-card .eg-confirm{
+  display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--green-light);
+  border:1px solid #bdebd6;color:var(--green);font-size:.86rem;font-weight:700;line-height:1.5;
+}
+.email-gate-card .eg-confirm.show{display:block}
+.email-gate-card .eg-confirm .eg-edit{color:var(--navy);margin-top:0}
+.email-gate-card .eg-error{
+  display:none;margin-top:10px;font-size:.78rem;font-weight:600;color:var(--red);
+}
+.email-gate-card .eg-error.show{display:block}
+
+.exam-selection-wrap{display:none;max-width:860px;width:100%;margin:0 auto 40px}
+.exam-selection-wrap.visible{display:block}
+
+.std-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;width:100%}
+@media(max-width:700px){.std-grid{grid-template-columns:1fr}}
+
+.std-tile{
+  background:var(--surface);border:1.5px solid var(--paper-3);
+  border-radius:var(--r);padding:24px 22px;cursor:pointer;
+  transition:all .2s ease;position:relative;overflow:hidden;
+}
+.std-tile:hover{border-color:var(--navy-mid);box-shadow:var(--shadow-lg);transform:translateY(-3px)}
+.std-tile-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.std-tile[data-s="32403"] .std-tile-bar{background:#3d80cc}
+.std-tile[data-s="32405"] .std-tile-bar{background:var(--green)}
+.std-tile[data-s="32406"] .std-tile-bar{background:var(--gold)}
+
+.std-tile-code{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--ink-3);letter-spacing:.06em;margin-bottom:10px}
+.std-tile-name{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:600;margin-bottom:6px}
+.std-tile-credits{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--navy-light);color:var(--navy);
+  font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:14px
+}
+.std-tile-desc{font-size:.83rem;color:var(--ink-2);line-height:1.65;margin-bottom:20px}
+.std-tile-cta{
+  width:100%;padding:10px;background:var(--navy);color:#fff;
+  border:none;border-radius:9px;font-family:'DM Sans',sans-serif;
+  font-size:.83rem;font-weight:600;cursor:pointer;transition:background .15s
+}
+.std-tile-cta:hover{background:var(--navy-mid)}
+
+.landing-foot{
+  max-width:580px;text-align:center;font-size:.78rem;color:var(--ink-3);
+  line-height:1.8;padding:14px 20px;border:1px solid var(--paper-3);
+  border-radius:var(--r);background:var(--surface)
+}
+
+/* ─── EXAM SHELL ─── */
+#s-exam{flex-direction:column;height:100vh;overflow:hidden}
+
+.exam-topbar{
+  height:54px;background:var(--navy);display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;flex-shrink:0;z-index:20
+}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-logo{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;color:#fff;letter-spacing:-.5px}
+.topbar-logo em{font-style:italic;color:#f0c060}
+.topbar-std{font-size:.75rem;color:rgba(255,255,255,.5);padding-left:14px;border-left:1px solid rgba(255,255,255,.15)}
+.topbar-right{display:flex;align-items:center;gap:14px}
+
+.timer-pill{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  border-radius:8px;padding:5px 13px;
+}
+.timer-icon{width:13px;height:13px;opacity:.6}
+.timer-val{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:500;color:#fff;letter-spacing:.04em}
+.timer-pill.warn .timer-val{color:#ffc947}
+.timer-pill.danger .timer-val{color:#ff7070}
+
+.submit-btn{
+  background:#22c55e;color:#fff;border:none;border-radius:8px;
+  padding:7px 18px;font-family:'DM Sans',sans-serif;font-size:.8rem;
+  font-weight:700;cursor:pointer;transition:background .15s
+}
+.submit-btn:hover{background:#16a34a}
+
+.exam-body{display:flex;flex:1;overflow:hidden}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:252px;flex-shrink:0;background:var(--surface);
+  border-right:1px solid var(--paper-3);display:flex;flex-direction:column;overflow:hidden
+}
+.sb-head{
+  padding:12px 14px;border-bottom:1px solid var(--paper-3);
+  display:flex;justify-content:space-between;align-items:center
+}
+.sb-head-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3)}
+.sb-progress{font-size:.7rem;font-weight:700;color:var(--navy);background:var(--navy-light);padding:2px 8px;border-radius:20px}
+
+.q-list{flex:1;overflow-y:auto;padding:6px}
+.q-item{
+  display:flex;align-items:center;gap:8px;padding:9px 10px;
+  border-radius:9px;cursor:pointer;transition:all .12s;margin-bottom:2px;
+  border-left:2px solid transparent;
+}
+.q-item:hover{background:var(--paper)}
+.q-item.is-active{background:var(--navy-light);border-left-color:var(--navy)}
+.q-item.is-answered{background:var(--green-light)}
+.q-item.is-active.is-answered{background:var(--navy-light)}
+.q-item.is-flagged{background:#fff8ec;border-left-color:var(--gold)}
+
+.q-item-num{
+  width:22px;height:22px;border-radius:50%;border:1.5px solid var(--paper-3);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;color:var(--ink-3);transition:all .12s
+}
+.q-item.is-active .q-item-num{border-color:var(--navy);background:var(--navy);color:#fff}
+.q-item.is-answered .q-item-num{border-color:var(--green);background:var(--green);color:#fff}
+.q-item.is-answered .q-item-num::after{content:'✓'}
+.q-item.is-answered:not(.is-active) .q-item-num{font-size:0}
+.q-item.is-flagged .q-item-num{border-color:var(--gold);background:var(--gold-light);color:var(--gold)}
+
+.q-item-text{font-size:.78rem;color:var(--ink-2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-item.is-active .q-item-text{color:var(--navy);font-weight:600}
+.q-flag-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;display:none}
+.q-item.is-flagged .q-flag-dot{display:block}
+
+/* AI Hint */
+.ai-box{
+  margin:10px;border-radius:var(--r);
+  background:var(--gold-light);border:1px solid #e8d080;padding:13px
+}
+.ai-box-head{
+  display:flex;align-items:center;gap:5px;
+  font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.09em;color:var(--gold);margin-bottom:7px
+}
+.ai-box-text{font-size:.78rem;color:#5a3c08;line-height:1.65}
+.ai-dots{display:flex;gap:3px;padding:4px 0}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 1.3s infinite ease-in-out}
+.ai-dot:nth-child(2){animation-delay:.2s}
+.ai-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-5px);opacity:1}}
+
+/* ─── QUESTION PANEL ─── */
+.q-panel{flex:1;overflow-y:auto;padding:28px 32px;background:var(--paper)}
+
+.q-card{
+  max-width:720px;margin:0 auto;background:var(--surface);
+  border:1px solid var(--paper-3);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)
+}
+.q-card-stripe{height:4px}
+.std-32403 .q-card-stripe{background:#3d80cc}
+.std-32405 .q-card-stripe{background:var(--green)}
+.std-32406 .q-card-stripe{background:var(--gold)}
+
+.q-card-body{padding:32px 36px}
+
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.q-meta-badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:3px 10px;border-radius:20px}
+.badge-num{background:var(--navy-light);color:var(--navy)}
+.badge-sec{background:var(--paper);color:var(--ink-3);border:1px solid var(--paper-3)}
+.q-flag-btn{
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  font-size:.72rem;font-weight:600;color:var(--ink-3);
+  background:none;border:1.5px solid var(--paper-3);border-radius:7px;
+  padding:4px 10px;cursor:pointer;transition:all .15s
+}
+.q-flag-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
+.q-flag-btn.flagged{border-color:var(--gold);color:var(--gold);background:var(--gold-light)}
+.q-emoji{font-size:2.2rem;margin-left:8px}
+
+.q-title{font-family:'Fraunces',serif;font-size:1.45rem;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:12px}
+
+/* Passage */
+.passage{
+  background:var(--paper);border:1px solid var(--paper-3);
+  border-radius:11px;padding:18px 22px;margin-bottom:20px;
+}
+.passage-title{font-family:'Fraunces',serif;font-size:.95rem;font-weight:600;margin-bottom:10px;color:var(--ink)}
+.passage-body{font-size:.85rem;color:var(--ink);line-height:1.85}
+
+.q-scenario{font-size:.95rem;color:var(--ink-2);line-height:1.75;margin-bottom:8px}
+.q-scenario strong{color:var(--ink);font-weight:600}
+.q-callout{
+  border-left:3px solid var(--paper-3);padding:9px 16px;
+  margin:14px 0;font-size:.88rem;color:var(--ink-2);
+  font-style:italic;background:var(--paper);border-radius:0 8px 8px 0
+}
+.q-callout strong{color:var(--ink);font-style:normal}
+
+.q-task-label{
+  font-size:.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--ink-3);margin:22px 0 10px;
+  padding-top:20px;border-top:1px solid var(--paper-3);display:block
+}
+
+/* Inputs */
+.inp-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);display:block;margin-bottom:7px}
+.cur-wrap{position:relative;margin-bottom:16px}
+.cur-sym{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:.95rem;color:var(--ink-3);pointer-events:none}
+.inp-number{
+  width:100%;background:var(--paper);border:2px solid var(--paper-3);
+  border-radius:10px;padding:13px 14px;font-family:'DM Mono',monospace;
+  font-size:1.1rem;color:var(--ink);outline:none;transition:border-color .15s
+}
+.inp-number.has-prefix{padding-left:34px}
+.inp-number:focus{border-color:var(--navy);background:#fff}
+.inp-textarea{
+  width:100%;background:var(--paper);border:2px solid var(--paper-3);
+  border-radius:10px;padding:13px 14px;font-family:'DM Sans',sans-serif;
+  font-size:.88rem;color:var(--ink);outline:none;resize:vertical;
+  min-height:90px;line-height:1.65;transition:border-color .15s
+}
+.inp-textarea:focus{border-color:var(--navy);background:#fff}
+
+.working-box{background:var(--navy-light);border:1.5px solid #c8d8ee;border-radius:10px;padding:14px;margin-top:14px}
+.working-box .inp-label{color:var(--navy-mid)}
+.working-box .inp-textarea{background:#fff}
+
+/* MC */
+.mc-list{display:flex;flex-direction:column;gap:9px}
+.mc-opt{
+  display:flex;align-items:flex-start;gap:11px;padding:13px 15px;
+  border:2px solid var(--paper-3);border-radius:10px;cursor:pointer;
+  background:var(--paper);transition:all .15s
+}
+.mc-opt:hover{border-color:var(--navy-mid);background:var(--navy-light)}
+.mc-opt.sel{border-color:var(--navy);background:var(--navy-light)}
+.mc-radio{
+  width:19px;height:19px;border-radius:50%;border:2px solid var(--paper-3);
+  flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center
+}
+.mc-opt.sel .mc-radio{border-color:var(--navy);background:var(--navy)}
+.mc-opt.sel .mc-radio::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
+.mc-opt-text{font-size:.88rem;color:var(--ink);line-height:1.5}
+
+/* Writing rubric */
+.rubric-box{background:var(--gold-light);border:1px solid #e8d080;border-radius:10px;padding:14px;margin-bottom:14px}
+.rubric-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:8px}
+.rubric-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.rubric-item{font-size:.78rem;color:#5a3c08;display:flex;align-items:center;gap:6px}
+.rubric-item::before{content:'◦';color:var(--gold);flex-shrink:0}
+.wc-row{display:flex;justify-content:space-between;margin-top:6px}
+.wc-label{font-size:.72rem;color:var(--ink-3)}
+.wc-count{font-size:.72rem;color:var(--ink-3)}
+.wc-count.ok{color:var(--green)}
+
+/* Feedback */
+.feedback{display:none;margin-top:16px;border-radius:10px;padding:13px 15px;font-size:.85rem;line-height:1.65}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-light);border:1px solid #a8d5bc;color:var(--green)}
+.feedback.err{background:var(--red-light);border:1px solid #e5b8b2;color:var(--red)}
+.feedback-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+
+/* AI writing feedback */
+.ai-writing-fb{display:none;margin-top:14px;background:var(--navy-light);border:1px solid #c8d8ee;border-radius:10px;padding:14px}
+.ai-writing-fb.show{display:block}
+.ai-writing-fb-head{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.criterion-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #dce8f5;font-size:.8rem}
+.criterion-row:last-child{border-bottom:none}
+.criterion-name{color:var(--ink-2)}
+.criterion-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.cb-met{background:var(--green-light);color:var(--green);border:1px solid #a8d5bc}
+.cb-partial{background:#fff8ec;color:var(--amber);border:1px solid #e8d080}
+.cb-miss{background:var(--red-light);color:var(--red);border:1px solid #e5b8b2}
+.ai-overall{margin-top:10px;padding-top:10px;border-top:1px solid #dce8f5;font-size:.82rem;color:var(--ink-2);line-height:1.65}
+
+/* Nav btns */
+.q-nav-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 36px;border-top:1px solid var(--paper-3);background:var(--surface)
+}
+.btn-nav{
+  display:flex;align-items:center;gap:6px;padding:9px 18px;
+  border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .15s;border:1.5px solid var(--paper-3);
+  background:var(--surface);color:var(--ink-2)
+}
+.btn-nav:hover{border-color:var(--navy);color:var(--navy);background:var(--navy-light)}
+.btn-nav:disabled{opacity:.3;pointer-events:none}
+.btn-nav.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn-nav.primary:hover{background:var(--navy-mid)}
+.btn-check{background:var(--gold-light);border-color:#e0c060;color:var(--gold)}
+.btn-check:hover{background:#fbedc0;color:#8a6010;border-color:var(--gold)}
+
+/* ─── RESULTS ─── */
+#s-results{
+  min-height:100vh;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:60px 20px;background:var(--paper)
+}
+.results-wrap{max-width:640px;width:100%}
+
+.results-logo{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;color:var(--navy);text-align:center;margin-bottom:4px}
+.results-logo em{font-style:italic;color:var(--gold)}
+
+.readiness-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 24px;border-radius:40px;font-size:1rem;font-weight:700;
+  margin:14px auto 6px;border:2px solid;
+}
+.rb-clear{background:var(--green-light);color:var(--green);border-color:#86efac}
+.rb-mostly{background:var(--blue-light);color:var(--blue);border-color:#93c5fd}
+.rb-partial{background:#fff8ec;color:#d97706;border-color:#e8d080}
+.rb-not-yet{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.results-sub{color:var(--ink-2);font-size:.88rem;text-align:center;margin-bottom:32px}
+
+.res-card{background:var(--surface);border:1px solid var(--paper-3);border-radius:18px;padding:28px;margin-bottom:16px;box-shadow:var(--shadow)}
+
+.ring-row{display:flex;align-items:center;gap:28px;margin-bottom:22px}
+.ring-wrap{position:relative;width:96px;height:96px;flex-shrink:0}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:var(--paper-3);stroke-width:8}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'DM Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--ink)}
+.ring-sub{font-size:.62rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.ring-info-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;margin-bottom:5px}
+.ring-info-sub{font-size:.82rem;color:var(--ink-2);line-height:1.65}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat-box{background:var(--paper);border-radius:10px;padding:14px;text-align:center}
+.stat-val{font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:500;color:var(--ink)}
+.stat-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);margin-top:2px}
+
+/* Gap report */
+.gap-section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin-bottom:12px}
+.gap-row{
+  display:flex;align-items:flex-start;gap:12px;padding:13px 0;
+  border-bottom:1px solid var(--paper-3)
+}
+.gap-row:last-child{border-bottom:none}
+.gap-icon{width:32px;height:32px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.gap-icon.miss{background:var(--red-light)}
+.gap-icon.partial{background:#fff8ec}
+.gap-icon.ok{background:var(--green-light)}
+.gap-body{flex:1}
+.gap-topic{font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:2px}
+.gap-skill{font-size:.72rem;color:var(--ink-3);margin-bottom:6px}
+.gap-boost{font-size:.78rem;color:var(--ink-2);line-height:1.55}
+.gap-boost strong{color:var(--navy);font-weight:600}
+
+.res-actions{display:flex;gap:12px;margin-top:8px}
+.res-btn{
+  flex:1;padding:13px;border-radius:11px;font-family:'DM Sans',sans-serif;
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .15s;
+  border:1.5px solid var(--paper-3);background:var(--surface);color:var(--ink-2);text-align:center
+}
+.res-btn:hover{border-color:var(--navy);color:var(--navy)}
+.res-btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.res-btn.primary:hover{background:var(--navy-mid)}
+
+/* ─── UTILS ─── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--paper-3);border-radius:3px}
+
+/* ─── MOBILE ─── */
+.mob-nav-bar{
+  display:none;background:var(--navy);height:48px;
+  align-items:center;justify-content:space-between;
+  padding:0 16px;flex-shrink:0;
+}
+.mob-nav-bar .topbar-logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#fff}
+.mob-nav-bar .topbar-logo em{font-style:italic;color:#f0c060}
+.mob-menu-btn{
+  background:rgba(255,255,255,.12);border:none;color:white;
+  border-radius:7px;padding:6px 10px;font-size:.8rem;cursor:pointer;
+}
+.mob-q-drawer{
+  display:none;position:fixed;inset:0;z-index:50;
+  background:rgba(0,0,0,.5);
+}
+.mob-q-drawer.open{display:flex}
+.mob-q-inner{
+  width:280px;background:var(--surface);height:100%;
+  overflow-y:auto;padding:16px;
+}
+.mob-q-close{
+  display:flex;justify-content:flex-end;margin-bottom:12px;
+}
+.mob-q-close button{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--ink-2)}
+.mob-progress-bar{
+  height:3px;background:var(--paper-3);
+}
+.mob-progress-fill{height:100%;background:var(--navy);transition:width .3s}
+
+@media(max-width:680px){
+  /* Landing */
+  .std-grid{grid-template-columns:1fr !important}
+  .landing-logo{font-size:2.4rem}
+
+  /* Exam shell */
+  #s-exam{height:auto;min-height:100vh;overflow:visible}
+  .exam-topbar{display:none}
+  .mob-nav-bar{display:flex}
+  .exam-body{flex-direction:column}
+  .sidebar{display:none}
+  .q-panel{padding:16px;overflow:visible}
+  .q-card-body{padding:20px 18px}
+  .q-title{font-size:1.15rem}
+  .q-nav-row{padding:14px 18px;gap:8px}
+  .btn-nav{padding:8px 12px;font-size:.78rem}
+  .q-emoji{font-size:1.6rem}
+
+  /* Results */
+  #s-results{padding:32px 16px}
+  .ring-row{flex-direction:column;align-items:flex-start;gap:16px}
+  .res-card{padding:20px 16px}
+}
+
+
+
+#gate{position:fixed;top:0;left:0;width:100%;height:100%;background:#1a3fc4;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+#gate.off{display:none!important}
+.gc{background:white;border-radius:20px;padding:40px;max-width:400px;width:100%;text-align:center;font-family:'DM Sans',sans-serif}
+.gl{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:#1a3fc4;margin-bottom:6px}
+.gl em{font-style:italic;color:#ff6b00}
+.gi{width:100%;padding:14px;font-size:1.1rem;letter-spacing:.15em;text-transform:uppercase;border:2px solid #c8d8ff;border-radius:10px;text-align:center;margin-bottom:12px;font-family:monospace;outline:none;display:block}
+.gi:focus{border-color:#1a3fc4}
+.gb{width:100%;padding:14px;background:#ff6b00;color:white;border:none;border-radius:40px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:16px;display:block}
+.gb:hover{background:#e55a00}
+.ge{color:#dc2626;font-size:.82rem;margin-bottom:12px;display:none;background:#fef2f2;padding:8px;border-radius:8px}
+.glinks{font-size:.78rem;color:#6b7280}
+.glinks a{color:#1a3fc4;font-weight:600;text-decoration:none}
+
+
+/* ── CHECK YOUR READINESS METER ── */
+.pass-meter{
+  background:linear-gradient(135deg,#0a1880,#1a3fc4);
+  border-radius:20px;padding:24px 28px;margin-bottom:16px;
+  text-align:center;color:white;
+}
+.pass-meter-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.55);margin-bottom:4px}
+.pass-meter-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:16px;color:white}
+.cipy-ring-wrap{position:relative;width:120px;height:120px;margin:0 auto 12px}
+.cipy-ring-wrap svg{transform:rotate(-90deg)}
+.cipy-bg{fill:none;stroke:rgba(255,255,255,.15);stroke-width:10}
+.cipy-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.cipy-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cipy-pct{font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:500;color:white}
+.cipy-sub{font-size:.6rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.07em}
+.cipy-desc{font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.65;max-width:360px;margin:0 auto}
+.cipy-history{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.cipy-session{font-size:.7rem;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+</style>
+</head>
+<body>
+<!-- GATE -->
+<div id="gate">
+  <div class="gc">
+    <div class="gl">pass<em>it</em></div>
+    <p style="font-size:.95rem;font-weight:700;color:#0a1440;margin-bottom:6px">CAA Full Access</p>
+    <p style="font-size:.83rem;color:#6b7280;margin-bottom:22px">Enter your access code to unlock 60+ practice questions.</p>
+    <input type="text" id="gi" class="gi" placeholder="ENTER CODE" maxlength="20">
+    <div id="ge" class="ge">Incorrect code — please check your email from Passit.</div>
+    <button class="gb" onclick="doUnlock()">Unlock Full Access →</button>
+    <div class="glinks">No code? <a href="/">Get access at passit.co.nz</a> &nbsp;·&nbsp; <a href="/simulator.html">Try 6 free questions →</a></div>
+  </div>
+</div>
+
+
+
+<!-- ══ LANDING ══════════════════════════════════════════════════ -->
+<div id="s-landing" class="screen active">
+  <div class="landing-badge">✦ Year 10 CAA Preparation</div>
+  <div class="landing-logo">pass<em>it</em></div>
+  <p class="landing-sub">Practice the co-requisite exams. See exactly where you stand.</p>
+
+  <div class="email-gate-wrap">
+    <div class="email-gate-card">
+      <div class="eg-title" id="email-card-title">Save your progress</div>
+      <p class="eg-sub" id="email-card-sub">We’ll use your email so you can pick up where you left off — and so your parent can follow along.</p>
+
+      <div id="email-step-new">
+        <label class="eg-label" for="student-email-input">Enter your email to save your progress</label>
+        <input type="email" id="student-email-input" placeholder="your@email.com" autocomplete="email">
+        <button type="button" class="eg-continue" id="email-continue-btn" onclick="emailGateContinue()">Continue →</button>
+        <p class="eg-hint">Your parent can use this email to view your progress dashboard</p>
+        <div class="eg-error" id="email-gate-error">Please enter a valid email (include @ and a domain).</div>
+      </div>
+
+      <div id="email-step-welcome" style="display:none">
+        <div class="eg-welcome">Welcome back! Saving progress for <strong id="email-welcome-display"></strong></div>
+        <button type="button" class="eg-edit" onclick="emailGateEdit()">Edit email</button>
+      </div>
+
+      <div class="eg-confirm" id="email-step-confirm">✓ Progress will be saved for <span id="email-confirm-display"></span> · <button type="button" class="eg-edit" onclick="emailGateEdit()">Edit email</button></div>
+    </div>
+  </div>
+
+  <div class="exam-selection-wrap" id="exam-selection-wrap">
+  <div class="std-grid">
+    <div class="std-tile" data-s="32403" onclick="startExam('32403')">
+      <div class="std-tile-bar"></div>
+      <div class="std-tile-code">US 32403</div>
+      <div class="std-tile-name">Reading</div>
+      <div class="std-tile-credits">5 credits</div>
+      <div class="std-tile-desc">Understand authentic NZ texts — workplace notices, timetables, product labels, safety instructions.</div>
+      <button class="std-tile-cta">Start Practice →</button>
+    </div>
+    <div class="std-tile" data-s="32405" onclick="startExam('32405')">
+      <div class="std-tile-bar"></div>
+      <div class="std-tile-code">US 32405</div>
+      <div class="std-tile-name">Writing</div>
+      <div class="std-tile-credits">5 credits</div>
+      <div class="std-tile-desc">Write clearly for purpose and audience — workplace emails, community notices, instructions, short reports.</div>
+      <button class="std-tile-cta">Start Practice →</button>
+    </div>
+    <div class="std-tile" data-s="32406" onclick="startExam('32406')">
+      <div class="std-tile-bar"></div>
+      <div class="std-tile-code">US 32406</div>
+      <div class="std-tile-name">Numeracy</div>
+      <div class="std-tile-credits">10 credits</div>
+      <div class="std-tile-desc">Apply number, measurement and statistics in real NZ contexts — shopping, budgets, data, rates, GST.</div>
+      <button class="std-tile-cta">Start Practice →</button>
+    </div>
+  </div>
+  </div>
+
+  <div class="landing-foot">
+    <strong>About this simulator:</strong> Questions are built from published NZQA achievement criteria for US32403, US32405 and US32406.
+    All contexts are New Zealand–specific. Actual CAA questions are not released by NZQA.
+  </div>
+</div>
+
+<!-- ══ EXAM ══════════════════════════════════════════════════════ -->
+<div id="s-exam" class="screen">
+
+  <!-- Mobile top bar -->
+  <div class="mob-nav-bar">
+    <a href="index.html" style="color:rgba(255,255,255,.6);font-size:.75rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:4px;margin-right:10px">← Back</a><div class="topbar-logo">pass<em>it</em></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="timer-val" id="mob-timer-val" style="font-family:'DM Mono',monospace;font-size:.9rem;color:white">40:00</span>
+      <button class="mob-menu-btn" onclick="document.getElementById('mob-drawer').classList.toggle('open')">☰ Questions</button>
+    </div>
+  </div>
+  <div class="mob-progress-bar"><div class="mob-progress-fill" id="mob-progress-fill" style="width:0%"></div></div>
+
+  <!-- Mobile question drawer -->
+  <div class="mob-q-drawer" id="mob-drawer" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="mob-q-inner">
+      <div class="mob-q-close"><button onclick="document.getElementById('mob-drawer').classList.remove('open')">✕</button></div>
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin-bottom:12px" id="mob-section-label">Questions</div>
+      <nav id="mob-q-list"></nav>
+      <div class="ai-box" style="margin-top:16px">
+        <div class="ai-box-head">✦ AI Hint</div>
+        <div class="ai-box-text" id="mob-ai-hint">Choose a question for a hint.</div>
+      </div>
+    </div>
+  </div>
+  <header class="exam-topbar">
+    <div class="topbar-left">
+      <a href="index.html" style="color:rgba(255,255,255,.6);font-size:.75rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:4px;margin-right:10px">← Back</a><div class="topbar-logo">pass<em>it</em></div>
+      <div class="topbar-std" id="topbar-std-label">CAA Numeracy — US32406</div>
+    </div>
+    <div class="topbar-right">
+      <div class="timer-pill" id="timer-pill">
+        <svg class="timer-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="timer-val" id="timer-val">40:00</span>
+      </div>
+      <button class="submit-btn" onclick="submitExam()">Submit Exam</button>
+    </div>
+  </header>
+
+  <div class="exam-body">
+    <aside class="sidebar">
+      <div class="sb-head">
+        <span class="sb-head-label" id="sb-section">Questions</span>
+        <span class="sb-progress" id="sb-progress">0/0</span>
+      </div>
+      <nav class="q-list" id="q-list"></nav>
+      <div class="ai-box">
+        <div class="ai-box-head">✦ AI Hint</div>
+        <div class="ai-box-text" id="ai-hint">Choose a question to see a targeted hint.</div>
+      </div>
+    </aside>
+
+    <main class="q-panel" id="q-panel"></main>
+  </div>
+</div>
+
+<!-- ══ RESULTS ════════════════════════════════════════════════════ -->
+<div id="s-results" class="screen">
+  <div class="results-wrap">
+    <div class="results-logo">pass<em>it</em></div>
+    <div style="text-align:center">
+      <div id="readiness-badge" class="readiness-badge rb-clear">Clearly Demonstrated</div>
+    </div>
+    <p class="results-sub" id="results-sub">You demonstrated the required skills for this standard.</p>
+
+    
+    <!-- CHECK YOUR READINESS METER -->
+    <div class="pass-meter" id="pass-meter" style="display:none">
+      <div class="pass-meter-label">Check your readiness</div>
+      <div class="pass-meter-title" id="cipy-title">CAA Readiness Score</div>
+      <div class="cipy-ring-wrap">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <circle class="cipy-bg" cx="60" cy="60" r="50"/>
+          <circle class="cipy-fill" id="cipy-fill" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+        </svg>
+        <div class="cipy-text">
+          <div class="cipy-pct" id="cipy-pct">—</div>
+          <div class="cipy-sub">ready</div>
+        </div>
+      </div>
+      <p class="cipy-desc" id="cipy-desc"></p>
+      <div class="cipy-history" id="cipy-history"></div>
+    </div>
+<div class="res-card">
+      <div class="ring-row">
+        <div class="ring-wrap">
+          <svg viewBox="0 0 100 100" width="96" height="96">
+            <circle class="ring-track" cx="50" cy="50" r="42"/>
+            <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+          </svg>
+          <div class="ring-label">
+            <div class="ring-pct" id="ring-pct">—</div>
+            <div class="ring-sub">score</div>
+          </div>
+        </div>
+        <div>
+          <div class="ring-info-title" id="res-std-name">CAA Numeracy</div>
+          <div class="ring-info-sub" id="res-breakdown"></div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-val" id="st-correct">—</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-box"><div class="stat-val" id="st-total">—</div><div class="stat-lbl">Questions</div></div>
+        <div class="stat-box"><div class="stat-val" id="st-time">—</div><div class="stat-lbl">Time taken</div></div>
+      </div>
+    </div>
+
+    <!-- Gap report -->
+    <div class="res-card" id="gap-card">
+      <div class="gap-section-title">Your Gap Report — Where to focus next</div>
+      <div id="gap-list"></div>
+      <div id="gap-locked" style="display:none;text-align:center;padding:20px;color:#6b7280;font-size:.85rem">
+        <div style="font-size:1.5rem;margin-bottom:8px">🔒</div>
+        Full Gap Report with Boost Tasks is included in full access.
+      </div>
+    </div>
+
+    <div id="free-upgrade-banner" style="display:none;background:linear-gradient(135deg,#1a3fc4,#0a1880);border-radius:16px;padding:24px;margin-bottom:16px;text-align:center">
+      <div style="font-family:Fraunces,serif;font-size:1.2rem;font-weight:700;color:white;margin-bottom:6px">You've completed the free preview!</div>
+      <p style="font-size:.85rem;color:rgba(255,255,255,.75);margin-bottom:16px">Get full access to 22+ questions per standard, full exam mode, AI hints and your complete Gap Report.</p>
+      <a href="index.html" style="display:inline-block;background:#ff6b00;color:white;padding:12px 28px;border-radius:40px;font-weight:700;font-size:.9rem;text-decoration:none">Get Full Access — $29.99 NZD →</a>
+    </div>
+    <div class="res-actions">
+      <button class="res-btn" onclick="goHome()">← Try Another</button>
+      <button class="res-btn primary" onclick="retryExam()">Retry This Standard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ QUESTION BANK ═════════════════════════════════════════════════════════
+
+const BANK = {
+  '32406': [
+    { id:'n01',sec:'Shopping',emoji:'🍌',title:'Calculating at the Supermarket',
+      scenario:'At Countdown, bananas cost <strong>$3.29 per kilogram</strong>.',
+      callout:'You pick up a bunch that weighs <strong>685 grams</strong>.',
+      type:'currency',task:'How much do you pay for the bananas? Round to the nearest cent.',
+      answer:2.25,tol:.02,topic:'Unit conversion & multiplication',
+      hint:'Convert grams to kilograms first (÷1000), then multiply by the price per kg.',
+      explain:'685g ÷ 1000 = 0.685kg. 0.685 × $3.29 = $2.254 → <strong>$2.25</strong>',
+      boost:'Practice: convert any weight in grams to kg, then multiply by a price per kg.' },
+    { id:'n02',sec:'Shopping',emoji:'🧥',title:'Sale Price',
+      scenario:'A jacket at Farmers costs <strong>$129.99</strong>.',callout:"It's on sale for <strong>30% off</strong>.",
+      type:'currency',task:'What is the sale price?',
+      answer:90.99,tol:.02,topic:'Percentages',
+      hint:'Find 30% of $129.99 (multiply by 0.30), then subtract.',
+      explain:'30% of $129.99 = $39.00. $129.99 − $39.00 = <strong>$90.99</strong>',
+      boost:'Practise finding percentage discounts: multiply original by (1 − discount rate).' },
+    { id:'n03',sec:'Budgeting',emoji:'💰',title:"Hemi's Weekly Budget",
+      scenario:'Hemi earns <strong>$680/week</strong> after tax.',
+      callout:'Expenses: rent $220, food $95, transport $45, phone $25.',
+      type:'currency',task:'How much is left after all expenses?',
+      answer:295,tol:0,topic:'Addition & subtraction',
+      hint:'Add all expenses together, then subtract from $680.',
+      explain:'Total expenses: $385. $680 − $385 = <strong>$295</strong>',
+      boost:'Write out all expenses in a list and add them before subtracting — avoid skipping steps.' },
+    { id:'n04',sec:'Measurement',emoji:'🏠',title:'Carpet Cost',
+      scenario:'A bedroom is <strong>4.2 m long</strong> and <strong>3.5 m wide</strong>.',callout:'Carpet costs <strong>$28/m²</strong>.',
+      type:'currency',task:'Total cost to carpet the room?',
+      answer:411.6,tol:.05,topic:'Area & rates',
+      hint:'Calculate area first (length × width), then multiply by cost per m².',
+      explain:'Area = 4.2 × 3.5 = 14.7 m². 14.7 × $28 = <strong>$411.60</strong>',
+      boost:'Remember: area of a rectangle = length × width. Always check your units.' },
+    { id:'n05',sec:'Data',emoji:'📊',title:'Survey Results',
+      scenario:'120 students chose a preferred sport.',callout:'Rugby 35%, Netball 25%, Football 20%, Basketball 12%, Other 8%.',
+      type:'number',task:'How many students chose Rugby or Netball combined?',
+      answer:72,tol:0,topic:'Percentages & whole numbers',
+      hint:'Add the two percentages, then find that % of 120.',
+      explain:'35% + 25% = 60%. 0.60 × 120 = <strong>72 students</strong>',
+      boost:'To find a percentage of a number: convert % to a decimal (÷100), then multiply.' },
+    { id:'n06',sec:'Time',emoji:'🚌',title:'Journey Planning',
+      scenario:'Aroha must be at work by <strong>8:45 am</strong>.',callout:'Bus takes 35 min. She needs 15 min once she arrives.',
+      type:'mc',task:'Latest time to leave home?',
+      options:['7:45 am','7:55 am','8:00 am','7:50 am'],answer:'7:55 am',topic:'Time calculations',
+      hint:'Work backwards from 8:45 am. Total time needed: 35 + 15 = 50 minutes.',
+      explain:'8:45 am − 50 min = <strong>7:55 am</strong>',
+      boost:'For time problems: identify the finish time and work backwards, adding each step.' },
+    { id:'n07',sec:'Rates',emoji:'⛽',title:'Petrol for a Road Trip',
+      scenario:"Petrol is <strong>$2.89/litre</strong>. Tama's car uses <strong>8.5L per 100km</strong>.",callout:'He drives 240 km.',
+      type:'currency',task:"Total petrol cost? Round to the nearest cent.",
+      answer:58.94,tol:.05,topic:'Rates & multi-step calculation',
+      hint:'Step 1: find litres needed (8.5 × 240 ÷ 100). Step 2: multiply litres × price.',
+      explain:'Litres: 8.5×240÷100 = 20.4L. Cost: 20.4 × $2.89 = <strong>$58.96</strong>',
+      boost:'Multi-step rate problems: write out each step before calculating.' },
+    { id:'n08',sec:'GST',emoji:'🔧',title:'Mechanic Invoice + GST',
+      scenario:'Service charge: <strong>$340 + GST</strong>.',callout:'NZ GST is <strong>15%</strong>.',
+      type:'currency',task:'Total amount payable including GST?',
+      answer:391,tol:.01,topic:'GST & percentages',
+      hint:'GST = $340 × 0.15. Add to the original amount.',
+      explain:'$340 × 0.15 = $51. $340 + $51 = <strong>$391.00</strong>',
+      boost:'Quick GST shortcut: multiply the pre-GST amount by 1.15.' },
+    { id:'n09',sec:'Fractions',emoji:'🍕',title:'Splitting a Dinner Bill',
+      scenario:'Five friends share a $143.50 bill.',callout:'They add a <strong>10% tip</strong> on top.',
+      type:'currency',task:"Each person's share (including tip)?",
+      answer:31.57,tol:.02,topic:'Multi-step: percentages & division',
+      hint:'First find the total with tip (×1.10), then divide by 5.',
+      explain:'$143.50 × 1.10 = $157.85. ÷5 = <strong>$31.57</strong>',
+      boost:'Always complete all operations in order — adding the tip before dividing is critical.' },
+    { id:'n10',sec:'Speed',emoji:'🚗',title:'Auckland to Hamilton',
+      scenario:'Distance: <strong>128 km</strong>.',callout:'Average speed: <strong>96 km/h</strong>.',
+      type:'mc',task:'Approximate travel time?',
+      options:['1 hr 10 min','1 hr 20 min','1 hr 45 min','2 hrs'],answer:'1 hr 20 min',topic:'Speed, distance, time',
+      hint:'Time = Distance ÷ Speed. Convert the decimal to minutes (×60).',
+      explain:'128 ÷ 96 = 1.333… hrs = 1 hr 20 min',
+      boost:'Speed formula triangle: Distance = Speed × Time. Cover what you want to find.' },
+    { id:'n11',section:'Measurement',sec:'Measurement',emoji:'📦',title:'Storage Box Capacity',
+      scenario:'A dairy uses a box that is <strong>30 cm × 25 cm × 20 cm</strong> for chilled deliveries.',
+      callout:'How many litres can it hold when full?',
+      type:'number',task:'Calculate the volume in litres.',
+      answer:15,tolerance:0.01,tol:0.01,topic:'unit conversion cm³ to litres',gap_label:'unit conversion cm³ to litres',
+      hint:'Find cm³ first (length × width × height), then divide by 1000 to convert to litres.',
+      explanation:'Volume = 30 × 25 × 20 = 15,000 cm³. 15,000 ÷ 1000 = <strong>15 L</strong>.',
+      explain:'Volume = 30 × 25 × 20 = 15,000 cm³. 15,000 ÷ 1000 = <strong>15 L</strong>.',
+      boost:'Practise converting cubic centimetres to litres by dividing by 1000 each time.' },
+    { id:'n12',section:'Measurement',sec:'Measurement',emoji:'📦',title:'Fish Tank Volume',
+      scenario:'A school science lab fish tank measures <strong>60 cm × 30 cm × 40 cm</strong>.',
+      callout:'Students want to know the tank volume in litres before adding fish.',
+      type:'number',task:'How many litres does the tank hold?',
+      answer:72,tolerance:0.01,tol:0.01,topic:'unit conversion cm³ to litres',gap_label:'unit conversion cm³ to litres',
+      hint:'Multiply the dimensions to get cm³, then convert to litres.',
+      explanation:'60 × 30 × 40 = 72,000 cm³. 72,000 ÷ 1000 = <strong>72 L</strong>.',
+      explain:'60 × 30 × 40 = 72,000 cm³. 72,000 ÷ 1000 = <strong>72 L</strong>.',
+      boost:'Keep units visible in your working to avoid mixing cm³ and litres.' },
+    { id:'n13',section:'Measurement',sec:'Measurement',emoji:'📦',title:'Sports Drink Bottle Conversion',
+      scenario:'A rugby team refill bottle is labelled <strong>2500 cm³</strong>.',
+      callout:'The coach wants the same amount written in litres.',
+      type:'number',task:'Convert 2500 cm³ to litres.',
+      answer:2.5,tolerance:0.01,tol:0.01,topic:'unit conversion cm³ to litres',gap_label:'unit conversion cm³ to litres',
+      hint:'To convert cm³ to litres, divide by 1000.',
+      explanation:'2500 ÷ 1000 = <strong>2.5 L</strong>.',
+      explain:'2500 ÷ 1000 = <strong>2.5 L</strong>.',
+      boost:'Remember: 1000 cm³ = 1 litre, so move the decimal three places left.' },
+    { id:'n14',section:'Measurement',sec:'Measurement',emoji:'📐',title:'Cinema Popcorn Box Volume',
+      scenario:'A cinema popcorn box is a rectangular prism measuring <strong>25 cm × 8 cm × 15 cm</strong>.',
+      callout:'Management needs its volume for packaging orders.',
+      type:'number',task:'Find the volume in cm³.',
+      answer:3000,tolerance:0.01,tol:0.01,topic:'volume calculation',gap_label:'volume calculation',
+      hint:'Use volume = length × width × height.',
+      explanation:'25 × 8 × 15 = <strong>3000 cm³</strong>.',
+      explain:'25 × 8 × 15 = <strong>3000 cm³</strong>.',
+      boost:'Write all three dimensions before multiplying so no side is missed.' },
+    { id:'n15',section:'Measurement',sec:'Measurement',emoji:'📐',title:'Marae Sandpit Fill',
+      scenario:'A community garden sandpit is <strong>2 m</strong> long, <strong>1.5 m</strong> wide and <strong>0.3 m</strong> deep.',
+      callout:'Volunteers need to estimate sand required in cubic metres.',
+      type:'number',task:'What is the sandpit volume in m³?',
+      answer:0.9,tolerance:0.01,tol:0.01,topic:'volume calculation',gap_label:'volume calculation',
+      hint:'Multiply the three measurements in metres.',
+      explanation:'2 × 1.5 × 0.3 = <strong>0.9 m³</strong>.',
+      explain:'2 × 1.5 × 0.3 = <strong>0.9 m³</strong>.',
+      boost:'When all lengths are in metres, your volume result is in m³.' },
+    { id:'n16',section:'Rates & Ratios',sec:'Rates & Ratios',emoji:'⏱️',title:'Aroha’s Running Pace Check',
+      scenario:'At athletics training, Aroha runs <strong>1540 m</strong> in <strong>14 minutes</strong>.',
+      callout:'Her friend says, "That is about 100 metres per minute."',
+      type:'mc',task:'Is 100 m/min a reasonable estimate?',
+      options:['Yes, that estimate is reasonable.','No, the actual rate is much lower than 100 m/min.'],
+      answer:'Yes, that estimate is reasonable.',topic:'rate and reasonableness',gap_label:'rate and reasonableness',
+      hint:'Compute 1540 ÷ 14 and compare with 100.',
+      explanation:'1540 ÷ 14 = 110 m/min, so <strong>100 m/min is a reasonable estimate</strong>.',
+      explain:'1540 ÷ 14 = 110 m/min, so <strong>100 m/min is a reasonable estimate</strong>.',
+      boost:'For reasonableness, calculate the exact value first, then judge whether the claim is close.' },
+    { id:'n17',section:'Rates & Ratios',sec:'Rates & Ratios',emoji:'⏱️',title:'Intercity Bus Speed',
+      scenario:'An intercity bus covers <strong>84 km</strong> in <strong>1.5 hours</strong> on SH1.',
+      callout:'The driver wants to check average speed for the trip log.',
+      type:'number',task:'What is the average speed in km/h?',
+      answer:56,tolerance:0.01,tol:0.01,topic:'rate and reasonableness',gap_label:'rate and reasonableness',
+      hint:'Use speed = distance ÷ time.',
+      explanation:'84 ÷ 1.5 = <strong>56 km/h</strong>.',
+      explain:'84 ÷ 1.5 = <strong>56 km/h</strong>.',
+      boost:'If time includes decimals, divide directly instead of converting to minutes first.' },
+    { id:'n18',section:'Rates & Ratios',sec:'Rates & Ratios',emoji:'⏱️',title:'Weekly Pay Check',
+      scenario:'Tama works at a local dairy for <strong>$18.50 per hour</strong> and worked <strong>37.5 hours</strong> this week.',
+      callout:'He wants to confirm his gross pay before tax.',
+      type:'mc',task:'What should his weekly pay be?',
+      options:['$580','$694','$720','$750'],
+      answer:'$694',topic:'rate and reasonableness',gap_label:'rate and reasonableness',
+      hint:'Multiply hourly rate by total hours.',
+      explanation:'18.50 × 37.5 = 693.75, which rounds to <strong>$694</strong>.',
+      explain:'18.50 × 37.5 = 693.75, which rounds to <strong>$694</strong>.',
+      boost:'Estimate first (20 × 35 = 700) to quickly check whether your final answer is sensible.' },
+    { id:'n19',section:'Statistics & Probability',sec:'Statistics & Probability',emoji:'🎲',title:'Marble Bag Probability',
+      scenario:'A bag has <strong>3 red</strong>, <strong>5 blue</strong>, and <strong>2 green</strong> marbles.',
+      callout:'You draw one marble at random.',
+      type:'mc',task:'What is the probability of drawing a blue marble?',
+      options:['1/5','1/2','3/5','5/3'],
+      answer:'1/2',topic:'probability scale',gap_label:'probability scale',
+      hint:'Probability = favourable outcomes ÷ total outcomes.',
+      explanation:'Total marbles = 10 and blue marbles = 5, so 5/10 = <strong>1/2 (0.5)</strong>.',
+      explain:'Total marbles = 10 and blue marbles = 5, so 5/10 = <strong>1/2 (0.5)</strong>.',
+      boost:'Check that probabilities are between 0 and 1. Values above 1 are impossible.' },
+    { id:'n20',section:'Statistics & Probability',sec:'Statistics & Probability',emoji:'🎲',title:'School Tournament Chance',
+      scenario:'Twelve schools enter a regional tournament and each school is equally likely to win.',
+      callout:'There are <strong>5 South Auckland schools</strong> in the draw.',
+      type:'mc',task:'What is the probability that a South Auckland school wins?',
+      options:['5/12','7/12','5/7','12/5'],
+      answer:'5/12',topic:'probability scale',gap_label:'probability scale',
+      hint:'Use number of favourable schools over total schools.',
+      explanation:'Favourable outcomes = 5 and total outcomes = 12, so probability is <strong>5/12</strong>.',
+      explain:'Favourable outcomes = 5 and total outcomes = 12, so probability is <strong>5/12</strong>.',
+      boost:'Write probability as a fraction first, then convert to decimal if needed.' },
+    { id:'n21',section:'Statistics & Probability',sec:'Statistics & Probability',emoji:'🎲',title:'Interpreting a Probability Value',
+      scenario:'A weather app says the probability of hail this evening is <strong>0.05</strong>.',
+      callout:'You need to decide whether hail is likely or unlikely.',
+      type:'mc',task:'Is this event likely or unlikely?',
+      options:['Likely','Unlikely','Certain','Impossible'],
+      answer:'Unlikely',topic:'probability scale',gap_label:'probability scale',
+      hint:'Values close to 0 mean low chance; values close to 1 mean high chance.',
+      explanation:'0.05 is very close to 0, so hail is <strong>unlikely</strong>.',
+      explain:'0.05 is very close to 0, so hail is <strong>unlikely</strong>.',
+      boost:'Use anchors: 0 impossible, 0.5 even chance, 1 certain.' },
+    { id:'n22',section:'Geometry & Direction',sec:'Geometry & Direction',emoji:'🧭',title:'Wellington to Nelson Direction',
+      scenario:'On a map, the route from Wellington to Nelson goes from the <strong>bottom-right</strong> toward the <strong>top-left</strong>.',
+      callout:'Choose the correct compass direction.',
+      type:'mc',task:'Which direction is this movement?',
+      options:['North-East','North-West','South-East','South-West'],
+      answer:'North-West',topic:'compass direction',gap_label:'compass direction',
+      hint:'Up is north and left is west on standard maps.',
+      explanation:'Moving up and left combines north + west = <strong>North-West</strong>.',
+      explain:'Moving up and left combines north + west = <strong>North-West</strong>.',
+      boost:'Split diagonal directions into vertical + horizontal parts, then combine them.' },
+    { id:'n23',section:'Geometry & Direction',sec:'Geometry & Direction',emoji:'🧭',title:'Aroha’s Turn',
+      scenario:'Aroha is walking <strong>East</strong> along the waterfront.',
+      callout:'She then turns <strong>90° left</strong>.',
+      type:'mc',task:'Which direction is she now facing?',
+      options:['North','South','West','East'],
+      answer:'North',topic:'compass direction',gap_label:'compass direction',
+      hint:'Face east with your body and imagine a left turn.',
+      explanation:'A 90° left turn from east points <strong>North</strong>.',
+      explain:'A 90° left turn from east points <strong>North</strong>.',
+      boost:'Use a quick compass sketch when direction changes are involved.' },
+    { id:'n24',section:'Geometry & Direction',sec:'Geometry & Direction',emoji:'📐',title:'Rugby Corner Kick Angle',
+      scenario:'A player takes a corner kick with an angle that looks about a quarter of a right angle.',
+      callout:'A right angle is <strong>90°</strong>.',
+      type:'mc',task:'Which estimate is most reasonable?',
+      options:['15°','25°','45°','90°'],
+      answer:'25°',topic:'angle estimation',gap_label:'angle estimation',
+      hint:'A quarter of 90° is 22.5°, so choose the closest option.',
+      explanation:'22.5° is closest to <strong>25°</strong>, so 25° is the best estimate.',
+      explain:'22.5° is closest to <strong>25°</strong>, so 25° is the best estimate.',
+      boost:'Estimate by comparing unknown angles to benchmark angles like 45°, 90°, and 180°.' },
+    { id:'n25',section:'Geometry & Direction',sec:'Geometry & Direction',emoji:'📐',title:'Closest to 135°',
+      scenario:'A design student sketches four angles on a storyboard for Polyfest stage lighting.',
+      callout:'You need the one closest to <strong>135°</strong>.',
+      type:'mc',task:'Which angle is closest to 135°?',
+      options:['70°','110°','140°','175°'],
+      answer:'140°',topic:'angle estimation',gap_label:'angle estimation',
+      hint:'135° is halfway between 90° and 180°.',
+      explanation:'Differences from 135° are 65, 25, 5, and 40 degrees. The closest is <strong>140°</strong>.',
+      explain:'Differences from 135° are 65, 25, 5, and 40 degrees. The closest is <strong>140°</strong>.',
+      boost:'For "closest" questions, subtract each option from the target and compare the absolute differences.' },
+    { id:'n26',section:'Number & Reasoning',sec:'Number & Reasoning',emoji:'🔍',title:'Race Result Claim',
+      scenario:'Gold medal time is <strong>49.90 s</strong>; bronze is <strong>50.45 s</strong>.',
+      callout:'Someone claims the bronze runner was "half a second slower."',
+      type:'mc',task:'Is the claim correct?',
+      options:['Yes, because the difference is 0.50 s','No, because the difference is 0.55 s','Yes, because 50.45 rounds to 50.4','No, because the difference is 0.45 s'],
+      answer:'No, because the difference is 0.55 s',topic:'claim verification',gap_label:'claim verification',
+      hint:'Subtract 49.90 from 50.45.',
+      explanation:'50.45 − 49.90 = <strong>0.55 s</strong>, not 0.50 s.',
+      explain:'50.45 − 49.90 = <strong>0.55 s</strong>, not 0.50 s.',
+      boost:'Verify claims with exact subtraction before rounding.' },
+    { id:'n27',section:'Number & Reasoning',sec:'Number & Reasoning',emoji:'🔍',title:'Discount Claim Check',
+      scenario:'A hoodie costs <strong>$48</strong> and is reduced by a <strong>quarter</strong>.',
+      callout:'A friend says the new price should be <strong>$37</strong>.',
+      type:'mc',task:'Is the claim correct?',
+      options:['Yes, because 48 ÷ 4 = 12 and 48 − 11 = 37','No, because a quarter off gives $36','Yes, because 25% of 48 is 11','No, because quarter means divide by 2'],
+      answer:'No, because a quarter off gives $36',topic:'claim verification',gap_label:'claim verification',
+      hint:'Find 25% of 48, then subtract from 48.',
+      explanation:'A quarter of 48 is 12. New price is 48 − 12 = <strong>$36</strong>, so the claim is wrong.',
+      explain:'A quarter of 48 is 12. New price is 48 − 12 = <strong>$36</strong>, so the claim is wrong.',
+      boost:'Translate words like quarter, half, and third into fractions before calculating.' },
+    { id:'n28',section:'Number & Reasoning',sec:'Number & Reasoning',emoji:'🔍',title:'Large Number Reasonableness',
+      scenario:'A report says project spending was <strong>$1.408 billion</strong>.',
+      callout:'Another summary rounds this to <strong>about $1.5 billion</strong>.',
+      type:'mc',task:'Is that rounding reasonable?',
+      options:['Yes, it is a reasonable estimate','No, it should be about $2.0 billion','No, it should be about $1.0 billion','No, because billion values cannot be rounded'],
+      answer:'Yes, it is a reasonable estimate',topic:'claim verification',gap_label:'claim verification',
+      hint:'Compare 1.408 to nearby tenths: 1.4 and 1.5.',
+      explanation:'1.408 is close to 1.4 and reasonably near 1.5 for a broad estimate, so <strong>yes</strong> is acceptable.',
+      explain:'1.408 is close to 1.4 and reasonably near 1.5 for a broad estimate, so <strong>yes</strong> is acceptable.',
+      boost:'Judge reasonableness by the purpose of the estimate (quick overview vs exact accounting).' },
+    { id:'n29',section:'Time & Timetables',sec:'Time & Timetables',emoji:'🕐',title:'Tongan Stage Rotation',
+      scenario:'At Polyfest, Stage 5 runs from <strong>9:15 am to 10:30 am</strong> for Tongan groups.',
+      callout:'There are <strong>5 performances</strong> and <strong>five scheduled 5-minute changeovers</strong> in that block.',
+      type:'mc',task:'How long is each performance?',
+      options:['8 minutes','10 minutes','12 minutes','15 minutes'],
+      answer:'10 minutes',topic:'timetable reading',gap_label:'timetable reading',
+      hint:'Total window is 75 minutes. Subtract 5 changeovers, then divide by 5 performances.',
+      explanation:'9:15 to 10:30 is 75 min. Changeovers: 5 × 5 = 25 min. Performance time: 75 − 25 = 50 min. 50 ÷ 5 = <strong>10 minutes</strong>.',
+      explain:'9:15 to 10:30 is 75 min. Changeovers: 5 × 5 = 25 min. Performance time: 75 − 25 = 50 min. 50 ÷ 5 = <strong>10 minutes</strong>.',
+      boost:'For timetable windows, subtract break time first, then divide by number of sessions.' },
+    { id:'n30',section:'Time & Timetables',sec:'Time & Timetables',emoji:'🕐',title:'Samoan Stage Rotation',
+      scenario:'On the same stage and time window (<strong>9:15 am to 10:30 am</strong>), Samoan groups have <strong>8 performances</strong>.',
+      callout:'There are still <strong>5-minute breaks between performances</strong>.',
+      type:'number',task:'How long is each performance in minutes?',
+      answer:5,tolerance:0.01,tol:0.01,topic:'timetable reading',gap_label:'timetable reading',
+      hint:'Use total time 75 min, subtract 7 breaks, then divide by 8.',
+      explanation:'Breaks: 7 × 5 = 35 min. Performance time: 75 − 35 = 40 min. 40 ÷ 8 = <strong>5 minutes each</strong>.',
+      explain:'Breaks: 7 × 5 = 35 min. Performance time: 75 − 35 = 40 min. 40 ÷ 8 = <strong>5 minutes each</strong>.',
+      boost:'For n performances with breaks between, the number of breaks is n−1.' },
+
+  ],
+    '32403': [
+
+    // ── PASSAGE SET 1: Employment — Job Ad + Article (2 texts) ──
+    { id:'r01',sec:'Employment',emoji:'💼',title:'Job Ad — Pay Rate',
+      passageTitle:'Text A — Job Advertisement + Text B — Getting Your First Job',
+      passage:`TEXT A — JOB ADVERTISEMENT
+
+CAFÉ ASSISTANT — PART TIME
+Sunrise Café is looking for a friendly, reliable team member to join us on weekends.
+Hours: Saturday and Sunday, 7am–1pm
+Pay: $18.50/hr
+Skills needed: Good communication, able to work in a fast-paced environment, food handling certificate preferred but not required.
+To apply: Email a short cover letter and CV to manager@sunrisecafe.co.nz by Friday 5pm.
+
+────────────────────────────────
+
+TEXT B — GETTING YOUR FIRST JOB (Article, ~280 words)
+
+Getting your first paid job can feel overwhelming, but employers hiring for entry-level roles are usually more interested in your attitude than your experience. A positive attitude, punctuality and willingness to learn often matter more than a long list of skills.
+
+When writing a cover letter, avoid generic phrases like "I am a hard worker." Instead, give a specific example: "Last year I volunteered at a school fair every Saturday for six weeks — I know how to show up reliably." Specific evidence always beats vague claims.
+
+Many first-time applicants make the mistake of sending the same CV to every employer. Tailoring your application — even slightly — shows you have read the job description carefully. If an ad mentions "fast-paced environment," use that phrase in your letter and explain why it suits you.
+
+Employers also notice presentation. A one-page CV with clear headings, consistent formatting and no spelling errors suggests the applicant takes care in their work. The reverse is also true: a messy application signals carelessness before you have even walked through the door.
+
+Finally, follow the instructions in the advertisement exactly. If it says email by Friday 5pm, don't send it Saturday morning. Employers use application instructions as a first test of whether a candidate can follow directions — one of the most important workplace skills of all.`,
+      type:'mc',task:'What is the hourly pay rate for the Sunrise Café job? (Text A)',
+      options:['$17.50/hr','$18.00/hr','$18.50/hr','$19.00/hr'],
+      answer:'$18.50/hr',topic:'Locating specific information',
+      hint:"Scan Text A for the word 'Pay' — the answer is directly next to it.",
+      explain:"Text A states clearly: 'Pay: $18.50/hr'",
+      boost:"For locate questions: find the key word from the question in the text, then read the sentence around it." },
+
+    { id:'r02',sec:'Employment',emoji:'💼',title:'Job Ad — Application Instructions',
+      passageTitle:'Text A — Job Advertisement + Text B — Getting Your First Job',
+      passage:`TEXT A — JOB ADVERTISEMENT
+
+CAFÉ ASSISTANT — PART TIME
+Sunrise Café is looking for a friendly, reliable team member to join us on weekends.
+Hours: Saturday and Sunday, 7am–1pm
+Pay: $18.50/hr
+Skills needed: Good communication, able to work in a fast-paced environment, food handling certificate preferred but not required.
+To apply: Email a short cover letter and CV to manager@sunrisecafe.co.nz by Friday 5pm.
+
+────────────────────────────────
+
+TEXT B — GETTING YOUR FIRST JOB (Article, ~280 words)
+
+Getting your first paid job can feel overwhelming, but employers hiring for entry-level roles are usually more interested in your attitude than your experience. A positive attitude, punctuality and willingness to learn often matter more than a long list of skills.
+
+When writing a cover letter, avoid generic phrases like "I am a hard worker." Instead, give a specific example: "Last year I volunteered at a school fair every Saturday for six weeks — I know how to show up reliably." Specific evidence always beats vague claims.
+
+Many first-time applicants make the mistake of sending the same CV to every employer. Tailoring your application — even slightly — shows you have read the job description carefully. If an ad mentions "fast-paced environment," use that phrase in your letter and explain why it suits you.
+
+Employers also notice presentation. A one-page CV with clear headings, consistent formatting and no spelling errors suggests the applicant takes care in their work. The reverse is also true: a messy application signals carelessness before you have even walked through the door.
+
+Finally, follow the instructions in the advertisement exactly. If it says email by Friday 5pm, don't send it Saturday morning. Employers use application instructions as a first test of whether a candidate can follow directions — one of the most important workplace skills of all.`,
+      type:'mc',task:"According to Text B, what do employers use job application instructions for?",
+      options:['To check spelling and grammar','As a first test of whether a candidate can follow directions','To see how creative the applicant is','To find out how much experience they have'],
+      answer:'As a first test of whether a candidate can follow directions',topic:"Identifying the writer's purpose",
+      hint:"Find the last paragraph of Text B — the writer explains this explicitly.",
+      explain:"Text B states: 'Employers use application instructions as a first test of whether a candidate can follow directions.'",
+      boost:"Writers often put their key point in the final paragraph. Always read to the end." },
+
+    { id:'r03',sec:'Employment',emoji:'💼',title:'Job Ad — Comparing Texts',
+      passageTitle:'Text A — Job Advertisement + Text B — Getting Your First Job',
+      passage:`TEXT A — JOB ADVERTISEMENT
+
+CAFÉ ASSISTANT — PART TIME
+Sunrise Café is looking for a friendly, reliable team member to join us on weekends.
+Hours: Saturday and Sunday, 7am–1pm
+Pay: $18.50/hr
+Skills needed: Good communication, able to work in a fast-paced environment, food handling certificate preferred but not required.
+To apply: Email a short cover letter and CV to manager@sunrisecafe.co.nz by Friday 5pm.
+
+────────────────────────────────
+
+TEXT B — GETTING YOUR FIRST JOB (Article, ~280 words)
+
+Getting your first paid job can feel overwhelming, but employers hiring for entry-level roles are usually more interested in your attitude than your experience. A positive attitude, punctuality and willingness to learn often matter more than a long list of skills.
+
+When writing a cover letter, avoid generic phrases like "I am a hard worker." Instead, give a specific example: "Last year I volunteered at a school fair every Saturday for six weeks — I know how to show up reliably." Specific evidence always beats vague claims.
+
+Many first-time applicants make the mistake of sending the same CV to every employer. Tailoring your application — even slightly — shows you have read the job description carefully. If an ad mentions "fast-paced environment," use that phrase in your letter and explain why it suits you.
+
+Employers also notice presentation. A one-page CV with clear headings, consistent formatting and no spelling errors suggests the applicant takes care in their work. The reverse is also true: a messy application signals carelessness before you have even walked through the door.
+
+Finally, follow the instructions in the advertisement exactly. If it says email by Friday 5pm, don't send it Saturday morning. Employers use application instructions as a first test of whether a candidate can follow directions — one of the most important workplace skills of all.`,
+      type:'mc',task:"Text B says 'If an ad mentions fast-paced environment, use that phrase in your letter.' Which part of Text A makes this advice directly relevant?",
+      options:["'Food handling certificate preferred but not required'","'Able to work in a fast-paced environment' in the skills section","'Saturday and Sunday, 7am–1pm'","'Email a short cover letter and CV'"],
+      answer:"'Able to work in a fast-paced environment' in the skills section",topic:'Comparing texts — applying advice to a specific context',
+      hint:"Find 'fast-paced' in both texts. Text A uses this exact phrase in the skills section.",
+      explain:"Text A lists 'able to work in a fast-paced environment' as a required skill. Text B says applicants should use this phrase — making it directly applicable.",
+      boost:"Comparison questions: find the same idea in both texts. Sometimes the exact same words appear in each." },
+
+    { id:'r04',sec:'Health & Safety',emoji:'⚠️',title:'Safety Notice — Incidents',
+      passageTitle:'Text A — Workplace Safety Notice + Text B — Why Workers Ignore Safety Rules',
+      passage:`TEXT A — WORKPLACE SAFETY NOTICE
+
+NEW FORKLIFT RULES — EFFECTIVE IMMEDIATELY
+
+Following three near-miss incidents in the past month, the following rules are now mandatory:
+• No pedestrians in forklift zones between 8am–4pm
+• All forklift operators must complete a daily pre-start checklist
+• High-visibility vests must be worn at all times on the warehouse floor
+• Report all near-miss incidents to your supervisor within 2 hours
+Failure to follow these rules may result in disciplinary action.
+— Site Manager, Tasman Logistics
+
+────────────────────────────────
+
+TEXT B — WHY WORKERS IGNORE SAFETY RULES (~300 words)
+
+Workplace safety rules exist for good reason, yet research consistently shows that workers often ignore them — not out of laziness or recklessness, but for more complex reasons.
+
+One major factor is what psychologists call "optimism bias" — the tendency to believe that accidents happen to other people, not to us. A forklift operator who has worked safely for ten years without incident may genuinely feel that the rules don't apply to them in the same way they apply to a newcomer. This belief, while understandable, is precisely what makes experienced workers a significant safety risk.
+
+Another factor is time pressure. When workers feel rushed, they tend to cut corners on safety procedures, particularly ones they see as time-consuming or repetitive. A daily pre-start checklist might take five minutes — but if a worker is already behind schedule, those five minutes feel significant.
+
+Workplace culture also plays a role. If senior staff are seen ignoring rules, junior workers quickly learn that the rules are not really enforced. The tone is set from the top: a site manager who parks in a no-pedestrian zone sends a powerful message about how seriously safety rules are taken.
+
+Safety experts argue that the most effective approach is not stricter rules but better culture — creating an environment where workers feel safe to report near-misses without fear of blame, and where following safety procedures is seen as professional, not excessive.`,
+      type:'mc',task:'How many near-miss incidents occurred before the new rules were introduced? (Text A)',
+      options:['One','Two','Three','Four'],
+      answer:'Three',topic:'Locating specific information',
+      hint:"The first sentence of Text A gives you this number.",
+      explain:"Text A states: 'Following three near-miss incidents in the past month.'",
+      boost:"Locate questions about numbers: scan the text quickly for digits or number words." },
+
+    { id:'r05',sec:'Health & Safety',emoji:'⚠️',title:'Safety — Experienced Worker Risk',
+      passageTitle:'Text A — Workplace Safety Notice + Text B — Why Workers Ignore Safety Rules',
+      passage:`TEXT A — WORKPLACE SAFETY NOTICE
+
+NEW FORKLIFT RULES — EFFECTIVE IMMEDIATELY
+
+Following three near-miss incidents in the past month, the following rules are now mandatory:
+• No pedestrians in forklift zones between 8am–4pm
+• All forklift operators must complete a daily pre-start checklist
+• High-visibility vests must be worn at all times on the warehouse floor
+• Report all near-miss incidents to your supervisor within 2 hours
+Failure to follow these rules may result in disciplinary action.
+— Site Manager, Tasman Logistics
+
+────────────────────────────────
+
+TEXT B — WHY WORKERS IGNORE SAFETY RULES (~300 words)
+
+Workplace safety rules exist for good reason, yet research consistently shows that workers often ignore them — not out of laziness or recklessness, but for more complex reasons.
+
+One major factor is what psychologists call "optimism bias" — the tendency to believe that accidents happen to other people, not to us. A forklift operator who has worked safely for ten years without incident may genuinely feel that the rules don't apply to them in the same way they apply to a newcomer. This belief, while understandable, is precisely what makes experienced workers a significant safety risk.
+
+Another factor is time pressure. When workers feel rushed, they tend to cut corners on safety procedures, particularly ones they see as time-consuming or repetitive. A daily pre-start checklist might take five minutes — but if a worker is already behind schedule, those five minutes feel significant.
+
+Workplace culture also plays a role. If senior staff are seen ignoring rules, junior workers quickly learn that the rules are not really enforced. The tone is set from the top: a site manager who parks in a no-pedestrian zone sends a powerful message about how seriously safety rules are taken.
+
+Safety experts argue that the most effective approach is not stricter rules but better culture — creating an environment where workers feel safe to report near-misses without fear of blame, and where following safety procedures is seen as professional, not excessive.`,
+      type:'mc',task:"According to Text B, why might an experienced forklift operator be a safety risk?",
+      options:['They drive faster than new workers','They believe accidents happen to other people, not them','They refuse to wear safety vests','They are too tired from years of work'],
+      answer:'They believe accidents happen to other people, not them',topic:'Inference — identifying a cause',
+      hint:"Find 'optimism bias' in Text B — the sentence after it defines exactly what this means.",
+      explain:"Text B explains that experienced workers 'feel that the rules don't apply to them in the same way they apply to a newcomer' — making them a significant safety risk due to optimism bias.",
+      boost:"Inference questions ask WHY something happens. Look for explanation sentences with 'because', 'due to', or dashes (—)." },
+
+    { id:'r06',sec:'Health & Safety',emoji:'⚠️',title:"Safety — Main Argument",
+      passageTitle:'Text A — Workplace Safety Notice + Text B — Why Workers Ignore Safety Rules',
+      passage:`TEXT A — WORKPLACE SAFETY NOTICE
+
+NEW FORKLIFT RULES — EFFECTIVE IMMEDIATELY
+
+Following three near-miss incidents in the past month, the following rules are now mandatory:
+• No pedestrians in forklift zones between 8am–4pm
+• All forklift operators must complete a daily pre-start checklist
+• High-visibility vests must be worn at all times on the warehouse floor
+• Report all near-miss incidents to your supervisor within 2 hours
+Failure to follow these rules may result in disciplinary action.
+— Site Manager, Tasman Logistics
+
+────────────────────────────────
+
+TEXT B — WHY WORKERS IGNORE SAFETY RULES (~300 words)
+
+Workplace safety rules exist for good reason, yet research consistently shows that workers often ignore them — not out of laziness or recklessness, but for more complex reasons.
+
+One major factor is what psychologists call "optimism bias" — the tendency to believe that accidents happen to other people, not to us. A forklift operator who has worked safely for ten years without incident may genuinely feel that the rules don't apply to them in the same way they apply to a newcomer. This belief, while understandable, is precisely what makes experienced workers a significant safety risk.
+
+Another factor is time pressure. When workers feel rushed, they tend to cut corners on safety procedures, particularly ones they see as time-consuming or repetitive. A daily pre-start checklist might take five minutes — but if a worker is already behind schedule, those five minutes feel significant.
+
+Workplace culture also plays a role. If senior staff are seen ignoring rules, junior workers quickly learn that the rules are not really enforced. The tone is set from the top: a site manager who parks in a no-pedestrian zone sends a powerful message about how seriously safety rules are taken.
+
+Safety experts argue that the most effective approach is not stricter rules but better culture — creating an environment where workers feel safe to report near-misses without fear of blame, and where following safety procedures is seen as professional, not excessive.`,
+      type:'mc',task:"What is the writer's main argument in Text B?",
+      options:['Forklift operators need more training','Stricter rules are the best way to improve workplace safety','Better workplace culture is more effective than stricter rules','Workers ignore safety rules because they are lazy'],
+      answer:'Better workplace culture is more effective than stricter rules',topic:"Summarising the writer's main argument",
+      hint:"Read the final paragraph of Text B carefully — the main argument is stated there.",
+      explain:"The final paragraph states: 'Safety experts argue that the most effective approach is not stricter rules but better culture.' This is the writer's main point.",
+      boost:"The main argument is usually in the first or last paragraph. In an article, it is often the conclusion." },
+
+    { id:'r07',sec:'Media & Society',emoji:'📰',title:'Phone Ban — Two Results',
+      passageTitle:"Opinion: It's Time to Ban Phones in Schools — For Good",
+      passage:`IT'S TIME TO BAN PHONES IN SCHOOLS — FOR GOOD
+By a concerned parent
+
+The evidence is overwhelming: smartphones are destroying our children's ability to concentrate, sleep and communicate face-to-face. Study after study confirms that screen time is linked to rising rates of anxiety and depression in teenagers. As parents and educators, we cannot ignore this any longer.
+
+Last year, our school introduced a phone-free classroom policy. The results were immediate and dramatic. Teachers reported students were more engaged, and one Year 10 student told me she "finally felt like she could think again" without the constant pull of notifications.
+
+Critics argue that phones are useful learning tools. But ask yourself: how often do you actually see students using their phones for learning? The reality is that devices are used for social media, gaming and messaging — activities that actively compete with learning rather than support it.
+
+Some parents worry about emergencies. But schools managed perfectly well before smartphones existed, and offices have landlines for exactly this reason. The argument that children need a phone for safety is largely a rationalisation by those unwilling to accept limits on technology.
+
+A growing number of countries — including France and Australia — have already introduced school phone bans with positive results. New Zealand needs to catch up. Our children's mental health and academic futures depend on it.`,
+      type:'mc',task:'According to the text, what were TWO results of the phone-free classroom policy?',
+      options:['Students were more engaged, and test scores improved','Teachers reported students were more engaged, and one student said she could think again','Students used phones less, and teachers were happier','Students communicated better face-to-face and slept more'],
+      answer:'Teachers reported students were more engaged, and one student said she could think again',topic:'Locating multiple pieces of information',
+      hint:"Find the paragraph about the phone-free policy. Both results are in the same paragraph.",
+      explain:"The text states: 'Teachers reported students were more engaged, and one Year 10 student told me she finally felt like she could think again.'",
+      boost:"Two-part answers: find the paragraph, then identify both pieces of information before choosing your option." },
+
+    { id:'r08',sec:'Media & Society',emoji:'📰',title:'Phone Ban — Fact or Opinion?',
+      passageTitle:"Opinion: It's Time to Ban Phones in Schools — For Good",
+      passage:`IT'S TIME TO BAN PHONES IN SCHOOLS — FOR GOOD
+By a concerned parent
+
+The evidence is overwhelming: smartphones are destroying our children's ability to concentrate, sleep and communicate face-to-face. Study after study confirms that screen time is linked to rising rates of anxiety and depression in teenagers. As parents and educators, we cannot ignore this any longer.
+
+Last year, our school introduced a phone-free classroom policy. The results were immediate and dramatic. Teachers reported students were more engaged, and one Year 10 student told me she "finally felt like she could think again" without the constant pull of notifications.
+
+Critics argue that phones are useful learning tools. But ask yourself: how often do you actually see students using their phones for learning? The reality is that devices are used for social media, gaming and messaging — activities that actively compete with learning rather than support it.
+
+Some parents worry about emergencies. But schools managed perfectly well before smartphones existed, and offices have landlines for exactly this reason. The argument that children need a phone for safety is largely a rationalisation by those unwilling to accept limits on technology.
+
+A growing number of countries — including France and Australia — have already introduced school phone bans with positive results. New Zealand needs to catch up. Our children's mental health and academic futures depend on it.`,
+      type:'mc',task:"The writer says 'Study after study confirms that screen time is linked to rising rates of anxiety.' Is this a fact or an opinion?",
+      options:["It's a fact — the writer says 'study after study'","It's an opinion — no specific studies are named so it cannot be verified","It's a fact — it's written in a formal style","It's an opinion — the writer is a parent, not a scientist"],
+      answer:"It's an opinion — no specific studies are named so it cannot be verified",topic:'Distinguishing fact from opinion',
+      hint:"Ask: Can I check this claim? Is a specific source named? If not, it cannot be verified as fact.",
+      explain:"Although it sounds factual, no specific studies are named. A genuine fact would include a source. Without that, it is a claim — not a verified fact.",
+      boost:"Fact vs opinion: facts can be checked and verified. Opinions cannot — even if they sound confident." },
+
+    { id:'r09',sec:'Media & Society',emoji:'📰',title:'Phone Ban — Identifying Bias',
+      passageTitle:"Opinion: It's Time to Ban Phones in Schools — For Good",
+      passage:`IT'S TIME TO BAN PHONES IN SCHOOLS — FOR GOOD
+By a concerned parent
+
+The evidence is overwhelming: smartphones are destroying our children's ability to concentrate, sleep and communicate face-to-face. Study after study confirms that screen time is linked to rising rates of anxiety and depression in teenagers. As parents and educators, we cannot ignore this any longer.
+
+Last year, our school introduced a phone-free classroom policy. The results were immediate and dramatic. Teachers reported students were more engaged, and one Year 10 student told me she "finally felt like she could think again" without the constant pull of notifications.
+
+Critics argue that phones are useful learning tools. But ask yourself: how often do you actually see students using their phones for learning? The reality is that devices are used for social media, gaming and messaging — activities that actively compete with learning rather than support it.
+
+Some parents worry about emergencies. But schools managed perfectly well before smartphones existed, and offices have landlines for exactly this reason. The argument that children need a phone for safety is largely a rationalisation by those unwilling to accept limits on technology.
+
+A growing number of countries — including France and Australia — have already introduced school phone bans with positive results. New Zealand needs to catch up. Our children's mental health and academic futures depend on it.`,
+      type:'mc',task:"Which is the BEST example of bias in this text?",
+      options:["The writer mentions France and Australia have phone bans","The writer dismisses the emergency safety argument as 'largely a rationalisation' without engaging with the actual concern","The writer says teachers reported students were more engaged","The writer mentions critics argue phones are useful"],
+      answer:"The writer dismisses the emergency safety argument as 'largely a rationalisation' without engaging with the actual concern",topic:'Identifying bias',
+      hint:"Bias means presenting only one side fairly. Look for where the writer dismisses the other side without really engaging with it.",
+      explain:"Rather than addressing the emergency concern seriously, the writer labels it a 'rationalisation' — dismissing it without evidence. This is bias: refusing to engage fairly with the opposing view.",
+      boost:"Bias often appears when a writer dismisses the other side with a label rather than evidence." },
+
+    { id:'r10',sec:'Community',emoji:'🏘️',title:'Community Garden — Food Time',
+      passageTitle:'Text A — Event Flyer + Text B — Letter to Newspaper',
+      passage:`TEXT A — COMMUNITY GARDEN DAY FLYER
+
+OTAUTAHI COMMUNITY GARDEN DAY
+Saturday 14 June | 9am – 2pm | Hagley Park Community Garden, Gate 3
+
+Join us for a free day of planting, workshops and kai!
+• Learn composting and seasonal planting
+• Free seedlings to take home
+• Sausage sizzle and kai from 11am
+• Suitable for all ages — kids welcome
+No registration needed — just show up!
+
+────────────────────────────────
+
+TEXT B — LETTER TO THE EDITOR
+
+Community gardens are more than just vegetables
+
+Dear Editor,
+
+I am writing in support of community gardens like the one run by Otautahi Grow Together. Many people see them simply as places to grow food, but I believe their real value lies elsewhere.
+
+Community gardens bring together people who might never otherwise meet — different ages, backgrounds and cultures, all working toward a shared goal. In an era of increasing social isolation, particularly among the elderly and young people who have recently moved to a new city, these shared spaces are more important than ever.
+
+I visited the garden last spring and was struck by how the volunteers worked alongside complete strangers as if they had known each other for years. One older woman told me she had moved to Christchurch two years ago and knew almost no one before she started volunteering there.
+
+Of course, the practical benefits — fresh food, environmental education, beautification of public spaces — are real and significant. But if we only measure the value of community gardens by the number of vegetables produced, we are missing most of the picture.
+
+I hope Christchurch City Council will consider increasing funding for these vital community spaces.
+
+— Marion Tuhoe, Riccarton`,
+      type:'mc',task:'What time does the food start at the Community Garden Day? (Text A)',
+      options:['9am','10am','11am','12pm'],
+      answer:'11am',topic:'Locating specific information',
+      hint:"Look for 'kai' or 'sausage sizzle' in Text A — the time is right next to it.",
+      explain:"Text A states: 'Sausage sizzle and kai from 11am'",
+      boost:"Locate questions with times: find the specific activity, then read the time next to it." },
+
+    { id:'r11',sec:'Community',emoji:'🏘️',title:'Community Garden — Main Benefit',
+      passageTitle:'Text A — Event Flyer + Text B — Letter to Newspaper',
+      passage:`TEXT A — COMMUNITY GARDEN DAY FLYER
+
+OTAUTAHI COMMUNITY GARDEN DAY
+Saturday 14 June | 9am – 2pm | Hagley Park Community Garden, Gate 3
+
+Join us for a free day of planting, workshops and kai!
+• Learn composting and seasonal planting
+• Free seedlings to take home
+• Sausage sizzle and kai from 11am
+• Suitable for all ages — kids welcome
+No registration needed — just show up!
+
+────────────────────────────────
+
+TEXT B — LETTER TO THE EDITOR
+
+Community gardens are more than just vegetables
+
+Dear Editor,
+
+I am writing in support of community gardens like the one run by Otautahi Grow Together. Many people see them simply as places to grow food, but I believe their real value lies elsewhere.
+
+Community gardens bring together people who might never otherwise meet — different ages, backgrounds and cultures, all working toward a shared goal. In an era of increasing social isolation, particularly among the elderly and young people who have recently moved to a new city, these shared spaces are more important than ever.
+
+I visited the garden last spring and was struck by how the volunteers worked alongside complete strangers as if they had known each other for years. One older woman told me she had moved to Christchurch two years ago and knew almost no one before she started volunteering there.
+
+Of course, the practical benefits — fresh food, environmental education, beautification of public spaces — are real and significant. But if we only measure the value of community gardens by the number of vegetables produced, we are missing most of the picture.
+
+I hope Christchurch City Council will consider increasing funding for these vital community spaces.
+
+— Marion Tuhoe, Riccarton`,
+      type:'mc',task:"According to Marion (Text B), what is the MAIN benefit of community gardens?",
+      options:['Providing fresh food for local families','Beautifying public spaces','Bringing together people from different backgrounds and reducing social isolation','Teaching people how to compost'],
+      answer:'Bringing together people from different backgrounds and reducing social isolation',topic:"Identifying the writer's main point",
+      hint:"Marion says 'I believe their real value lies elsewhere' — elsewhere from growing food. What does she say that value is?",
+      explain:"Marion argues the real value is bringing together 'different ages, backgrounds and cultures' and addressing 'increasing social isolation.'",
+      boost:"When a writer says 'I believe the real value is...' — that is their main point." },
+
+    { id:'r12',sec:'Community',emoji:'🏘️',title:'Community Garden — Comparing Purposes',
+      passageTitle:'Text A — Event Flyer + Text B — Letter to Newspaper',
+      passage:`TEXT A — COMMUNITY GARDEN DAY FLYER
+
+OTAUTAHI COMMUNITY GARDEN DAY
+Saturday 14 June | 9am – 2pm | Hagley Park Community Garden, Gate 3
+
+Join us for a free day of planting, workshops and kai!
+• Learn composting and seasonal planting
+• Free seedlings to take home
+• Sausage sizzle and kai from 11am
+• Suitable for all ages — kids welcome
+No registration needed — just show up!
+
+────────────────────────────────
+
+TEXT B — LETTER TO THE EDITOR
+
+Community gardens are more than just vegetables
+
+Dear Editor,
+
+I am writing in support of community gardens like the one run by Otautahi Grow Together. Many people see them simply as places to grow food, but I believe their real value lies elsewhere.
+
+Community gardens bring together people who might never otherwise meet — different ages, backgrounds and cultures, all working toward a shared goal. In an era of increasing social isolation, particularly among the elderly and young people who have recently moved to a new city, these shared spaces are more important than ever.
+
+I visited the garden last spring and was struck by how the volunteers worked alongside complete strangers as if they had known each other for years. One older woman told me she had moved to Christchurch two years ago and knew almost no one before she started volunteering there.
+
+Of course, the practical benefits — fresh food, environmental education, beautification of public spaces — are real and significant. But if we only measure the value of community gardens by the number of vegetables produced, we are missing most of the picture.
+
+I hope Christchurch City Council will consider increasing funding for these vital community spaces.
+
+— Marion Tuhoe, Riccarton`,
+      type:'mc',task:"What is ONE key difference in the purpose of Text A and Text B?",
+      options:["Text A is written for the Council; Text B is written for the public","Text A aims to get people to attend an event; Text B aims to persuade the Council to provide funding","Text A is about food; Text B is about gardening","Text A is formal; Text B is informal"],
+      answer:"Text A aims to get people to attend an event; Text B aims to persuade the Council to provide funding",topic:'Comparing texts — purpose and audience',
+      hint:"Ask: who is each text written FOR, and what is it trying to get them to DO?",
+      explain:"Text A is a flyer inviting the public to attend. Text B ends with a direct request to the Council to increase funding — different purposes and audiences.",
+      boost:"Text comparison: always ask about PURPOSE (what is it trying to achieve?) and AUDIENCE (who is it written for?)." },
+
+    { id:'r13',sec:'Sport & People',emoji:'🏉',title:'Hemi Tuhoe — Foundation Size',
+      passageTitle:'Profile: More Than a Game — The Story of Hemi Tuhoe',
+      passage:`MORE THAN A GAME: THE STORY OF HEMI TUHOE
+
+When Hemi Tuhoe was twelve, his family could not afford the registration fee for the local rugby club. His uncle paid it — reluctantly, muttering that sport was a distraction from school. Twenty years later, Hemi is captain of the Maori All Blacks and runs a foundation that pays registration fees for over 400 children across Northland every year.
+
+"I remember what it felt like to almost miss out," he says. "Sport was not a distraction for me — it was the thing that kept me in school. The discipline, the team, the sense of belonging. Those things mattered."
+
+Hemi's path to the top was not smooth. He suffered a serious knee injury at 19 that kept him off the field for fourteen months. Doctors told him he might not play professionally. "I had to decide who I was without rugby," he reflects. "That was actually the hardest thing I have ever done." The experience, he says, made him more determined — and more empathetic toward young players dealing with setbacks.
+
+His foundation, Tuhoe Tu, does not just pay fees. It provides gear, transport to training, and — increasingly — mental health support. "Physical injuries get attention," he says. "But a young player who is anxious or depressed? Often nobody notices until it's too late."
+
+Critics have occasionally questioned whether a sports foundation is the right vehicle for mental health support, arguing that professional counsellors, not coaches, should lead this work. Hemi is direct in his response: "We are not replacing counsellors. We are creating the environment where a kid feels safe enough to ask for help."
+
+At 32, Hemi is already thinking about what comes next. "Rugby gives you a platform," he says. "The question is what you do with it."`,
+      type:'mc',task:"How many children does Hemi's foundation support each year?",
+      options:['More than 200','More than 300','More than 400','More than 500'],
+      answer:'More than 400',topic:'Locating specific information',
+      hint:"The number is in the first paragraph — scan for it quickly.",
+      explain:"The text states Hemi 'runs a foundation that pays registration fees for over 400 children across Northland every year.'",
+      boost:"Numbers in texts are easy to find — scan quickly rather than reading word by word." },
+
+    { id:'r14',sec:'Sport & People',emoji:'🏉',title:'Hemi Tuhoe — Three Things Sport Gave Him',
+      passageTitle:'Profile: More Than a Game — The Story of Hemi Tuhoe',
+      passage:`MORE THAN A GAME: THE STORY OF HEMI TUHOE
+
+When Hemi Tuhoe was twelve, his family could not afford the registration fee for the local rugby club. His uncle paid it — reluctantly, muttering that sport was a distraction from school. Twenty years later, Hemi is captain of the Maori All Blacks and runs a foundation that pays registration fees for over 400 children across Northland every year.
+
+"I remember what it felt like to almost miss out," he says. "Sport was not a distraction for me — it was the thing that kept me in school. The discipline, the team, the sense of belonging. Those things mattered."
+
+Hemi's path to the top was not smooth. He suffered a serious knee injury at 19 that kept him off the field for fourteen months. Doctors told him he might not play professionally. "I had to decide who I was without rugby," he reflects. "That was actually the hardest thing I have ever done." The experience, he says, made him more determined — and more empathetic toward young players dealing with setbacks.
+
+His foundation, Tuhoe Tu, does not just pay fees. It provides gear, transport to training, and — increasingly — mental health support. "Physical injuries get attention," he says. "But a young player who is anxious or depressed? Often nobody notices until it's too late."
+
+Critics have occasionally questioned whether a sports foundation is the right vehicle for mental health support, arguing that professional counsellors, not coaches, should lead this work. Hemi is direct in his response: "We are not replacing counsellors. We are creating the environment where a kid feels safe enough to ask for help."
+
+At 32, Hemi is already thinking about what comes next. "Rugby gives you a platform," he says. "The question is what you do with it."`,
+      type:'mc',task:"According to Hemi, what THREE things did sport give him?",
+      options:['Fitness, friends and fame','Discipline, the team, and a sense of belonging','Confidence, money, and a career','Teamwork, medals, and attention'],
+      answer:'Discipline, the team, and a sense of belonging',topic:'Locating multiple pieces of information',
+      hint:"Find Hemi's direct quote in paragraph 2 — he lists exactly three things.",
+      explain:"Hemi says: 'The discipline, the team, the sense of belonging. Those things mattered.'",
+      boost:"When a question asks for a list, look for quotes or sentences that use commas to separate items." },
+
+    { id:'r15',sec:'Sport & People',emoji:'🏉',title:'Hemi Tuhoe — Critics and Response',
+      passageTitle:'Profile: More Than a Game — The Story of Hemi Tuhoe',
+      passage:`MORE THAN A GAME: THE STORY OF HEMI TUHOE
+
+When Hemi Tuhoe was twelve, his family could not afford the registration fee for the local rugby club. His uncle paid it — reluctantly, muttering that sport was a distraction from school. Twenty years later, Hemi is captain of the Maori All Blacks and runs a foundation that pays registration fees for over 400 children across Northland every year.
+
+"I remember what it felt like to almost miss out," he says. "Sport was not a distraction for me — it was the thing that kept me in school. The discipline, the team, the sense of belonging. Those things mattered."
+
+Hemi's path to the top was not smooth. He suffered a serious knee injury at 19 that kept him off the field for fourteen months. Doctors told him he might not play professionally. "I had to decide who I was without rugby," he reflects. "That was actually the hardest thing I have ever done." The experience, he says, made him more determined — and more empathetic toward young players dealing with setbacks.
+
+His foundation, Tuhoe Tu, does not just pay fees. It provides gear, transport to training, and — increasingly — mental health support. "Physical injuries get attention," he says. "But a young player who is anxious or depressed? Often nobody notices until it's too late."
+
+Critics have occasionally questioned whether a sports foundation is the right vehicle for mental health support, arguing that professional counsellors, not coaches, should lead this work. Hemi is direct in his response: "We are not replacing counsellors. We are creating the environment where a kid feels safe enough to ask for help."
+
+At 32, Hemi is already thinking about what comes next. "Rugby gives you a platform," he says. "The question is what you do with it."`,
+      type:'mc',task:"What criticism have some people made about Hemi's foundation, and how does he respond?",
+      options:["Critics say the foundation wastes money; Hemi says it does not","Critics say coaches should not provide mental health support; Hemi says they create an environment where young people feel safe to ask for help","Critics say the foundation only helps wealthy children; Hemi disagrees","Critics say rugby is too dangerous; Hemi says the benefits outweigh the risks"],
+      answer:"Critics say coaches should not provide mental health support; Hemi says they create an environment where young people feel safe to ask for help",topic:'Locating a counterargument and response',
+      hint:"Find the paragraph that starts 'Critics have occasionally questioned...' — both the criticism and the response are there.",
+      explain:"Critics argue professional counsellors should lead mental health work. Hemi responds: 'We are not replacing counsellors. We are creating the environment where a kid feels safe enough to ask for help.'",
+      boost:"Counterargument questions: find the criticism first, then find the response. They are usually in the same paragraph." },
+
+    { id:'r16',sec:'Health',emoji:'🥗',title:'Sugar — Main Concern',
+      passageTitle:'Text A — Social Media Post + Text B — Government Health Article',
+      passage:`TEXT A — SOCIAL MEDIA POST
+
+@WellnessWithTara - 2.4k likes
+
+DOCTORS DON'T WANT YOU TO KNOW THIS
+Sugar is literally poison. Even ONE teaspoon of sugar causes inflammation and damages your cells. Cut sugar COMPLETELY — fruit included — and watch your energy soar and your weight drop in 7 days. I dropped 8kg in a month doing this. It's all about going back to what our ancestors ate. Refined carbs = death. Repost to save a life.
+
+────────────────────────────────
+
+TEXT B — GOVERNMENT HEALTH WEBSITE
+
+UNDERSTANDING SUGAR: WHAT THE EVIDENCE ACTUALLY SHOWS
+
+Sugar is a type of carbohydrate found naturally in many foods, including fruit, vegetables and dairy products. Added sugars — those not naturally occurring — are the main concern for health professionals, as high intake is associated with increased risk of tooth decay, obesity and type 2 diabetes when consumed in excess over time.
+
+The idea that a single teaspoon of sugar damages cells is not supported by current scientific evidence. The human body processes moderate amounts of sugar as part of normal metabolism. Fruit, while containing natural sugar, also provides fibre, vitamins and minerals that are important for good health — health organisations including the World Health Organization recommend eating fruit daily.
+
+Losing 8 kilograms in one month would require an extreme calorie deficit that most health professionals would consider unsafe for most people. Rapid weight loss of this kind is often linked to water loss and muscle loss rather than fat loss, and is unlikely to be sustainable.
+
+New Zealanders are encouraged to reduce their intake of foods and drinks high in added sugar — such as soft drinks, confectionery and highly processed snacks — rather than eliminating all forms of sugar. A balanced diet that includes a variety of whole foods remains the evidence-based recommendation of nutritional science.`,
+      type:'mc',task:'According to Text B, which type of sugar is the main concern for health professionals?',
+      options:['Natural sugar found in fruit','Added sugars not naturally occurring in food','Sugar found in dairy products','All types of sugar equally'],
+      answer:'Added sugars not naturally occurring in food',topic:'Locating specific information',
+      hint:"Find the sentence in Text B that defines what type of sugar 'is the main concern'.",
+      explain:"Text B states: 'Added sugars — those not naturally occurring — are the main concern for health professionals.'",
+      boost:"When a text defines something with a dash (—), the definition follows the dash." },
+
+    { id:'r17',sec:'Health',emoji:'🥗',title:'Sugar — Contradicting a Claim',
+      passageTitle:'Text A — Social Media Post + Text B — Government Health Article',
+      passage:`TEXT A — SOCIAL MEDIA POST
+
+@WellnessWithTara - 2.4k likes
+
+DOCTORS DON'T WANT YOU TO KNOW THIS
+Sugar is literally poison. Even ONE teaspoon of sugar causes inflammation and damages your cells. Cut sugar COMPLETELY — fruit included — and watch your energy soar and your weight drop in 7 days. I dropped 8kg in a month doing this. It's all about going back to what our ancestors ate. Refined carbs = death. Repost to save a life.
+
+────────────────────────────────
+
+TEXT B — GOVERNMENT HEALTH WEBSITE
+
+UNDERSTANDING SUGAR: WHAT THE EVIDENCE ACTUALLY SHOWS
+
+Sugar is a type of carbohydrate found naturally in many foods, including fruit, vegetables and dairy products. Added sugars — those not naturally occurring — are the main concern for health professionals, as high intake is associated with increased risk of tooth decay, obesity and type 2 diabetes when consumed in excess over time.
+
+The idea that a single teaspoon of sugar damages cells is not supported by current scientific evidence. The human body processes moderate amounts of sugar as part of normal metabolism. Fruit, while containing natural sugar, also provides fibre, vitamins and minerals that are important for good health — health organisations including the World Health Organization recommend eating fruit daily.
+
+Losing 8 kilograms in one month would require an extreme calorie deficit that most health professionals would consider unsafe for most people. Rapid weight loss of this kind is often linked to water loss and muscle loss rather than fat loss, and is unlikely to be sustainable.
+
+New Zealanders are encouraged to reduce their intake of foods and drinks high in added sugar — such as soft drinks, confectionery and highly processed snacks — rather than eliminating all forms of sugar. A balanced diet that includes a variety of whole foods remains the evidence-based recommendation of nutritional science.`,
+      type:'mc',task:"Text A claims 'even ONE teaspoon of sugar damages your cells.' How does Text B respond to this?",
+      options:["Text B agrees — sugar does damage cells","Text B says this is not supported by current scientific evidence — the body processes moderate amounts of sugar normally","Text B ignores this claim","Text B says the claim is true only for people with diabetes"],
+      answer:"Text B says this is not supported by current scientific evidence — the body processes moderate amounts of sugar normally",topic:'Comparing texts — identifying a contradiction',
+      hint:"Find the specific sentence in Text B that directly addresses the 'damages cells' claim from Text A.",
+      explain:"Text B states: 'The idea that a single teaspoon of sugar damages cells is not supported by current scientific evidence. The human body processes moderate amounts of sugar as part of normal metabolism.'",
+      boost:"Contradiction questions: find the exact claim in Text A, then search for it in Text B to see how it is addressed." },
+
+    { id:'r18',sec:'Health',emoji:'🥗',title:'Sugar — Which Source to Trust?',
+      passageTitle:'Text A — Social Media Post + Text B — Government Health Article',
+      passage:`TEXT A — SOCIAL MEDIA POST
+
+@WellnessWithTara - 2.4k likes
+
+DOCTORS DON'T WANT YOU TO KNOW THIS
+Sugar is literally poison. Even ONE teaspoon of sugar causes inflammation and damages your cells. Cut sugar COMPLETELY — fruit included — and watch your energy soar and your weight drop in 7 days. I dropped 8kg in a month doing this. It's all about going back to what our ancestors ate. Refined carbs = death. Repost to save a life.
+
+────────────────────────────────
+
+TEXT B — GOVERNMENT HEALTH WEBSITE
+
+UNDERSTANDING SUGAR: WHAT THE EVIDENCE ACTUALLY SHOWS
+
+Sugar is a type of carbohydrate found naturally in many foods, including fruit, vegetables and dairy products. Added sugars — those not naturally occurring — are the main concern for health professionals, as high intake is associated with increased risk of tooth decay, obesity and type 2 diabetes when consumed in excess over time.
+
+The idea that a single teaspoon of sugar damages cells is not supported by current scientific evidence. The human body processes moderate amounts of sugar as part of normal metabolism. Fruit, while containing natural sugar, also provides fibre, vitamins and minerals that are important for good health — health organisations including the World Health Organization recommend eating fruit daily.
+
+Losing 8 kilograms in one month would require an extreme calorie deficit that most health professionals would consider unsafe for most people. Rapid weight loss of this kind is often linked to water loss and muscle loss rather than fat loss, and is unlikely to be sustainable.
+
+New Zealanders are encouraged to reduce their intake of foods and drinks high in added sugar — such as soft drinks, confectionery and highly processed snacks — rather than eliminating all forms of sugar. A balanced diet that includes a variety of whole foods remains the evidence-based recommendation of nutritional science.`,
+      type:'mc',task:"Which text would be MORE reliable for making a healthy eating decision, and why?",
+      options:["Text A — because it has more likes and is more popular","Text B — because it is from a government health website, cites the WHO, and is based on scientific evidence","Text A — because the writer has personal experience","Text B — because it is longer and more detailed"],
+      answer:"Text B — because it is from a government health website, cites the WHO, and is based on scientific evidence",topic:'Evaluating source reliability',
+      hint:"Think: Where does each text come from? Does it cite sources? Is it based on personal experience or research?",
+      explain:"Text B is from a government health website, references the WHO, and bases claims on scientific evidence. Text A is a personal social media post with no cited sources.",
+      boost:"Reliability checklist: Is the source named? Is it expert or official? Are claims backed by evidence?" },
+
+    { id:'r19',sec:'Timetables',emoji:'🚌',title:'Bus — First Available Service',
+      passageTitle:'Metro Bus Route 24 — Weekday Timetable',
+      passage:`METRO BUS ROUTE 24 — NORTHBOUND (WEEKDAYS)
+
+City Terminus dep:   06:15   08:45   11:20   14:00   17:30   20:00
+Broadway Station:    06:28   08:58   11:33   14:13   17:43   20:13
+University Road:     06:39   09:09   11:44   14:24   17:54   20:24
+Harbour View:        06:52   09:22   11:57   14:37   18:07   20:37
+Northgate Terminal:  07:05   09:35   12:10   14:50   18:20   20:50
+
+NOTES:
+- All services Monday to Friday only
+- No service on public holidays
+- Bikes permitted on all services except 08:45 departure
+- Wheelchair accessible: all services`,
+      type:'mc',task:'A passenger arrives at City Terminus at 9am. Which is the first bus they can catch?',
+      options:['The 06:15 departure','The 08:45 departure','The 11:20 departure','The 14:00 departure'],
+      answer:'The 11:20 departure',topic:'Reading timetables — practical application',
+      hint:"Cross out all departures before 9am. The 08:45 has already left. What is the next one?",
+      explain:"The 06:15 and 08:45 have already left by 9am. The next departure is 11:20.",
+      boost:"Timetable questions: cross out departures that have already gone, then pick the earliest remaining." },
+
+    { id:'r20',sec:'Timetables',emoji:'🚌',title:'Bus — Bikes on Board',
+      passageTitle:'Metro Bus Route 24 — Weekday Timetable',
+      passage:`METRO BUS ROUTE 24 — NORTHBOUND (WEEKDAYS)
+
+City Terminus dep:   06:15   08:45   11:20   14:00   17:30   20:00
+Broadway Station:    06:28   08:58   11:33   14:13   17:43   20:13
+University Road:     06:39   09:09   11:44   14:24   17:54   20:24
+Harbour View:        06:52   09:22   11:57   14:37   18:07   20:37
+Northgate Terminal:  07:05   09:35   12:10   14:50   18:20   20:50
+
+NOTES:
+- All services Monday to Friday only
+- No service on public holidays
+- Bikes permitted on all services except 08:45 departure
+- Wheelchair accessible: all services`,
+      type:'mc',task:'A cyclist wants to bring their bike on the 08:45 bus. Is this possible?',
+      options:["Yes — all buses allow bikes","No — bikes are not permitted on the 08:45 departure","Yes — bikes are permitted on peak hour services only","No — bikes are never allowed on Route 24"],
+      answer:'No — bikes are not permitted on the 08:45 departure',topic:'Reading notes and exceptions',
+      hint:"Check the NOTES section — it mentions an exception for one specific service.",
+      explain:"The notes state: 'Bikes permitted on all services except 08:45 departure.'",
+      boost:"Always read the notes in a timetable — exceptions are always listed there, not in the main table." },
+
+    { id:'r21',sec:'Forms',emoji:'📋',title:'Rental Application — References',
+      passageTitle:'Tenancy Application — Required Documents',
+      passage:`TENANCY APPLICATION — REQUIRED DOCUMENTS
+
+To apply for this property, all applicants aged 18 and over must provide:
+
+1. Completed application form (one per adult applicant)
+2. Photo ID — driver's licence or passport
+3. Proof of income — last two payslips or a letter from your employer
+4. Three references — at least one must be a previous landlord
+5. Bond equivalent to four weeks' rent
+
+Applications without all required documents will not be processed. The bond is held by Tenancy Services and is refundable at end of tenancy (subject to property condition).
+
+Processing time: 3-5 working days.`,
+      type:'mc',task:'How many references are required, and what is the minimum requirement for one of them?',
+      options:['Two references, one from an employer','Three references, at least one must be a previous landlord','Three references, all must be previous landlords','Two references, one must be a family member'],
+      answer:'Three references, at least one must be a previous landlord',topic:'Multi-part information retrieval',
+      hint:"Find point 4 in the list — it has two pieces of information joined by a dash.",
+      explain:"Point 4 states: 'Three references — at least one must be a previous landlord.'",
+      boost:"Multi-part questions: find the main number first, then check for any condition attached to it." },
+
+    { id:'r22',sec:'Forms',emoji:'📋',title:'Rental Application — Bond Holder',
+      passageTitle:'Tenancy Application — Required Documents',
+      passage:`TENANCY APPLICATION — REQUIRED DOCUMENTS
+
+To apply for this property, all applicants aged 18 and over must provide:
+
+1. Completed application form (one per adult applicant)
+2. Photo ID — driver's licence or passport
+3. Proof of income — last two payslips or a letter from your employer
+4. Three references — at least one must be a previous landlord
+5. Bond equivalent to four weeks' rent
+
+Applications without all required documents will not be processed. The bond is held by Tenancy Services and is refundable at end of tenancy (subject to property condition).
+
+Processing time: 3-5 working days.`,
+      type:'mc',task:"Who holds the bond money during the tenancy?",
+      options:['The landlord','The property manager','Tenancy Services','The applicant'],
+      answer:'Tenancy Services',topic:'Locating specific information',
+      hint:"Find the word 'bond' after the numbered list — the holder is named in that sentence.",
+      explain:"The document states: 'The bond is held by Tenancy Services and is refundable at end of tenancy.'",
+      boost:"Information about processes is often in the paragraph after the main list — always read past the bullet points." },
+
+  ],
+  '32405': [
+    { id:'w01',sec:'Workplace',emoji:'☕',title:'Broken Coffee Machine',
+      scenario:'You work at a café. Your manager Sara Chen is away.',callout:'The coffee machine broke this morning (Monday). Email Sara.',
+      type:'writing',task:"Write a short workplace email to Sara. Include: what happened, when, and what you need her to do.",
+      wordMin:50,wordMax:130,topic:'Workplace email',
+      rubric:['Subject line present','Appropriate greeting (e.g. Hi Sara)','Clearly states what happened','States when it happened','Includes a clear request or action needed','Professional sign-off','Appropriate workplace tone'],
+      hint:'Structure: Subject line → Greeting → Problem (what + when) → What you need → Sign-off.',
+      explain:'A strong response includes a subject line ("Coffee machine broken"), names the problem and timing, asks what to do next, and signs off professionally.',
+      boost:'Before writing: note the 5 things to include. Check each one off as you write.' },
+    { id:'w02',sec:'Notices',emoji:'🌿',title:'Community Clean-Up',
+      scenario:'Organising a neighbourhood clean-up day.',callout:'Sat 23 Aug, 9 am. Elm Street Reserve. Bring gloves, wear old clothes.',
+      type:'writing',task:'Write a noticeboard notice inviting neighbours. Include all key information.',
+      wordMin:60,wordMax:140,topic:'Community notice',
+      rubric:['Clear heading or title','Date included','Time included','Location included','What to bring or wear mentioned','Friendly, inviting tone','Easy to read'],
+      hint:'A good notice answers: Who? What? When? Where? What to bring?',
+      explain:'Effective notices have a bold heading, answer all the key questions, and use an inviting tone that makes people want to come.',
+      boost:"Read your notice aloud. If you'd want to come, it's probably working." },
+    { id:'w03',sec:'Instructions',emoji:'🥫',title:'Food Bank Sorting',
+      scenario:'Writing instructions for a new food bank volunteer.',callout:'They must sort donations into: canned goods, dry goods (pasta/rice/cereal), and items needing refrigeration.',
+      type:'writing',task:'Write clear step-by-step instructions for sorting the donations.',
+      wordMin:70,wordMax:160,topic:'Sequential instructions',
+      rubric:['Numbered steps or sequence words used','All three categories named','Clear direction for each category','Simple, direct language','Logical order','Complete enough to follow independently'],
+      hint:'Use: First… Then… Next… Finally. Name all three categories by the end.',
+      explain:'Good instructions are numbered, name all categories explicitly, and give enough detail that someone could follow them without asking questions.',
+      boost:"Read your instructions as if you've never seen the job before. Anything confusing? Fix it." },
+    { id:'w04',sec:'Reports',emoji:'⚠️',title:'Forklift Near-Miss Report',
+      scenario:'You manage a warehouse team. Two forklift near-misses occurred last week.',callout:'Report to H&S coordinator before Friday.',
+      type:'writing',task:'Write a short report describing what happened and recommending one preventive action.',
+      wordMin:70,wordMax:170,topic:'Short workplace report',
+      rubric:['States the problem clearly','Mentions number of incidents and timeframe','Professional, factual tone','Includes a specific recommendation','Appropriate for H&S audience','Sufficient detail'],
+      hint:'Structure: What happened → When/how often → Why it matters → One specific recommendation.',
+      explain:'Strong reports state facts clearly, avoid emotional language, and end with a specific actionable recommendation — not just "be more careful".',
+      boost:"Your recommendation must be specific. 'Review forklift routes' is better than 'improve safety'." },
+    { id:'w05',sec:'Text Messages',emoji:'📱',title:'Rescheduling a Job Interview',
+      scenario:'Job interview: 2 pm tomorrow, City HR Services, 45 Queen St.',callout:"Transit strike — your bus isn't running that route.",
+      type:'writing',task:"Write a professional text to the HR manager (Ms Patel) asking to change the time or format.",
+      wordMin:35,wordMax:90,topic:'Professional communication',
+      rubric:['Polite, professional tone','Explains the problem briefly','Apologises for short notice','Offers a solution or asks for options','Appropriate for a job applicant context','Concise but complete'],
+      hint:'Keep it brief: problem → apology → solution. Texts can be short and still be professional.',
+      explain:'A strong text briefly explains the issue, apologises for short notice, and offers a concrete alternative (later time, phone or video call).',
+      boost:"In professional texts: one sentence per idea. Never use slang." },
+
+    { id:'w06',sec:'Notices',emoji:'🏫',title:'Lost Property Notice',
+      scenario:'You found a school bag left at the bus stop near Westlake Girls High School.',callout:'The bag is dark blue with a silver zip and a keychain of a kiwi bird.',
+      type:'writing',task:'Write a notice for the school noticeboard to help the owner reclaim their bag.',
+      wordMin:50,wordMax:120,topic:'Descriptive notice',
+      rubric:['Clear heading','Describes the item clearly','States where it was found','Explains how to claim it','Appropriate tone','Contact information or next step included'],
+      hint:'Include: what was found, where, what it looks like, and how the owner can get it back.',
+      explain:'A strong lost property notice describes the item specifically, states where it was found, and gives clear instructions for claiming it.',
+      boost:"Be specific with descriptions — 'dark blue bag with silver zip' is more useful than 'a bag'." },
+
+    { id:'w07',sec:'Workplace',emoji:'🏪',title:'Apology to a Customer',
+      scenario:'You work at The Warehouse. A customer bought a faulty blender last week and has returned it.',callout:'The item is out of stock. You need to write a short note to leave with the refund.',
+      type:'writing',task:'Write a brief note to the customer apologising and explaining what has been done.',
+      wordMin:45,wordMax:110,topic:'Customer communication',
+      rubric:['Appropriate greeting','Clear apology stated','Explains what action was taken (refund)','Professional, helpful tone','Sign-off included'],
+      hint:'Structure: Greeting → Apology → What you have done → What happens next → Sign-off.',
+      explain:'Good customer apology notes are brief, take responsibility without over-apologising, and clearly state what action has been taken.',
+      boost:"Avoid phrases like 'sorry for any inconvenience' — be specific: 'We are sorry the blender was faulty.'" },
+
+    { id:'w08',sec:'Instructions',emoji:'🌱',title:'Planting Instructions',
+      scenario:'A community garden in Tāmaki Makaurau is planting tomatoes for the first time.',callout:'New volunteers need to know: dig holes 40cm apart, plant seedlings at soil level, water immediately, stake when 20cm tall.',
+      type:'writing',task:'Write clear instructions for new volunteers on how to plant the tomato seedlings.',
+      wordMin:65,wordMax:150,topic:'Sequential instructions',
+      rubric:['Uses numbered steps or sequence words','All four steps included','Correct measurements mentioned','Clear and simple language','Logical order','Complete enough to follow without asking'],
+      hint:'Use numbered steps. Include every piece of information given in the callout — spacing, depth, watering, staking.',
+      explain:'Strong instructions cover every step in order and include specific details like measurements. Vague instructions like "plant them" are not enough.',
+      boost:"Test your instructions: could someone who has never gardened follow them exactly? If not, add more detail." },
+    { id:'w09',sec:'Workplace',emoji:'🔑',title:'Requesting Time Off',
+      scenario:"You work at Pak'nSave on weekends. You need Saturday 19 July off for a family event.",callout:'Your manager is Tina Walsh. Store policy requires 2 weeks advance notice.',
+      type:'writing',task:'Write a short message to Tina requesting the day off. Include the date, reason, and acknowledgement of store policy.',
+      wordMin:50,wordMax:120,topic:'Workplace request',
+      rubric:['Addresses Tina by name','States the specific date','Gives a reason','Acknowledges the 2-week policy','Polite and professional tone','Sign-off included'],
+      hint:'Structure: Greeting → Request (date) → Reason → Policy acknowledgement → Sign-off.',
+      explain:'A strong request names the exact date, gives a brief reason, confirms the required notice, and is politely worded.',
+      boost:"Mentioning the policy in your request shows you know the rules and makes approval more likely." },
+
+    { id:'w10',sec:'Notices',emoji:'🎉',title:'End of Year Function',
+      scenario:'You are organising an end-of-year function for your workplace team.',callout:'Friday 12 December, 5:30 pm, Rooftop Bar, 22 Quay St. RSVP to you by 5 Dec. Smart casual dress.',
+      type:'writing',task:'Write a notice to invite your team. Include all key information.',
+      wordMin:60,wordMax:140,topic:'Event notice',
+      rubric:['Engaging heading or title','Date and time included','Location included','Dress code mentioned','RSVP date and contact included','Friendly enthusiastic tone'],
+      hint:'A good event notice gets people excited AND gives everything they need to attend.',
+      explain:'Effective event notices have an eye-catching heading, all practical details, and a tone that makes people want to come.',
+      boost:"Put the most important details (date, time, location) early — not buried at the end." },
+
+    { id:'w11',sec:'Instructions',emoji:'🖨️',title:'Clearing a Printer Jam',
+      scenario:'The office printer regularly jams. New staff need to know how to fix it.',callout:'Steps: turn off printer, open front panel, pull paper gently toward you, check for torn pieces, close panel, turn back on, test print.',
+      type:'writing',task:'Write clear step-by-step instructions for clearing a paper jam.',
+      wordMin:70,wordMax:150,topic:'Technical instructions',
+      rubric:['Uses numbered steps','All steps in correct order','Turn off is the first step','Check for torn pieces included','Uses clear imperative language','Safe to follow independently'],
+      hint:'Start with turning off — safety first. Number every step. Use action verbs: open, pull, check, close.',
+      explain:'Good technical instructions start with the safety step, use numbered sequence, and include every action including the test print.',
+      boost:"Use imperative verbs (turn, open, pull) — they make instructions direct. Avoid 'you should'." },
+
+    { id:'w12',sec:'Reports',emoji:'📊',title:'Monthly Sales Report',
+      scenario:'You manage a retail team. March sales were $48,000 — down 12% from February.',callout:'Reasons: Easter long weekend reduced trading days, two staff on sick leave, competitor sale nearby.',
+      type:'writing',task:'Write a short report for your area manager explaining March performance.',
+      wordMin:70,wordMax:160,topic:'Performance report',
+      rubric:['States the sales figure clearly','Mentions the percentage decline','Lists the reasons given','Professional factual tone','No emotional language','Suitable for a manager audience'],
+      hint:'Structure: What happened (figures) → Why it happened (reasons).',
+      explain:'Strong performance reports lead with the numbers, explain contributing factors clearly, and use neutral professional language.',
+      boost:"Never use emotional language in a report. 'Unfortunately' and 'sadly' weaken your credibility. State the facts." },
+
+    { id:'w13',sec:'Text Messages',emoji:'💬',title:'Running Late to Trial',
+      scenario:'You are running 20 minutes late to a job trial at a cafe.',callout:"The manager is Ben. Trial starts at 8 am. You are stuck in traffic.",
+      type:'writing',task:'Write a professional text to Ben letting him know you will be late.',
+      wordMin:30,wordMax:80,topic:'Professional text message',
+      rubric:['Addresses Ben by name','States how late you will be','Gives the reason briefly','Apologises','Appropriate tone for a job trial','Concise'],
+      hint:'Be direct: how late, why, and a brief apology. This is a job trial — your tone matters.',
+      explain:'A strong late message gives a specific time estimate, a brief reason, and a genuine apology.',
+      boost:"Keep it under 3 sentences. Over-explaining makes it worse, not better." },
+
+    { id:'w14',sec:'Workplace',emoji:'🚿',title:'Broken Facilities',
+      scenario:'The staff bathroom at your workplace has had a broken hot water tap for 3 days.',callout:'Report to your facilities coordinator Mark Heta.',
+      type:'writing',task:'Write a short message to Mark reporting the issue and requesting it be fixed.',
+      wordMin:45,wordMax:110,topic:'Maintenance request',
+      rubric:['States what is broken clearly','States how long it has been broken','Requests action','Professional tone','Addressed to Mark'],
+      hint:'Include: what is broken, where, how long it has been an issue, and what you need done.',
+      explain:'Maintenance reports are more effective when they include duration — this helps facilities teams prioritise.',
+      boost:"Duration matters — '3 days' is more compelling than 'a while'." },
+
+    { id:'w15',sec:'Notices',emoji:'🐕',title:'Lost Dog',
+      scenario:'Your dog Biscuit went missing from Pakuranga on Tuesday evening.',callout:'Biscuit is a golden labrador, 3 years old, wearing a red collar with a bone tag. Contact 021 555 0192.',
+      type:'writing',task:'Write a lost dog notice for your neighbourhood.',
+      wordMin:55,wordMax:130,topic:'Lost animal notice',
+      rubric:['Clear heading (e.g. LOST DOG)','Breed and colour described','Collar described','Contact number included','Location and date mentioned','Urgent appealing tone'],
+      hint:'A lost pet notice needs to be scannable — heading, description, contact. Make it easy to read at a glance.',
+      explain:'Effective lost pet notices have a large heading, a specific description, and a clear contact.',
+      boost:"The more specific the description, the more useful. 'Golden labrador with red collar' is better than 'medium dog'." },
+
+    { id:'w16',sec:'Instructions',emoji:'🧹',title:'Store Closing Procedure',
+      scenario:'You are writing a closing checklist for a new retail assistant.',callout:'End-of-day tasks: cash up register, wipe down counters, restock shelves, check fitting rooms, turn off lights, set alarm, lock front door.',
+      type:'writing',task:'Write clear closing instructions for the new staff member.',
+      wordMin:70,wordMax:160,topic:'Procedural instructions',
+      rubric:['Uses numbered steps','All 6 tasks included','Alarm set before locking door','Clear imperative language','Complete enough to follow alone','Professional tone'],
+      hint:'Order matters — the alarm must be set BEFORE locking the door. Think through the logical sequence.',
+      explain:'Closing procedures must be in the correct operational order. Setting the alarm after locking would trap you outside.',
+      boost:"Ask yourself: if I followed these steps exactly in order, would anything go wrong?" },
+
+    { id:'w17',sec:'Workplace',emoji:'✈️',title:'Travel Approval Request',
+      scenario:'You need to attend a training course in Wellington on 3–4 September.',callout:'You need flights, one night accommodation, and $80/day for meals. Write to manager Jo Lam for approval.',
+      type:'writing',task:'Write a professional email to Jo requesting travel approval.',
+      wordMin:65,wordMax:150,topic:'Business email — formal request',
+      rubric:['Addresses Jo by name','States purpose of travel','Mentions the dates','Lists what is needed','Provides or estimates the cost','Professional tone','Appropriate sign-off'],
+      hint:'Business requests should be specific: what, when, why, and how much. Make it easy for Jo to say yes.',
+      explain:'A strong travel request includes all costs upfront — vague requests take longer to approve.',
+      boost:"Calculate the total cost before writing: flights + accommodation + meals (2 × $80 = $160). Include a total." },
+
+    { id:'w18',sec:'Reports',emoji:'🌧️',title:'School Incident Report',
+      scenario:'During a school event, a student slipped on wet grass and sprained their ankle.',callout:'Incident: 1:15 pm, Friday 8 August, Mangere Mountain. First aid given. Parents notified.',
+      type:'writing',task:"Write a brief incident report for the school's H&S records.",
+      wordMin:75,wordMax:170,topic:'Incident report',
+      rubric:['States what happened clearly','Includes date and time','Includes location','Mentions first aid response','Mentions parent notification','Factual unemotional language','Suitable for official records'],
+      hint:'Incident reports answer: What? When? Where? Who? What was done? Use past tense and factual language only.',
+      explain:'Official incident reports are legal documents — emotional language or opinions are not appropriate.',
+      boost:"Never write 'luckily' or 'unfortunately' in an incident report — stick to what happened and what was done." },
+
+    { id:'w19',sec:'Community',emoji:'🎨',title:'Sponsorship Request',
+      scenario:'Your school kapa haka group needs $500 for new costumes.',callout:'Write to a local business, Newmarket Hardware, asking for sponsorship.',
+      type:'writing',task:'Write a letter requesting sponsorship. Explain who you are, what the money is for, and what the business gets in return.',
+      wordMin:80,wordMax:180,topic:'Persuasive letter',
+      rubric:['Introduces the group clearly','States the amount needed','Explains what the money is for','Offers something in return','Polite and persuasive tone','Appropriate letter format'],
+      hint:'Sponsorship letters must answer: who are you, what do you need, why should they give it, what do they get?',
+      explain:'Effective sponsorship requests always include a benefit for the sponsor — just asking for money is less persuasive.',
+      boost:"Offer specific recognition: 'Your logo on our costumes and programme' is more compelling than 'we will acknowledge you'." },
+
+    { id:'w20',sec:'Text Messages',emoji:'📦',title:'Rescheduling a Delivery',
+      scenario:'You ordered a couch from Harvey Norman due tomorrow but you will not be home.',callout:'Reference number: HN-44821.',
+      type:'writing',task:'Write a professional text message to Harvey Norman asking to reschedule the delivery.',
+      wordMin:35,wordMax:90,topic:'Customer communication — text',
+      rubric:['States the issue clearly','Includes reference number','Requests rescheduling','Polite tone','Concise'],
+      hint:'Include your reference number — without it they cannot find your order.',
+      explain:'Customer service texts must include your reference number and a clear request.',
+      boost:"Reference numbers are critical in customer service messages — always include them." },
+
+  ],
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────
+const S = {
+  std: null, questions: [], idx: 0,
+  answers: {}, flags: new Set(),
+  secsLeft: 0, timer: null, elapsed: 0,
+  hintCache: {}
+};
+
+const STD_TIMES = { '32406': 60*60, '32403': 45*60, '32405': 45*60 };
+const STD_LABELS = { '32406':'CAA Numeracy — US32406', '32403':'CAA Reading — US32403', '32405':'CAA Writing — US32405' };
+const STD_NAMES = { '32406':'CAA Numeracy', '32403':'CAA Reading', '32405':'CAA Writing' };
+
+// ── HELPERS ──────────────────────────────────────────────────────────────
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function fmtTime(s){ const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0'); return `${m}:${ss}`; }
+function wordCount(str){ return str.trim().split(/\s+/).filter(Boolean).length; }
+function getSectionLabel(q){ return q.section || q.sec || ''; }
+function getTolerance(q){ return Number(q.tolerance ?? q.tol ?? 0); }
+function getExplanation(q){ return q.explanation || q.explain || ''; }
+function getGapSkill(q){ return (q.gap_label || q.topic || '').toString().trim(); }
+function getBoostText(q){ return q.boost || q.hint || getExplanation(q); }
+function normalizeSkillLabel(skill){ return String(skill || '').trim().toLowerCase(); }
+
+// ── START ────────────────────────────────────────────────────────────────
+function startExam(std){
+  const savedEmail=(localStorage.getItem('passit_email')||'').trim();
+  if(!savedEmail||!(savedEmail.includes('@')&&savedEmail.includes('.'))){ show('s-landing'); return; }
+  S.std = std;
+  S.isPaid = IS_PAID;
+  const allQ = [...BANK[std]].sort(()=>Math.random()-.5);
+  S.questions = IS_PAID ? allQ : allQ.slice(0,6);
+  S.idx = 0; S.answers = {}; S.flags = new Set(); S.elapsed = 0; S.hintCache = {}; S.writingFeedback = {};
+  S.secsLeft = IS_PAID ? STD_TIMES[std] : 99999;
+  document.getElementById('topbar-std-label').textContent = STD_LABELS[std] + (IS_PAID ? '' : ' — Free Preview');
+  buildNav(); renderQ(0); if(IS_PAID) startTimer(); show('s-exam');
+}
+
+function startTimer(){
+  clearInterval(S.timer);
+  S.timer = setInterval(()=>{
+    S.elapsed++;
+    S.secsLeft = Math.max(0, STD_TIMES[S.std] - S.elapsed);
+    const display = fmtTime(S.secsLeft);
+    const el = document.getElementById('timer-val');
+    const mob = document.getElementById('mob-timer-val');
+    const pill = document.getElementById('timer-pill');
+    if(el) el.textContent = display;
+    if(mob) mob.textContent = display;
+    // mob progress bar
+    const pct = Math.min(100, (S.elapsed / STD_TIMES[S.std]) * 100);
+    const mobBar = document.getElementById('mob-progress-fill');
+    if(mobBar) mobBar.style.width = pct + '%';
+    if(pill) pill.className = 'timer-pill' + (S.secsLeft <= 300 ? ' danger' : S.secsLeft <= 600 ? ' warn' : '');
+    if(S.secsLeft === 0){ clearInterval(S.timer); submitExam(); }
+  }, 1000);
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────────
+function buildNav(){
+  const nav = document.getElementById('q-list');
+  const mobNav = document.getElementById('mob-q-list');
+  [nav, mobNav].forEach(container => {
+    if(!container) return;
+    container.innerHTML = '';
+    S.questions.forEach((q,i)=>{
+      const d = document.createElement('div');
+      d.className = 'q-item'; d.id = container===nav ? `qi-${i}` : `mqi-${i}`;
+      d.innerHTML = `<div class="q-item-num">${i+1}</div><span class="q-item-text">${q.title}</span><div class="q-flag-dot"></div>`;
+      d.onclick = ()=>{ renderQ(i); if(container===mobNav) document.getElementById('mob-drawer').classList.remove('open'); };
+      container.appendChild(d);
+    });
+  });
+  updateNav();
+}
+
+function updateNav(){
+  const answered = S.questions.filter(q=>S.answers[q.id]!==undefined && S.answers[q.id]!=='').length;
+  const prog = document.getElementById('sb-progress');
+  if(prog) prog.textContent = `${answered}/${S.questions.length}`;
+  S.questions.forEach((q,i)=>{
+    const isActive = i===S.idx;
+    const isAnswered = S.answers[q.id]!==undefined && S.answers[q.id]!=='';
+    const isFlagged = S.flags.has(q.id);
+    const cls = ['q-item', isActive&&'is-active', isAnswered&&'is-answered', isFlagged&&'is-flagged'].filter(Boolean).join(' ');
+    const item = document.getElementById(`qi-${i}`);
+    const mitem = document.getElementById(`mqi-${i}`);
+    if(item) item.className = cls;
+    if(mitem) mitem.className = cls;
+  });
+  const q = S.questions[S.idx];
+  if(q){
+    const sl = document.getElementById('sb-section');
+    const msl = document.getElementById('mob-section-label');
+    if(sl) sl.textContent = getSectionLabel(q);
+    if(msl) msl.textContent = getSectionLabel(q);
+  }
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────
+function renderQ(idx){
+  S.idx = idx;
+  const q = S.questions[idx];
+  const panel = document.getElementById('q-panel');
+  const sa = S.answers[q.id] ?? '';
+  const isFlagged = S.flags.has(q.id);
+
+  // Task input HTML
+  let inputHTML = '';
+  if(q.type==='currency'){
+    inputHTML = `
+      <label class="inp-label">Your Answer ($)</label>
+      <div class="cur-wrap">
+        <span class="cur-sym">$</span>
+        <input type="number" step="0.01" min="0" class="inp-number has-prefix" id="ans-inp" placeholder="0.00" value="${sa}" oninput="saveAns()">
+      </div>
+      <div class="working-box">
+        <label class="inp-label">Show your working (optional)</label>
+        <textarea class="inp-textarea" id="work-inp" rows="3" placeholder="Write your steps here…" oninput="saveWork()">${S.answers[q.id+'_w']||''}</textarea>
+      </div>`;
+  } else if(q.type==='number'){
+    inputHTML = `
+      <label class="inp-label">Your Answer</label>
+      <input type="number" class="inp-number" id="ans-inp" placeholder="Enter a number" value="${sa}" oninput="saveAns()" style="margin-bottom:14px">
+      <div class="working-box">
+        <label class="inp-label">Show your working (optional)</label>
+        <textarea class="inp-textarea" id="work-inp" rows="3" placeholder="Write your steps here…" oninput="saveWork()">${S.answers[q.id+'_w']||''}</textarea>
+      </div>`;
+  } else if(q.type==='mc'){
+    inputHTML = `<div class="mc-list">` +
+      q.options.map(opt=>`<div class="mc-opt ${sa===opt?'sel':''}" onclick="pickMC(this,'${opt.replace(/'/g,"\\'")}')"><div class="mc-radio"></div><span class="mc-opt-text">${opt}</span></div>`).join('') +
+      `</div>`;
+  } else if(q.type==='writing'){
+    const wc = sa ? wordCount(sa) : 0;
+    inputHTML = `
+      <div class="rubric-box">
+        <div class="rubric-title">Assessment criteria</div>
+        <ul class="rubric-list">${q.rubric.map(r=>`<li class="rubric-item">${r}</li>`).join('')}</ul>
+      </div>
+      <label class="inp-label">Your Response</label>
+      <textarea class="inp-textarea" id="ans-inp" rows="9" placeholder="Write your response here…" oninput="saveAns();updateWC()" style="min-height:170px">${sa}</textarea>
+      <div class="wc-row">
+        <span class="wc-label">${q.wordMin}–${q.wordMax} words</span>
+        <span class="wc-count ${wc>=q.wordMin&&wc<=q.wordMax?'ok':''}" id="wc-display">${wc} words</span>
+      </div>
+      <div class="ai-writing-fb" id="ai-write-fb">
+        <div class="ai-writing-fb-head">✦ AI Marking</div>
+        <div id="ai-criteria-rows"></div>
+        <div class="ai-overall" id="ai-overall"></div>
+      </div>`;
+  }
+
+  // Passage
+  const passageHTML = q.passage ? `
+    <div class="passage">
+      <div class="passage-title">${q.passageTitle||'Read the following text'}</div>
+      <div class="passage-body">${q.passage.replace(/\n/g,'<br>')}</div>
+    </div>` : '';
+
+  panel.innerHTML = `
+    <div class="std-${S.std}">
+      <div class="q-card">
+        <div class="q-card-stripe"></div>
+        <div class="q-card-body">
+          <div class="q-meta">
+            <span class="q-meta-badge badge-num">Question ${idx+1} of ${S.questions.length}</span>
+            <span class="q-meta-badge badge-sec">${getSectionLabel(q)}</span>
+            <button class="q-flag-btn ${isFlagged?'flagged':''}" id="flag-btn" onclick="toggleFlag()">
+              ${isFlagged?'⚑ Flagged':'⚐ Flag for review'}
+            </button>
+            <span class="q-emoji">${q.emoji}</span>
+          </div>
+          <h2 class="q-title">${q.title}</h2>
+          ${passageHTML}
+          ${q.scenario?`<p class="q-scenario">${q.scenario}</p>`:''}
+          ${q.callout?`<div class="q-callout">${q.callout}</div>`:''}
+          <span class="q-task-label">${q.task}</span>
+          ${inputHTML}
+          <div class="feedback" id="feedback"></div>
+        </div>
+        <div class="q-nav-row">
+          <button class="btn-nav" onclick="goQ(${idx-1})" ${idx===0?'disabled':''}>← Previous</button>
+          <button class="btn-nav btn-check" onclick="checkAnswer()">✦ Check Answer</button>
+          <button class="btn-nav primary" onclick="goQ(${idx+1})" ${idx===S.questions.length-1?'disabled':''}>Next →</button>
+        </div>
+      </div>
+    </div>`;
+
+  updateNav();
+  loadHint(q);
+  panel.scrollTop = 0;
+}
+
+function goQ(i){ if(i>=0 && i<S.questions.length) renderQ(i); }
+
+function toggleFlag(){
+  const q = S.questions[S.idx];
+  if(S.flags.has(q.id)) S.flags.delete(q.id); else S.flags.add(q.id);
+  const btn = document.getElementById('flag-btn');
+  if(btn){ btn.className='q-flag-btn '+(S.flags.has(q.id)?'flagged':''); btn.textContent=S.flags.has(q.id)?'⚑ Flagged':'⚐ Flag for review'; }
+  updateNav();
+}
+
+// ── ANSWER SAVE ──────────────────────────────────────────────────────────
+function saveAns(){
+  const q=S.questions[S.idx]; const inp=document.getElementById('ans-inp'); if(!inp)return;
+  const v=inp.value.trim();
+  S.answers[q.id] = (q.type==='currency'||q.type==='number') ? (v?parseFloat(v):'') : v;
+  updateNav();
+}
+function saveWork(){ const q=S.questions[S.idx]; const inp=document.getElementById('work-inp'); if(inp)S.answers[q.id+'_w']=inp.value; }
+function updateWC(){
+  const inp=document.getElementById('ans-inp'); const el=document.getElementById('wc-display'); if(!inp||!el)return;
+  const q=S.questions[S.idx]; const wc=wordCount(inp.value);
+  el.textContent=`${wc} words`; el.className='wc-count '+(wc>=q.wordMin&&wc<=q.wordMax?'ok':'');
+}
+function pickMC(el,val){
+  document.querySelectorAll('.mc-opt').forEach(o=>o.classList.remove('sel')); el.classList.add('sel');
+  S.answers[S.questions[S.idx].id]=val; updateNav();
+}
+
+// ── CHECK ────────────────────────────────────────────────────────────────
+async function checkAnswer(){
+  saveAns();
+  const q=S.questions[S.idx]; const ua=S.answers[q.id]; const fb=document.getElementById('feedback');
+  if(ua===undefined||ua===''){
+    fb.className='feedback show err'; fb.innerHTML='<div class="feedback-label">⚠ No answer yet</div>Enter your answer before checking.'; return;
+  }
+  if(q.type==='writing'){
+    const wc=wordCount(String(ua));
+    if(wc<q.wordMin){
+      fb.className='feedback show err'; fb.innerHTML=`<div class="feedback-label">✗ Too short (${wc} words)</div>Aim for at least ${q.wordMin} words. Tip: ${q.hint}`; return;
+    }
+    // AI marking
+    fb.className='feedback show ok'; fb.innerHTML='<div class="feedback-label">✦ Sending to AI marker…</div>';
+    await markWritingWithAI(q, String(ua));
+    return;
+  }
+  let correct=false;
+  if(q.type==='mc') correct=ua===q.answer;
+  else correct=Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q);
+
+  fb.className=`feedback show ${correct?'ok':'err'}`;
+  if(correct) fb.innerHTML=`<div class="feedback-label">✓ Correct!</div>${getExplanation(q)}`;
+  else{
+    const disp=q.type==='currency'?`$${Number(q.answer).toFixed(2)}`:q.answer;
+    fb.innerHTML=`<div class="feedback-label">✗ Not quite — correct answer: ${disp}</div>${getExplanation(q)}`;
+  }
+}
+
+// ── AI MARKING (Writing) ─────────────────────────────────────────────────
+async function markWritingWithAI(q, response){
+  const fb = document.getElementById('feedback');
+  const aiFb = document.getElementById('ai-write-fb');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:600,
+        system:`You are an NCEA NZ writing assessor. Given a student's response and a rubric, return ONLY valid JSON in this exact format:
+{"criteria":[{"name":"criterion name","verdict":"met"|"partial"|"missing","note":"one short sentence max"}],"overall":"One sentence overall feedback, specific and constructive."}
+Be honest but encouraging. Use NZ English.`,
+        messages:[{role:'user',content:`Task: ${q.task}\nRubric criteria: ${q.rubric.join(', ')}\nStudent response:\n${response}`}]
+      })
+    });
+    const data = await res.json();
+    const text = data?.content?.[0]?.text ?? '';
+    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    // Render criteria rows
+    const rows = json.criteria.map(c=>{
+      const cls = c.verdict==='met'?'cb-met':c.verdict==='partial'?'cb-partial':'cb-miss';
+      const label = c.verdict==='met'?'✓ Met':c.verdict==='partial'?'~ Partial':'✗ Missing';
+      return `<div class="criterion-row"><span class="criterion-name">${c.name}</span><span class="criterion-badge ${cls}">${label}</span></div>${c.note?`<div style="font-size:.75rem;color:var(--ink-3);padding:3px 0 6px">${c.note}</div>`:''}`;
+    }).join('');
+
+    if(aiFb){
+      aiFb.className='ai-writing-fb show';
+      document.getElementById('ai-criteria-rows').innerHTML=rows;
+      document.getElementById('ai-overall').innerHTML=`<strong>Overall:</strong> ${json.overall}`;
+    }
+    fb.className='feedback show ok';
+    fb.innerHTML=`<div class="feedback-label">✓ AI marking complete</div>See the detailed breakdown below.`;
+    if(!S.writingFeedback) S.writingFeedback={};
+    S.writingFeedback[q.id]=json;
+  } catch(e){
+    fb.className='feedback show ok';
+    fb.innerHTML=`<div class="feedback-label">✓ Response submitted (${wordCount(response)} words)</div>${getExplanation(q)}<br><br>Check your response against the rubric above.`;
+  }
+}
+
+// ── AI HINT ──────────────────────────────────────────────────────────────
+async function loadHint(q){
+  const el=document.getElementById('ai-hint');
+  const mob=document.getElementById('mob-ai-hint');
+  const setHint = (text) => { if(el) el.textContent=text; if(mob) mob.textContent=text; };
+  const setLoading = () => {
+    const dots = '<div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+    if(el) el.innerHTML=dots; if(mob) mob.innerHTML=dots;
+  };
+  if(!el && !mob) return;
+  if(!IS_PAID){ setHint('🔒 AI hints are included in full access. Get access at passit.co.nz'); return; }
+  if(S.hintCache[q.id]){ setHint(S.hintCache[q.id]); return; }
+  if(q.hint){ S.hintCache[q.id]=q.hint; setHint(q.hint); return; }
+  setLoading();
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,system:'One short NZ NCEA coaching hint (max 2 sentences). Point to method, not answer. Start directly.',messages:[{role:'user',content:`${q.task} Context: ${(q.scenario||'')+(q.callout||'')}`.replace(/<[^>]+>/g,'')}]})});
+    const d=await r.json(); const h=d?.content?.[0]?.text??q.hint??'Think step by step.';
+    S.hintCache[q.id]=h; setHint(h);
+  }catch{ setHint(q.hint??'Think step by step.'); }
+}
+
+// ── SUPABASE SESSION SAVE ───────────────────────────────────────────────
+const SUPABASE_URL='https://soojtogwwakrkcvpudnu.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvb2p0b2d3d2FrcmtjdnB1ZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTY2MjcsImV4cCI6MjA5MDY3MjYyN30.uAGLxv59vanJp9JSZ-wkT3mvKwVukrFQDRIvop8AWVs';
+
+function collectWeakSkills(qs){
+  const topics=[];
+  qs.forEach(q=>{
+    let status='ok';
+    if(q.type==='writing'){
+      const ua=S.answers[q.id];
+      status=(!ua||wordCount(String(ua))<(q.wordMin||40))?'miss':'ok';
+    } else {
+      const ua=S.answers[q.id];
+      if(ua===undefined||ua==='') status='miss';
+      else if(q.type==='mc') status=ua===q.answer?'ok':'miss';
+      else status=Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q)?'ok':'miss';
+    }
+    const skillLabel = getGapSkill(q);
+    if(status==='miss'&&skillLabel) topics.push(normalizeSkillLabel(skillLabel));
+  });
+  return topics;
+}
+
+async function getSupabaseUserId(){
+  try{
+    const key='sb-soojtogwwakrkcvpudnu-auth-token';
+    const raw=localStorage.getItem(key);
+    if(!raw) return null;
+    const session=JSON.parse(raw);
+    const token=session&&(session.access_token||(session.currentSession&&session.currentSession.access_token));
+    if(!token) return null;
+    const r=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
+      headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`}
+    });
+    if(!r.ok) return null;
+    const u=await r.json();
+    return (u&&u.id)?u.id:null;
+  }catch(e){ return null; }
+}
+
+async function saveSession({standard,score_pct,correct,total,time_seconds,weak_skills,response_text,feedback_json}){
+  const rawEmail=localStorage.getItem('passit_email');
+  const student_email=rawEmail&&String(rawEmail).trim()?String(rawEmail).trim():null;
+  const user_id=await getSupabaseUserId();
+  const body={
+    standard,
+    score_pct,
+    correct,
+    total,
+    time_seconds,
+    weak_skills,
+    session_date:new Date().toISOString(),
+    student_email,
+    user_id,
+    response_text:response_text||null,
+    feedback_json:feedback_json||null
+  };
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/practice_sessions`,{
+      method:'POST',
+      headers:{
+        apikey:SUPABASE_ANON_KEY,
+        Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type':'application/json',
+        Prefer:'return=minimal'
+      },
+      body:JSON.stringify(body)
+    });
+    if(!res.ok) console.log('saveSession failed',res.status,await res.text());
+  }catch(e){ console.log(e); }
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────────────────
+function submitExam(){
+  clearInterval(S.timer);
+  const qs=S.questions; let correct=0,scoreable=0;
+  qs.forEach(q=>{
+    if(q.type==='writing')return; scoreable++;
+    const ua=S.answers[q.id]; if(ua===undefined||ua==='')return;
+    if(q.type==='mc'){if(ua===q.answer)correct++;}
+    else{if(Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q))correct++;}
+  });
+  const pct = scoreable>0?Math.round(correct/scoreable*100):0;
+  const elapsed = S.elapsed;
+  const m=Math.floor(elapsed/60), ss=String(elapsed%60).padStart(2,'0');
+
+  // Readiness level
+  let rdLabel,rdClass,rdSub;
+  if(pct>=80){rdLabel='Clearly Demonstrated';rdClass='rb-clear';rdSub='Strong performance — you are clearly demonstrating the required skills for this standard.';}
+  else if(pct>=65){rdLabel='Mostly Demonstrated';rdClass='rb-mostly';rdSub='Good progress — a few targeted improvements can lift this to clearly demonstrated.';}
+  else if(pct>=50){rdLabel='Partially Demonstrated';rdClass='rb-partial';rdSub='You are building the right skills. Target the gaps below for faster gains.';}
+  else{rdLabel='Not Yet Demonstrated';rdClass='rb-not-yet';rdSub='Keep practising — the gap report below shows exactly where to focus.';}
+
+  document.getElementById('readiness-badge').className=`readiness-badge ${rdClass}`;
+  document.getElementById('readiness-badge').textContent=rdLabel;
+  document.getElementById('results-sub').textContent=rdSub;
+  document.getElementById('res-std-name').textContent=STD_NAMES[S.std];
+  document.getElementById('ring-pct').textContent=scoreable>0?`${pct}%`:'N/A';
+  document.getElementById('st-correct').textContent=scoreable>0?`${correct}/${scoreable}`:'—';
+  document.getElementById('st-total').textContent=qs.length;
+  document.getElementById('st-time').textContent=`${m}:${ss}`;
+  document.getElementById('res-breakdown').textContent=S.std==='32405'
+    ?'Writing tasks are AI-marked — review your criterion feedback above.'
+    :pct>=80
+      ?`${correct} of ${scoreable} correct — clearly demonstrated.`
+      :pct>=65
+        ?`${correct} of ${scoreable} correct — mostly demonstrated.`
+        :pct>=50
+          ?`${correct} of ${scoreable} correct — partially demonstrated.`
+          :`${correct} of ${scoreable} correct — see gap report below.`;
+
+  // Animate ring
+  setTimeout(()=>{
+    const fill=document.getElementById('ring-fill');
+    fill.style.stroke=pct>=80?'#16a34a':pct>=65?'#3b82f6':pct>=50?'#d97706':'#dc2626';
+    fill.style.strokeDashoffset=scoreable>0?String(264-(264*pct/100)):'264';
+  },100);
+
+  // Gap report
+  buildGapReport(qs);
+
+  // Collect writing response and AI feedback for writing standard
+  let responseText=null, feedbackJson=null;
+  if(S.std==='32405'){
+    const wq=qs.find(q=>q.type==='writing');
+    if(wq){
+      const rawAns=S.answers[wq.id];
+      responseText=(rawAns&&String(rawAns).trim())?String(rawAns).trim():null;
+      feedbackJson=(S.writingFeedback&&S.writingFeedback[wq.id])||null;
+    }
+  }
+
+  saveSession({
+    standard:S.std,
+    score_pct:pct,
+    correct,
+    total:qs.length,
+    time_seconds:S.elapsed,
+    weak_skills:collectWeakSkills(qs),
+    response_text:responseText,
+    feedback_json:feedbackJson
+  });
+
+  // ── CHECK YOUR READINESS METER ──
+  // Save session to history
+  const sessionData = { ts: Date.now(), std: S.std, pct: pct };
+  const history = JSON.parse(localStorage.getItem('passit_sessions') || '[]');
+  history.push(sessionData);
+  if(history.length > 10) history.shift();
+  localStorage.setItem('passit_sessions', JSON.stringify(history));
+
+  // Calculate readiness across all standards
+  const allSessions = JSON.parse(localStorage.getItem('passit_sessions') || '[]');
+  const byStd = { '32403':[], '32405':[], '32406':[] };
+  allSessions.forEach(s => { if(byStd[s.std]) byStd[s.std].push(s.pct); });
+
+  // Average last 3 sessions per standard, weight recent ones more
+  function getStdScore(sessions){
+    if(!sessions.length) return null;
+    const recent = sessions.slice(-3);
+    return Math.round(recent.reduce((a,b,i)=>a+b*(i+1),0) / recent.reduce((_,__,i)=>_ + i+1,0));
+  }
+
+  const scores = {
+    '32403': getStdScore(byStd['32403']),
+    '32405': getStdScore(byStd['32405']),
+    '32406': getStdScore(byStd['32406'])
+  };
+
+  const available = Object.values(scores).filter(s=>s!==null);
+  if(available.length > 0){
+    const overall = Math.round(available.reduce((a,b)=>a+b,0)/available.length);
+    const meter = document.getElementById('pass-meter');
+    if(meter) meter.style.display = 'block';
+
+    setTimeout(()=>{
+      const fill = document.getElementById('cipy-fill');
+      const pctEl = document.getElementById('cipy-pct');
+      if(fill){ fill.style.stroke = overall>=80?'#16a34a':overall>=65?'#3b82f6':overall>=50?'#d97706':'#dc2626'; fill.style.strokeDashoffset = String(314-(314*overall/100)); }
+      if(pctEl) pctEl.textContent = overall+'%';
+
+      let title, desc;
+      if(overall>=80){ title='Clearly demonstrated'; desc='Your recent sessions are consistently strong across standards. Keep practising to stay sharp.'; }
+      else if(overall>=65){ title='Mostly demonstrated'; desc='You are close. A few focused sessions on weaker skills should lift your overall level quickly.'; }
+      else if(overall>=50){ title='Partially demonstrated'; desc='You are building momentum. Use your gap report to prioritise the highest-impact skills next.'; }
+      else { title='Not yet demonstrated'; desc='Your scores show you need more practice before your exam window. Focus on the biggest gap skills first.'; }
+
+      const t = document.getElementById('cipy-title');
+      const d = document.getElementById('cipy-desc');
+      const h = document.getElementById('cipy-history');
+      if(t) t.textContent = title;
+      if(d) d.textContent = desc;
+
+      // Show session history dots
+      if(h){
+        const stdNames = {'32403':'Reading','32405':'Writing','32406':'Numeracy'};
+        h.innerHTML = Object.entries(scores).filter(([k,v])=>v!==null).map(([k,v])=>
+          `<span class="cipy-session">${stdNames[k]}: ${v}%</span>`
+        ).join('');
+      }
+    }, 400);
+  }
+
+  show('s-results');
+  window.scrollTo(0,0);
+  // Show upgrade banner for free users
+  const banner = document.getElementById('free-upgrade-banner');
+  if(banner) banner.style.display = S.isPaid ? 'none' : 'block';
+}
+
+function buildGapReport(qs){
+  const list=document.getElementById('gap-list'); list.innerHTML='';
+  const locked=document.getElementById('gap-locked');
+  if(!S.isPaid){ list.style.display='none'; if(locked) locked.style.display='block'; return; }
+  if(locked) locked.style.display='none'; list.style.display='block';
+  qs.forEach(q=>{
+    let status='ok';
+    if(q.type==='writing'){
+      const ua=S.answers[q.id];
+      status=(!ua||wordCount(String(ua))<(q.wordMin||40))?'miss':'ok';
+    } else {
+      const ua=S.answers[q.id];
+      if(ua===undefined||ua==='') status='miss';
+      else if(q.type==='mc') status=ua===q.answer?'ok':'miss';
+      else status=Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q)?'ok':'miss';
+    }
+    const icons={ok:'✓',miss:'✗',partial:'~'};
+    const row=document.createElement('div'); row.className='gap-row';
+    row.innerHTML=`
+      <div class="gap-icon ${status}">${icons[status]}</div>
+      <div class="gap-body">
+        <div class="gap-topic">${q.title}</div>
+        <div class="gap-skill">Skill: ${normalizeSkillLabel(getGapSkill(q))}</div>
+        <div class="gap-boost">${status==='ok'
+          ?`<strong>Strong.</strong> ${getBoostText(q)}`
+          :`<strong>Boost task:</strong> ${getBoostText(q)}`}</div>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+
+function retryExam(){ startExam(S.std); }
+function goHome(){
+  clearInterval(S.timer);
+  window.location='/';
+}
+
+// ── ACCESS GATE ──────────────────────────────────────────────────────────
+// PAYMENTS PAUSED — re-enable after exam season
+// const VALID_CODES = ['PASSIT2026','NCEA2026','PASSITCAA','EARLYBIRD'];
+let IS_PAID = true;
+//
+// function checkCode(){
+//   const input = document.getElementById('gate-code-input').value.trim().toUpperCase();
+//   const err = document.getElementById('gate-error');
+//   if(VALID_CODES.includes(input)){
+//     localStorage.setItem('passit_access','granted');
+//     IS_PAID = true;
+//     document.getElementById('access-gate').classList.add('hidden');
+//     err.style.display='none';
+//   } else {
+//     err.style.display='block';
+//     document.getElementById('gate-code-input').value='';
+//     document.getElementById('gate-code-input').focus();
+//   }
+// }
+//
+// function startFree(){
+//   IS_PAID = false;
+//   document.getElementById('access-gate').classList.add('hidden');
+// }
+//
+// // Check access on load
+// (function(){
+//   const granted = localStorage.getItem('passit_access') === 'granted';
+//   if(granted){ IS_PAID = true; document.getElementById('access-gate').classList.add('hidden'); }
+// })();
+
+function emailGateIsValidEmail(v){
+  const s=String(v||'').trim();
+  return s.includes('@')&&s.includes('.');
+}
+
+function emailGateShowExams(){
+  const w=document.getElementById('exam-selection-wrap');
+  if(w) w.classList.add('visible');
+}
+
+function emailGateHideExams(){
+  const w=document.getElementById('exam-selection-wrap');
+  if(w) w.classList.remove('visible');
+}
+
+function emailGateContinue(){
+  const inp=document.getElementById('student-email-input');
+  const err=document.getElementById('email-gate-error');
+  if(!inp||!err) return;
+  const v=inp.value.trim();
+  if(!emailGateIsValidEmail(v)){
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  localStorage.setItem('passit_email',v);
+  document.getElementById('email-confirm-display').textContent=v;
+  const newStep=document.getElementById('email-step-new');
+  const welcome=document.getElementById('email-step-welcome');
+  const confirm=document.getElementById('email-step-confirm');
+  if(newStep) newStep.style.display='none';
+  if(welcome) welcome.style.display='none';
+  if(confirm) confirm.classList.add('show');
+  const t=document.getElementById('email-card-title');
+  const s=document.getElementById('email-card-sub');
+  if(t){ t.style.display=''; t.textContent='You’re all set'; }
+  if(s){ s.style.display=''; s.textContent='Choose a standard below to start practising.'; }
+  emailGateShowExams();
+}
+
+function emailGateEdit(){
+  emailGateHideExams();
+  const saved=(localStorage.getItem('passit_email')||'').trim();
+  const inp=document.getElementById('student-email-input');
+  const err=document.getElementById('email-gate-error');
+  const newStep=document.getElementById('email-step-new');
+  const welcome=document.getElementById('email-step-welcome');
+  const confirm=document.getElementById('email-step-confirm');
+  if(inp) inp.value=saved;
+  if(err) err.classList.remove('show');
+  if(newStep) newStep.style.display='block';
+  if(welcome) welcome.style.display='none';
+  if(confirm) confirm.classList.remove('show');
+  const t=document.getElementById('email-card-title');
+  const sub=document.getElementById('email-card-sub');
+  if(t){ t.textContent='Save your progress'; t.style.display=''; }
+  if(sub){ sub.textContent='We’ll use your email so you can pick up where you left off — and so your parent can follow along.'; sub.style.display=''; }
+  if(inp) inp.focus();
+}
+
+(function initEmailGate(){
+  const inp=document.getElementById('student-email-input');
+  if(!inp) return;
+  const saved=(localStorage.getItem('passit_email')||'').trim();
+  const titleEl=document.getElementById('email-card-title');
+  const subEl=document.getElementById('email-card-sub');
+  const welcomeDisp=document.getElementById('email-welcome-display');
+  const stepNew=document.getElementById('email-step-new');
+  const stepWelcome=document.getElementById('email-step-welcome');
+  const stepConfirm=document.getElementById('email-step-confirm');
+  if(saved&&emailGateIsValidEmail(saved)){
+    if(welcomeDisp) welcomeDisp.textContent=saved;
+    if(stepNew) stepNew.style.display='none';
+    if(stepWelcome) stepWelcome.style.display='block';
+    if(stepConfirm) stepConfirm.classList.remove('show');
+    if(titleEl) titleEl.style.display='none';
+    if(subEl) subEl.style.display='none';
+    emailGateShowExams();
+  } else {
+    if(titleEl) titleEl.style.display='';
+    if(subEl) subEl.style.display='';
+    emailGateHideExams();
+  }
+  inp.addEventListener('keydown',function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); emailGateContinue(); } });
+})();
+
+</script>
+<script>
+// PAYMENTS PAUSED — re-enable after exam season
+// GATE — commented out, all users get full access during exam season
+// var CODES = ['PASSIT2026','NCEA2026','PASSITCAA','EARLYBIRD'];
+// function doUnlock(){
+//   var inp = document.getElementById('gi');
+//   var err = document.getElementById('ge');
+//   var gate = document.getElementById('gate');
+//   if(!inp || !gate) return;
+//   var v = inp.value.toUpperCase().trim();
+//   if(CODES.indexOf(v) !== -1){
+//     IS_PAID = true;
+//     localStorage.setItem('paa','1');
+//     gate.classList.add('off');
+//     err.style.display = 'none';
+//   } else {
+//     err.style.display = 'block';
+//     inp.value = '';
+//     inp.focus();
+//   }
+// }
+// document.addEventListener('keydown', function(ev){
+//   if(ev.key === 'Enter') doUnlock();
+// });
+// (function(){
+//   var g = document.getElementById('gate');
+//   if(g) g.style.display = 'flex';
+// })();
+(function(){
+  var g = document.getElementById('gate');
+  if(g) g.style.display = 'none';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Successful — Passit</title>
+<meta name="description" content="Payment successful. Welcome to Passit Full Access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1a3fc4;--navy-mid:#2d55e0;--navy-dark:#0a1880;
+  --gold:#ff6b00;--paper:#eef4ff;--paper-3:#c8d8ff;
+  --surface:#ffffff;--ink:#12100e;--ink-2:#4a4540;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6}
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(247,244,240,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--paper-3);
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;
+}
+.nav-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:-1px;text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--gold)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:.82rem;font-weight:600;color:var(--ink-2);text-decoration:none}
+.nav-cta{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--navy);color:white;font-size:.82rem;font-weight:700;
+  padding:8px 20px;border-radius:40px;text-decoration:none;
+}
+.hero{
+  background:var(--navy-dark);
+  color:white;
+  text-align:center;
+  padding:64px 5vw 52px;
+}
+.hero-tag{
+  display:inline-flex;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-size:clamp(2rem,5vw,3rem);
+  letter-spacing:-1px;
+  line-height:1.2;
+}
+.success-wrap{max-width:860px;margin:28px auto 64px;padding:0 5vw}
+.success-card{
+  background:var(--surface);
+  border:2px solid var(--paper-3);
+  border-radius:18px;
+  box-shadow:0 12px 32px rgba(0,0,0,.08);
+  padding:30px;
+}
+.success-title{
+  font-family:'Fraunces',serif;
+  font-size:1.8rem;
+  color:var(--navy);
+  margin-bottom:8px;
+}
+.success-body{font-size:.95rem;color:var(--ink-2);margin-bottom:20px}
+.code-block{
+  background:#f7fbff;
+  border:1px solid var(--paper-3);
+  border-radius:12px;
+  padding:18px;
+  margin:18px 0;
+}
+.code-label{
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#5d6a85;
+  margin-bottom:8px;
+}
+.code-value{
+  font-family:'DM Mono',monospace;
+  font-size:1.7rem;
+  font-weight:700;
+  color:#0f1f47;
+  letter-spacing:.14em;
+}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:12px 18px;border-radius:10px;text-decoration:none;
+  font-weight:700;border:none;cursor:pointer;
+}
+.btn-primary{background:var(--navy);color:white}
+.btn-secondary{background:#e9f0ff;color:#0f1f47}
+footer{
+  background:var(--navy-dark);color:rgba(255,255,255,.5);
+  padding:48px 5vw 32px;
+}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
+.footer-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:white;letter-spacing:-1px;display:block;margin-bottom:8px;text-decoration:none}
+.footer-logo em{font-style:italic;color:#f0c060}
+.footer-tagline{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;max-width:240px}
+.footer-links{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:12px}
+.footer-link{display:block;font-size:.78rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:8px}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
+.footer-disclaimer{font-size:.68rem;color:rgba(255,255,255,.2);max-width:500px;line-height:1.6}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .action-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">pass<em>it</em></a>
+  <div class="nav-links">
+    <a href="index.html#standards" class="nav-link">The Exams</a>
+    <a href="index.html#how" class="nav-link">How it works</a>
+    <a href="index.html#videos" class="nav-link">Free Videos</a>
+    <a href="dashboard.html" class="nav-link">Student Dashboard</a>
+    <a href="parent-dashboard.html" class="nav-link">Parent Dashboard</a>
+  </div>
+  <a href="pricing.html" class="nav-cta">Pricing</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">Payment successful 🎉</div>
+  <h1>Welcome to Passit Full Access</h1>
+</section>
+
+<main class="success-wrap">
+  <section class="success-card">
+    <h2 class="success-title">Your access is ready</h2>
+    <p class="success-body" id="success-message">We've sent your access details to <strong id="customer-email">your email</strong>. Check your inbox.</p>
+
+    <div class="code-block">
+      <div class="code-label">Access code</div>
+      <div class="code-value">PASSIT2026</div>
+    </div>
+
+    <div class="action-row">
+      <a href="simulator-pro.html" class="btn btn-primary">Open Simulator Pro →</a>
+      <a href="parent-dashboard.html" class="btn btn-secondary">Open Parent Dashboard →</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="footer-logo">pass<em>it</em></a>
+        <p class="footer-tagline">NCEA co-requisite preparation for NZ students, parents and whānau.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Product</div>
+          <a href="index.html#standards" class="footer-link">CAA Simulator</a>
+          <a href="index.html#videos" class="footer-link">Free Videos</a>
+          <a href="pricing.html" class="footer-link">Pricing</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <a href="https://ncea.education.govt.nz" target="_blank" class="footer-link">ncea.education.govt.nz</a>
+          <a href="https://www2.nzqa.govt.nz/ncea/subjects/litnum/" target="_blank" class="footer-link">NZQA Literacy & Numeracy</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <a href="/contact.html" class="footer-link">Contact</a>
+          <a href="/privacy.html" class="footer-link">Privacy</a>
+          <a href="/terms.html" class="footer-link">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Passit. All rights reserved.</div>
+      <div class="footer-disclaimer">Questions are based on published NZQA achievement criteria. Passit is an independent preparation tool and is not affiliated with NZQA or the Ministry of Education.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function setFallbackMessage() {
+  var messageEl = document.getElementById('success-message');
+  if (!messageEl) return;
+  messageEl.textContent = "Save your access code — you'll need it to enter the simulator.";
+}
+
+async function loadCustomerEmailAndSendWelcome() {
+  var params = new URLSearchParams(window.location.search);
+  var sessionId = params.get('session_id');
+  if (!sessionId) {
+    setFallbackMessage();
+    return;
+  }
+
+  try {
+    var sessionResponse = await fetch('/api/get-session-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionId })
+    });
+
+    if (!sessionResponse.ok) {
+      setFallbackMessage();
+      return;
+    }
+
+    var sessionData = await sessionResponse.json();
+    var email = sessionData && sessionData.email ? String(sessionData.email).trim() : '';
+    if (!email) {
+      setFallbackMessage();
+      return;
+    }
+
+    var emailEl = document.getElementById('customer-email');
+    if (emailEl) {
+      emailEl.textContent = email;
+    }
+
+    var welcomeResponse = await fetch('/api/send-welcome-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    });
+
+    if (!welcomeResponse.ok) {
+      setFallbackMessage();
+    }
+  } catch (_err) {
+    setFallbackMessage();
+  }
+}
+
+loadCustomerEmailAndSendWelcome();
+</script>
+</body>
+</html>

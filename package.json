@@ -1,0 +1,13 @@
+{
+  "name": "passit-caa",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "stripe": "latest"
+  },
+  "devDependencies": {
+    "ts-node": "^10",
+    "typescript": "^5"
+  }
+}

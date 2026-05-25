@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passit — Find Your CAA Gaps</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a3fc4;--orange:#ff6b00;--paper:#eef4ff;--ink:#0a1440;--ink2:#4a4540;--ink3:#6b7280;--border:#c8d8ff;--green:#00a86b;--red:#dc2626;--amber:#d97706}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased}
+nav{background:white;border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;position:sticky;top:0;z-index:100}
+.logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:var(--navy);text-decoration:none}
+.logo em{font-style:italic;color:var(--orange)}
+.back{font-size:.82rem;font-weight:600;color:var(--navy);text-decoration:none}
+
+/* SCREENS */
+#intro-screen{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 5vw;text-align:center}
+#question-screen{display:none;padding:32px 5vw 80px}
+#results-screen{display:none;padding:60px 5vw}
+
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:white;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 16px;border-radius:40px;margin-bottom:24px}
+h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;color:var(--navy);line-height:1.1;letter-spacing:-2px;margin-bottom:16px}
+h1 em{font-style:italic;color:var(--orange)}
+.sub{font-size:1rem;color:var(--ink2);max-width:520px;line-height:1.75;margin-bottom:40px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:680px;width:100%;margin-bottom:40px}
+@media(max-width:600px){.cards{grid-template-columns:1fr}}
+.card{background:white;border:1.5px solid var(--border);border-radius:16px;padding:20px;text-align:left}
+.card-bar{height:3px;border-radius:2px;margin-bottom:14px}
+.card-std{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--ink3);letter-spacing:.06em;margin-bottom:6px}
+.card-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:4px}
+.card-count{font-size:.78rem;color:var(--ink3)}
+.btn-start{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:white;font-size:1rem;font-weight:700;padding:16px 40px;border-radius:40px;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(255,107,0,.35);transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-start:hover{background:#e55a00;transform:translateY(-2px)}
+
+/* PROGRESS */
+#progress-bar-wrap{background:white;border-bottom:1px solid var(--border);padding:12px 5vw;display:none}
+.prog-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.75rem;font-weight:600;color:var(--ink3)}
+.prog-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--orange));border-radius:3px;transition:width .4s ease;width:0%}
+#timer{font-family:'DM Mono',monospace;font-size:1rem;color:var(--navy);background:var(--paper);padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);display:none}
+
+/* QUESTION */
+.q-wrap{max-width:680px;margin:0 auto}
+.q-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(26,63,196,.1)}
+.q-stripe{height:4px}
+.q-body{padding:32px}
+.q-std{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+.q-passage{background:var(--paper);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:18px;font-size:.85rem;color:var(--ink);line-height:1.85}
+.q-passage-title{font-family:'Fraunces',serif;font-size:.9rem;font-weight:600;margin-bottom:8px}
+.q-scenario{font-size:.92rem;color:var(--ink2);margin-bottom:8px;line-height:1.7}
+.q-callout{border-left:3px solid var(--border);padding:8px 14px;margin:12px 0;font-size:.86rem;color:var(--ink2);font-style:italic;background:var(--paper);border-radius:0 8px 8px 0}
+.q-task{font-size:.88rem;font-weight:700;color:var(--ink);margin:18px 0 14px;padding-top:16px;border-top:1px solid var(--border)}
+.mc-list{display:flex;flex-direction:column;gap:8px}
+.mc-opt{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:2px solid var(--border);border-radius:10px;cursor:pointer;background:var(--paper);transition:all .15s}
+.mc-opt:hover{border-color:var(--navy)}
+.mc-opt.sel{border-color:var(--navy);background:#e8f0ff}
+.mc-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:all .15s;background:white}
+.mc-opt.sel .mc-radio{border-color:var(--navy);background:var(--navy)}
+.mc-text{font-size:.86rem;color:var(--ink);line-height:1.5}
+.inp{width:100%;background:var(--paper);border:2px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Mono',monospace;font-size:1.1rem;color:var(--ink);outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--navy);background:white}
+.textarea{width:100%;background:var(--paper);border:2px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--ink);outline:none;resize:vertical;min-height:140px;transition:border-color .15s;line-height:1.65}
+.textarea:focus{border-color:var(--navy);background:white}
+.rubric{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.rubric-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#d97706;margin-bottom:8px}
+.rubric-item{font-size:.78rem;color:#92400e;margin-bottom:4px}
+.wc-row{display:flex;justify-content:space-between;margin-top:6px;font-size:.72rem;color:var(--ink3)}
+.wc-ok{color:var(--green)}
+.q-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 32px;border-top:1px solid var(--border);background:white}
+.btn-next{display:flex;align-items:center;gap:6px;background:var(--navy);color:white;border:none;border-radius:40px;padding:10px 24px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .15s}
+.btn-next:disabled{opacity:.35;pointer-events:none}
+.btn-skip{background:transparent;border:1.5px solid var(--border);color:var(--ink3);border-radius:40px;padding:9px 20px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer}
+
+/* RESULTS */
+.results-wrap{max-width:640px;margin:0 auto}
+.results-logo{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--navy);text-align:center;margin-bottom:4px}
+.results-logo em{font-style:italic;color:var(--orange)}
+.results-h{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--ink);text-align:center;margin-bottom:8px}
+.results-sub{font-size:.92rem;color:var(--ink2);text-align:center;margin-bottom:36px;line-height:1.7}
+.meter-card{background:linear-gradient(135deg,#0a1880,#1a3fc4);border-radius:20px;padding:28px;margin-bottom:20px;text-align:center;color:white}
+.meter-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:8px}
+.meter-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-bottom:20px}
+.ring-wrap{position:relative;width:160px;height:160px;margin:0 auto 16px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.15);stroke-width:12}
+.ring-fill{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-family:'DM Mono',monospace;font-size:2.2rem;font-weight:500;color:white}
+.ring-sub{font-size:.65rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em}
+.meter-desc{font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.65;max-width:400px;margin:0 auto}
+.std-result{background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:2px solid var(--border)}
+.std-result-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.std-result-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:var(--ink)}
+.badge-strong{background:#e0f7ef;color:var(--green);font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px}
+.badge-developing{background:#fffbeb;color:var(--amber);font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px}
+.badge-focus{background:#fef2f2;color:var(--red);font-size:.75rem;font-weight:700;padding:5px 14px;border-radius:20px}
+.bar-track{background:var(--border);border-radius:4px;height:8px;margin-bottom:12px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.std-insight{font-size:.82rem;color:var(--ink2);line-height:1.65}
+.cta-card{background:white;border-radius:16px;padding:28px;text-align:center;border:2px solid var(--orange);margin-bottom:16px}
+.cta-card h3{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.cta-card p{font-size:.85rem;color:var(--ink2);margin-bottom:20px;line-height:1.65}
+.btn-cta{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:white;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;padding:14px 32px;border-radius:40px;border:none;cursor:pointer;text-decoration:none;box-shadow:0 4px 20px rgba(255,107,0,.35)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">pass<em>it</em></a>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div id="timer"></div>
+    <a href="/" class="back">← Back</a>
+  </div>
+</nav>
+
+<div id="progress-bar-wrap">
+  <div class="prog-meta">
+    <span id="prog-label">Question 1 of 9</span>
+    <span id="prog-pct">0% complete</span>
+  </div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+</div>
+
+<!-- INTRO -->
+<div id="intro-screen">
+  <div class="badge">✦ Free · 10 minutes · No signup needed</div>
+  <h1>Find your CAA gaps<br>in <em>10 minutes</em></h1>
+  <p class="sub">Answer 9 quick questions — 3 per standard — and see exactly which areas to focus on before your exam.</p>
+  <div class="cards">
+    <div class="card"><div class="card-bar" style="background:#3b82f6"></div><div class="card-std">US 32403</div><div class="card-name">Reading</div><div class="card-count">3 questions · 3 min</div></div>
+    <div class="card"><div class="card-bar" style="background:#00a86b"></div><div class="card-std">US 32405</div><div class="card-name">Writing</div><div class="card-count">3 questions · 4 min</div></div>
+    <div class="card"><div class="card-bar" style="background:#ff6b00"></div><div class="card-std">US 32406</div><div class="card-name">Numeracy</div><div class="card-count">3 questions · 3 min</div></div>
+  </div>
+  <button class="btn-start" id="start-btn">Start my diagnostic →</button>
+  <p style="font-size:.78rem;color:var(--ink3);margin-top:16px">No login required. Results are instant.</p>
+</div>
+
+<!-- QUESTION -->
+<div id="question-screen">
+  <div class="q-wrap">
+    <div class="q-card">
+      <div class="q-stripe" id="q-stripe"></div>
+      <div class="q-body" id="q-body"></div>
+      <div class="q-nav">
+        <button class="btn-skip" onclick="skipQ()">Skip →</button>
+        <button class="btn-next" id="btn-next" onclick="nextQ()" disabled>Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results-screen">
+  <div class="results-wrap">
+    <div class="results-logo">pass<em>it</em></div>
+    <h2 class="results-h">Your diagnostic results</h2>
+    <p class="results-sub">Here's where you stand across all three CAA standards.</p>
+    <div class="meter-card">
+      <div class="meter-label">Can I pass yet?</div>
+      <div class="meter-title" id="meter-title">Overall CAA Readiness</div>
+      <div class="ring-wrap">
+        <svg viewBox="0 0 160 160" width="160" height="160">
+          <circle class="ring-bg" cx="80" cy="80" r="64"/>
+          <circle class="ring-fill" id="ring-fill" cx="80" cy="80" r="64" stroke-dasharray="402" stroke-dashoffset="402"/>
+        </svg>
+        <div class="ring-text">
+          <div class="ring-pct" id="ring-pct">—</div>
+          <div class="ring-sub">readiness</div>
+        </div>
+      </div>
+      <p class="meter-desc" id="meter-desc"></p>
+    </div>
+    <div id="std-cards"></div>
+    <div class="cta-card">
+      <h3 id="cta-h">Ready to close the gaps?</h3>
+      <p id="cta-p">The full Passit simulator has 60+ questions with AI feedback and a Gap Report after every session.</p>
+      <a href="/simulator-pro.html" class="btn-cta">Start Full Practice — use code PASSIT2026 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+var QUESTIONS = [
+  {id:'r1',std:'reading',colour:'#3b82f6',type:'mc',passageTitle:'Staff Email — Office Closure',passage:'From: Sarah Kim, Office Manager\nTo: All Staff\n\nThe office will be closed on Friday 4 July for a public holiday. Staff who need building access must request a key card from reception by Wednesday 5pm. The alarm code will be changed on Thursday evening.',task:'What must staff do if they need building access on the Friday?',options:['Email Sarah Kim','Request a key card from reception by Wednesday 5pm','Change the alarm code themselves','Come in on Thursday instead'],answer:'Request a key card from reception by Wednesday 5pm'},
+  {id:'r2',std:'reading',colour:'#3b82f6',type:'mc',passageTitle:'Staff Email — Office Closure',passage:'From: Sarah Kim, Office Manager\nTo: All Staff\n\nThe office will be closed on Friday 4 July for a public holiday. Staff who need building access must request a key card from reception by Wednesday 5pm. The alarm code will be changed on Thursday evening.',task:'Why is the alarm code being changed on Thursday evening?',options:['Because the office is closing permanently','To ensure security before the public holiday closure','Because Sarah Kim requested it','Because staff complained about the current code'],answer:'To ensure security before the public holiday closure'},
+  {id:'r3',std:'reading',colour:'#3b82f6',type:'mc',passageTitle:'Community Pool — Term 3 Timetable',passage:'Lap Swimming: Mon-Fri 6:00am–8:00am, 12:00pm–1:00pm, 6:00pm–8:00pm\nAqua Fitness: Mon/Wed/Fri 9:00am–10:00am\nLearn to Swim: Sat 8:00am–12:00pm, Sun 9:00am–11:00am\nPool Closed: Tuesday 15 July (maintenance)',task:'A parent wants to bring their child to Learn to Swim on Saturday at 11:30am. Is this possible?',options:['Yes — Learn to Swim runs until 12pm on Saturday','No — Learn to Swim finishes at 11am on Saturday','Yes — the pool is open all day Saturday','No — the pool is closed on Saturdays'],answer:'Yes — Learn to Swim runs until 12pm on Saturday'},
+  {id:'w1',std:'writing',colour:'#00a86b',type:'writing',scenario:'You work at a supermarket. A customer left their wallet at the checkout.',callout:'The wallet is black leather with the initials "M.T." on it. It has been handed to the customer service desk.',task:'Write a short notice for the store noticeboard so the customer can claim their wallet.',wordMin:40,wordMax:100,rubric:['Clear heading','Describes the wallet','States where it can be claimed','Contact or next step included']},
+  {id:'w2',std:'writing',colour:'#00a86b',type:'writing',scenario:'You are a team leader. Your team member Jamal has been consistently arriving 15–20 minutes late.',callout:'You need to address this professionally.',task:'Write a brief, professional message to Jamal about his punctuality.',wordMin:40,wordMax:90,rubric:['Professional tone','States the issue clearly','Not aggressive or emotional','Suggests a solution or next step']},
+  {id:'w3',std:'writing',colour:'#00a86b',type:'writing',scenario:'Your community sports club needs new equipment.',callout:'You are writing to a local business asking for a $300 donation.',task:'Write a short letter requesting the donation. Include who you are, what the money is for, and what the business gets in return.',wordMin:55,wordMax:130,rubric:['Introduces the club','States the amount and purpose','Offers recognition in return','Polite persuasive tone','Appropriate letter format']},
+  {id:'n1',std:'numeracy',colour:'#ff6b00',type:'currency',scenario:'Petrol at Z Energy costs $2.94 per litre.',callout:"Aroha's car needs 45 litres to fill up.",task:'How much does it cost to fill the tank?',answer:132.30,tol:0.05},
+  {id:'n2',std:'numeracy',colour:'#ff6b00',type:'mc',scenario:'A jacket normally costs $180.',callout:"It's on sale for 25% off.",task:'What is the sale price?',options:['$135','$145','$155','$45'],answer:'$135'},
+  {id:'n3',std:'numeracy',colour:'#ff6b00',type:'number',scenario:'A survey of 300 students found that 42% walk to school.',callout:'',task:'How many students walk to school?',answer:126,tol:0}
+];
+
+var state = { idx: 0, answers: {}, elapsed: 0, timer: null };
+
+function wc(s){ return s.trim().split(/\s+/).filter(Boolean).length; }
+
+function show(id){
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('question-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById(id).style.display = 'block';
+}
+
+function startDiag(){
+  document.getElementById('progress-bar-wrap').style.display = 'block';
+  document.getElementById('timer').style.display = 'block';
+  show('question-screen');
+  renderQ();
+  state.timer = setInterval(function(){
+    state.elapsed++;
+    var left = 600 - state.elapsed;
+    if(left < 0) left = 0;
+    var m = Math.floor(left/60);
+    var s = left % 60;
+    document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+    if(left <= 0){ clearInterval(state.timer); showResults(); }
+  }, 1000);
+}
+
+document.getElementById('start-btn').onclick = startDiag;
+
+function renderQ(){
+  var q = QUESTIONS[state.idx];
+  var pct = Math.round((state.idx / QUESTIONS.length) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = 'Question ' + (state.idx+1) + ' of ' + QUESTIONS.length;
+  document.getElementById('prog-pct').textContent = pct + '% complete';
+  document.getElementById('q-stripe').style.background = q.colour;
+
+  var html = '<div class="q-std" style="background:' + q.colour + '20;color:' + q.colour + '">' + q.std.charAt(0).toUpperCase() + q.std.slice(1) + ' — US3240' + (q.std==='reading'?'3':q.std==='writing'?'5':'6') + '</div>';
+  if(q.passage) html += '<div class="q-passage"><div class="q-passage-title">' + q.passageTitle + '</div>' + q.passage.replace(/\n/g,'<br>') + '</div>';
+  if(q.scenario) html += '<p class="q-scenario">' + q.scenario + '</p>';
+  if(q.callout) html += '<div class="q-callout">' + q.callout + '</div>';
+  html += '<div class="q-task">' + q.task + '</div>';
+
+  var ans = state.answers[q.id];
+
+  if(q.type === 'mc'){
+    html += '<div class="mc-list">';
+    for(var i=0;i<q.options.length;i++){
+      var opt = q.options[i];
+      var sel = ans === opt ? ' sel' : '';
+      html += '<div class="mc-opt' + sel + '" data-val="' + opt.replace(/"/g,'&quot;') + '" onclick="pickMC(this)"><div class="mc-radio"></div><span class="mc-text">' + opt + '</span></div>';
+    }
+    html += '</div>';
+  } else if(q.type === 'currency' || q.type === 'number'){
+    html += '<input type="number" step="0.01" class="inp" id="num-inp" placeholder="' + (q.type==='currency'?'0.00':'0') + '" value="' + (ans||'') + '" oninput="saveNum()">';
+    html += '<textarea class="textarea" style="min-height:70px;margin-top:10px" placeholder="Show your working (optional)…" oninput="saveWork()">' + (state.answers[q.id+'_w']||'') + '</textarea>';
+  } else if(q.type === 'writing'){
+    html += '<div class="rubric"><div class="rubric-title">What markers look for</div>';
+    for(var j=0;j<q.rubric.length;j++) html += '<div class="rubric-item">◦ ' + q.rubric[j] + '</div>';
+    html += '</div>';
+    var wcVal = ans ? wc(ans) : 0;
+    html += '<textarea class="textarea" id="writing-inp" placeholder="Write your response here…" oninput="saveWriting()">' + (ans||'') + '</textarea>';
+    html += '<div class="wc-row"><span>' + q.wordMin + '–' + q.wordMax + ' words</span><span id="wc-disp" class="' + (wcVal>=q.wordMin?'wc-ok':'') + '">' + wcVal + ' words</span></div>';
+  }
+
+  document.getElementById('q-body').innerHTML = html;
+  updateNext();
+}
+
+function updateNext(){
+  var q = QUESTIONS[state.idx];
+  var ans = state.answers[q.id];
+  var ok = false;
+  if(q.type==='mc') ok = !!ans;
+  else if(q.type==='currency'||q.type==='number') ok = ans !== undefined && ans !== '';
+  else if(q.type==='writing') ok = ans && wc(ans) >= q.wordMin;
+  document.getElementById('btn-next').disabled = !ok;
+  document.getElementById('btn-next').textContent = state.idx === QUESTIONS.length-1 ? 'See my results →' : 'Next →';
+}
+
+function pickMC(el){
+  document.querySelectorAll('.mc-opt').forEach(function(o){o.classList.remove('sel');});
+  el.classList.add('sel');
+  state.answers[QUESTIONS[state.idx].id] = el.getAttribute('data-val');
+  updateNext();
+}
+
+function saveNum(){
+  var inp = document.getElementById('num-inp');
+  if(inp) state.answers[QUESTIONS[state.idx].id] = parseFloat(inp.value);
+  updateNext();
+}
+
+function saveWork(){
+  var inp = document.querySelector('.textarea');
+  if(inp) state.answers[QUESTIONS[state.idx].id + '_w'] = inp.value;
+}
+
+function saveWriting(){
+  var inp = document.getElementById('writing-inp');
+  if(!inp) return;
+  state.answers[QUESTIONS[state.idx].id] = inp.value;
+  var q = QUESTIONS[state.idx];
+  var wcVal = wc(inp.value);
+  var el = document.getElementById('wc-disp');
+  if(el){ el.textContent = wcVal + ' words'; el.className = wcVal >= q.wordMin ? 'wc-ok' : ''; }
+  updateNext();
+}
+
+function nextQ(){
+  if(state.idx < QUESTIONS.length-1){ state.idx++; renderQ(); window.scrollTo(0,0); }
+  else { clearInterval(state.timer); showResults(); }
+}
+
+function skipQ(){
+  if(state.idx < QUESTIONS.length-1){ state.idx++; renderQ(); window.scrollTo(0,0); }
+  else { clearInterval(state.timer); showResults(); }
+}
+
+function showResults(){
+  clearInterval(state.timer);
+  document.getElementById('progress-bar-wrap').style.display = 'none';
+  document.getElementById('timer').style.display = 'none';
+
+  var scores = {reading:0,writing:0,numeracy:0};
+  var totals = {reading:3,writing:3,numeracy:3};
+
+  QUESTIONS.forEach(function(q){
+    var ans = state.answers[q.id];
+    if(ans === undefined || ans === '') return;
+    if(q.type==='mc'){ if(ans===q.answer) scores[q.std]++; }
+    else if(q.type==='writing'){ if(wc(ans)>=q.wordMin) scores[q.std]++; }
+    else { if(Math.abs(Number(ans)-q.answer)<=q.tol) scores[q.std]++; }
+  });
+
+  var pcts = {
+    reading: Math.round(scores.reading/totals.reading*100),
+    writing: Math.round(scores.writing/totals.writing*100),
+    numeracy: Math.round(scores.numeracy/totals.numeracy*100)
+  };
+  var overall = Math.round((pcts.reading+pcts.writing+pcts.numeracy)/3);
+
+  show('results-screen');
+  window.scrollTo(0,0);
+
+  setTimeout(function(){
+    var fill = document.getElementById('ring-fill');
+    fill.style.stroke = overall>=70?'#00a86b':overall>=45?'#d97706':'#dc2626';
+    fill.style.strokeDashoffset = String(402-(402*overall/100));
+    document.getElementById('ring-pct').textContent = overall + '%';
+  }, 300);
+
+  var titles = {reading:'Reading — US32403',writing:'Writing — US32405',numeracy:'Numeracy — US32406'};
+  var colours = {reading:'#3b82f6',writing:'#00a86b',numeracy:'#ff6b00'};
+
+  var mTitle, mDesc;
+  if(overall>=70){ mTitle='Looking strong!'; mDesc='You are on track. Target your weaker standard with focused practice before your exam window.'; }
+  else if(overall>=45){ mTitle='Getting closer'; mDesc='You have the foundations but need more practice. Focus on your weakest standard first.'; }
+  else { mTitle='More practice needed'; mDesc="Don't worry — this is exactly why you're here. Your results below show exactly where to focus."; }
+  document.getElementById('meter-title').textContent = mTitle;
+  document.getElementById('meter-desc').textContent = mDesc;
+
+  var html = '';
+  ['reading','writing','numeracy'].forEach(function(std){
+    var pct = pcts[std];
+    var badgeClass, badgeText, insight;
+    if(pct>=67){ badgeClass='badge-strong'; badgeText='Strong'; insight='Good work. You demonstrated solid ' + std + ' skills. Keep practising to stay sharp.'; }
+    else if(pct>=34){ badgeClass='badge-developing'; badgeText='Developing'; insight='Nearly there. You got ' + scores[std] + ' of 3 correct. A few more sessions will make a big difference.'; }
+    else { badgeClass='badge-focus'; badgeText='Needs focus'; insight=std.charAt(0).toUpperCase()+std.slice(1) + ' is your main gap. The full simulator has 20+ practice questions with AI feedback to help you improve quickly.'; }
+    html += '<div class="std-result"><div class="std-result-head"><div class="std-result-name">' + titles[std] + '</div><div class="' + badgeClass + '">' + badgeText + '</div></div><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%;background:' + colours[std] + '"></div></div><p class="std-insight">' + insight + '</p></div>';
+  });
+  document.getElementById('std-cards').innerHTML = html;
+}
+</script>
+</body>
+</html>

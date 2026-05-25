@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Sessions — Passit CAA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1f47;--navy-dark:#0a1880;--orange:#f97316;--sky:#eef3ff;
+  --surface:#fff;--ink:#0f1f47;--ink-2:#3d4f6f;--ink-3:#6b7a96;
+  --green:#16a34a;--green-light:#dcfce7;--blue:#3b82f6;--blue-light:#dbeafe;
+  --amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;
+  --border:#c8d8ee;--shadow:0 2px 16px rgba(15,31,71,.08),0 1px 4px rgba(15,31,71,.04);
+  --shadow-lg:0 12px 40px rgba(15,31,71,.12);--r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--sky);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+nav{
+  position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;
+}
+.nav-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:var(--navy);letter-spacing:-.5px;text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--orange)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:.82rem;font-weight:600;color:var(--ink-2);text-decoration:none;transition:color .15s}
+.nav-link:hover{color:var(--navy)}
+.nav-cta{
+  background:var(--navy);color:#fff;font-family:'DM Sans',sans-serif;
+  font-size:.82rem;font-weight:700;padding:8px 20px;border-radius:40px;
+  text-decoration:none;transition:opacity .15s;border:none;cursor:pointer;
+}
+.nav-cta:hover{opacity:.92}
+
+.hero{background:var(--navy);color:#fff;padding:48px 5vw 40px;text-align:center}
+.hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.hero p{color:rgba(255,255,255,.7);max-width:480px;margin:0 auto;font-size:.92rem}
+
+.login-wrap{max-width:420px;margin:-28px auto 0;padding:0 20px;position:relative;z-index:10}
+.login-card{
+  background:var(--surface);border-radius:16px;padding:24px 28px;box-shadow:var(--shadow-lg);
+  display:flex;gap:12px;align-items:center;
+}
+.login-card input{
+  flex:1;padding:13px 16px;border:2px solid var(--border);border-radius:12px;
+  font-family:inherit;font-size:.95rem;color:var(--ink);background:var(--sky);outline:none;transition:border-color .15s;
+}
+.login-card input:focus{border-color:var(--orange);background:#fff}
+.login-card button{
+  padding:13px 28px;background:var(--orange);color:#fff;border:none;border-radius:12px;
+  font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;transition:filter .15s;white-space:nowrap;
+}
+.login-card button:hover{filter:brightness(1.06)}
+.login-card button:disabled{opacity:.5;pointer-events:none}
+
+.main-area{max-width:960px;margin:32px auto 60px;padding:0 20px}
+
+.loading{text-align:center;padding:48px 0;display:none}
+.spinner{width:44px;height:44px;border-radius:50%;margin:0 auto 14px;border:3px solid rgba(15,31,71,.12);border-top-color:var(--orange);animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{color:var(--ink-2)}
+
+.summary{
+  background:var(--surface);border-radius:var(--r);padding:20px 24px;border:1px solid var(--border);
+  margin-bottom:16px;display:none;
+}
+.summary-row{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.meta{font-size:.82rem;color:var(--ink-2)}
+.meta strong{color:var(--ink);font-weight:700}
+
+.chip{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
+.chip-green{background:var(--green-light);color:var(--green)}
+.chip-amber{background:var(--amber-light);color:var(--amber)}
+.chip-red{background:var(--red-light);color:var(--red)}
+.chip-gray{background:#f1f5f9;color:#94a3b8}
+.chip-blue{background:var(--blue-light);color:var(--blue)}
+
+.fb-toggle{
+  font-size:.75rem;color:var(--blue);cursor:pointer;font-weight:600;
+  background:none;border:none;font-family:inherit;padding:2px 0;
+}
+.fb-toggle:hover{text-decoration:underline}
+.fb-detail{display:none;margin-top:8px;padding:10px 12px;background:var(--sky);border-radius:10px;font-size:.8rem;line-height:1.6;color:var(--ink-2)}
+.fb-detail.open{display:block}
+.fb-crit{display:flex;justify-content:space-between;align-items:center;padding:3px 0;gap:8px}
+.fb-crit-badge{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.fb-met{background:var(--green-light);color:var(--green)}
+.fb-partial{background:var(--amber-light);color:var(--amber)}
+.fb-miss{background:var(--red-light);color:var(--red)}
+
+.empty{text-align:center;padding:48px 20px;display:none}
+.empty-icon{font-size:2.4rem;margin-bottom:12px;display:block}
+.empty-title{font-family:'Bricolage Grotesque',sans-serif;font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.empty-body{font-size:.85rem;color:var(--ink-2);max-width:380px;margin:0 auto;line-height:1.65}
+.empty-body a{color:var(--orange);font-weight:700;text-decoration:none}
+.empty-body a:hover{text-decoration:underline}
+
+.sim-link{display:inline-flex;align-items:center;gap:6px;margin-top:16px;color:var(--orange);font-weight:700;font-size:.88rem;text-decoration:none}
+.sim-link:hover{text-decoration:underline}
+
+/* Session cards */
+.session-card{
+  background:var(--surface);border-radius:var(--r);border:1px solid var(--border);
+  padding:22px 26px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+.session-card.std-reading{border-left:4px solid var(--blue)}
+.session-card.std-writing{border-left:4px solid var(--green)}
+.session-card.std-numeracy{border-left:4px solid var(--amber)}
+.session-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.session-date{font-size:.88rem;font-weight:600;color:var(--ink)}
+
+.marking-failed-box{
+  margin:14px 0 4px;padding:14px 18px;background:#f0f5fa;
+  border:1.5px solid #b4c5e0;border-radius:10px;
+  font-size:.84rem;color:var(--ink-2);line-height:1.65;
+}
+.marking-failed-box strong{color:var(--ink);display:block;margin-bottom:2px}
+
+.session-skills{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.skill-tag{
+  display:inline-block;padding:5px 13px;background:var(--sky);
+  border-radius:8px;font-size:.8rem;color:var(--ink-2);line-height:1.4;
+}
+
+.session-feedback{margin-top:10px}
+
+/* Practice plan card */
+.practice-plan-card{
+  margin-top:16px;background:#eef3ff;border-radius:12px;overflow:hidden;
+}
+.plan-toggle{
+  width:100%;padding:14px 18px;background:none;border:none;
+  font-family:inherit;font-size:.88rem;font-weight:700;color:var(--navy);
+  cursor:pointer;text-align:left;transition:background .15s;
+}
+.plan-toggle:hover{background:rgba(15,31,71,.04)}
+.plan-body{display:none;padding:0 18px 18px}
+.plan-body.open{display:block}
+.plan-step{margin-bottom:16px}
+.plan-step:last-child{margin-bottom:0}
+.plan-time{font-size:.76rem;font-weight:700;color:var(--navy);margin-bottom:3px;text-transform:uppercase;letter-spacing:.03em}
+.plan-desc{font-size:.84rem;color:var(--ink-2);line-height:1.65}
+
+footer{background:var(--navy-dark,#0a1880);color:rgba(255,255,255,.5);padding:48px 5vw 32px}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:32px;margin-bottom:40px;flex-wrap:wrap}
+.footer-logo{font-family:'Bricolage Grotesque',sans-serif;font-size:1.4rem;font-weight:800;color:white;letter-spacing:-.5px;display:block;margin-bottom:8px;text-decoration:none}
+.footer-logo em{font-style:italic;color:#f0c060}
+.footer-tagline{font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;max-width:240px}
+.footer-links{display:flex;gap:48px;flex-wrap:wrap}
+.footer-col-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:12px}
+.footer-link{display:block;font-size:.78rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-link:hover{color:rgba(255,255,255,.8)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.72rem;color:rgba(255,255,255,.3)}
+.footer-disclaimer{font-size:.68rem;color:rgba(255,255,255,.2);max-width:500px;line-height:1.6}
+
+@media(max-width:768px){
+  nav .nav-links{display:none}
+  .login-card{flex-direction:column}
+  .login-card input,.login-card button{width:100%}
+  .footer-links{gap:24px}
+  .footer-top{flex-direction:column}
+  .summary-row{flex-direction:column;gap:8px}
+  .session-header{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">pass<em>it</em></a>
+  <div class="nav-links">
+    <a href="index.html#standards" class="nav-link">The Exams</a>
+    <a href="simulator-pro.html" class="nav-link">Simulator</a>
+    <a href="parent-dashboard.html" class="nav-link">Parent View</a>
+    <a href="dashboard.html" class="nav-link">Student Dashboard</a>
+    <a href="parent-dashboard.html" class="nav-link">Parent Dashboard</a>
+  </div>
+  <a href="simulator-pro.html" class="nav-cta">Start Practising →</a>
+</nav>
+
+<section class="hero">
+  <h1>My Practice Sessions</h1>
+  <p>Enter your email to view all your practice session history and scores.</p>
+</section>
+
+<div class="login-wrap">
+  <div class="login-card">
+    <input type="email" id="email-input" placeholder="your@email.com" autocomplete="email">
+    <button id="search-btn">View my sessions</button>
+  </div>
+</div>
+
+<div class="main-area">
+  <div class="loading" id="loading"><div class="spinner"></div><p>Loading sessions…</p></div>
+
+  <div class="summary" id="summary">
+    <div class="summary-row">
+      <div class="meta"><strong id="meta-count">0</strong> sessions</div>
+      <div class="meta">Date range: <strong id="meta-range">—</strong></div>
+      <div class="meta">Student: <strong id="meta-email">—</strong></div>
+    </div>
+  </div>
+
+  <div id="sessions-list"></div>
+
+  <div class="empty" id="empty">
+    <span class="empty-icon">📝</span>
+    <div class="empty-title" id="empty-title">No sessions found</div>
+    <div class="empty-body" id="empty-body">No sessions found for this email. Complete a practice session in the simulator first.<br><a href="simulator-pro.html">Start a new session →</a></div>
+  </div>
+
+  <div id="sim-link-wrap" style="display:none;text-align:center;margin-top:20px">
+    <a href="simulator-pro.html" class="sim-link">Start a new session →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="footer-logo">pass<em>it</em></a>
+        <p class="footer-tagline">NCEA co-requisite preparation for NZ students, parents and whānau.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <div class="footer-col-title">Product</div>
+          <a href="index.html#standards" class="footer-link">CAA Simulator</a>
+          <a href="index.html#videos" class="footer-link">Free Videos</a>
+          <a href="pricing.html" class="footer-link">Pricing</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Resources</div>
+          <a href="https://ncea.education.govt.nz" target="_blank" class="footer-link">ncea.education.govt.nz</a>
+          <a href="https://www2.nzqa.govt.nz/ncea/subjects/litnum/" target="_blank" class="footer-link">NZQA Literacy & Numeracy</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Company</div>
+          <a href="/contact.html" class="footer-link">Contact</a>
+          <a href="/privacy.html" class="footer-link">Privacy</a>
+          <a href="/terms.html" class="footer-link">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Passit. All rights reserved.</div>
+      <div class="footer-disclaimer">Questions are based on published NZQA achievement criteria. Passit is an independent preparation tool and is not affiliated with NZQA or the Ministry of Education.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const SUPABASE_URL='https://soojtogwwakrkcvpudnu.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvb2p0b2d3d2FrcmtjdnB1ZG51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwOTY2MjcsImV4cCI6MjA5MDY3MjYyN30.uAGLxv59vanJp9JSZ-wkT3mvKwVukrFQDRIvop8AWVs';
+
+const STD_MAP={'32403':'Reading','32405':'Writing','32406':'Numeracy'};
+
+const SKILL_GROUPS=[
+  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],label:'Your tone and word choices \u{1F534}'},
+  {triggers:['procedural','sequential instructions','paragraph structure','text structure'],label:'How your writing flows \u{1F7E1}'},
+  {triggers:['proofreading','fact vs opinion','bias detection'],label:'Checking your work carefully \u{1F7E1}'},
+  {triggers:['gst calculations','percentage calculations','budgeting'],label:'Working with numbers and money \u{1F534}'},
+  {triggers:['ratios and proportions','measurement','unit conversion','volume calculation'],label:'Measurement and proportions \u{1F7E1}'},
+  {triggers:['statistics interpretation','probability scale'],label:'Reading data and probability \u{1F7E1}'},
+  {triggers:['rate and reasonableness','time calculations','timetable reading'],label:'Rates, time, and timetables \u{1F7E1}'},
+  {triggers:['compass direction','angle estimation'],label:'Direction and angles \u{1F7E1}'},
+  {triggers:['claim verification'],label:'Checking if claims are correct \u{1F7E1}'}
+];
+
+const PRACTICE_PLANS={
+  Reading:{
+    warmup:'Read through a short text (news article, brochure, or email) and highlight the main idea in each paragraph.',
+    focused:{
+      'Your tone and word choices \u{1F534}':'Read two texts on the same topic \u2014 one written for teenagers, one for professionals. Note how word choices and tone change for different audiences.',
+      'Checking your work carefully \u{1F7E1}':'Read a short article and separate facts from opinions. Highlight any biased or misleading language and explain why it might be one-sided.',
+      'Checking if claims are correct \u{1F7E1}':'Read a short article with claims. For each one, find evidence in the text that supports or contradicts it. Write a sentence explaining your reasoning.',
+      'How your writing flows \u{1F7E1}':'Read a well-structured article. Identify how the author organises ideas \u2014 introduction, supporting points, and conclusion. Note any signal words (firstly, however, finally).',
+      _default:'Choose a text and practice identifying the author\u2019s purpose, the main ideas, and any unfamiliar vocabulary. Write brief notes for each.'
+    },
+    apply:'Read a full passage and write short answers to 3 comprehension questions \u2014 focus on using evidence from the text to support your answers.',
+    review:'Re-read your answers. Check that you\u2019ve answered each question fully and used evidence from the text.'
+  },
+  Writing:{
+    warmup:'Write 3 sentences describing your morning. Focus on clear, complete sentences with correct punctuation.',
+    focused:{
+      'Your tone and word choices \u{1F534}':'Write a short reply to a customer who received the wrong order. Focus on polite, professional tone and appropriate language for the audience.',
+      'How your writing flows \u{1F7E1}':'Write a set of 5 step-by-step instructions for a simple task (e.g. making a cup of tea). Make sure each step follows logically from the last.',
+      'Checking your work carefully \u{1F7E1}':'Write a short paragraph about your weekend, then proofread it twice. First check spelling and punctuation, then check that each sentence makes sense.',
+      _default:'Write a short email responding to a workplace scenario. Include a greeting, clear body paragraph, and a professional sign-off.'
+    },
+    apply:'Write a full email responding to a scenario \u2014 include a greeting, body, and sign-off. Make sure your tone matches the audience and purpose.',
+    review:'Re-read your work. Check spelling, tone, and that you\u2019ve answered the question fully.'
+  },
+  Numeracy:{
+    warmup:'Do 5 quick mental maths questions: try adding and subtracting with decimals, or estimating percentages of everyday prices.',
+    focused:{
+      'Working with numbers and money \u{1F534}':'Calculate GST (15%) on 5 different prices. Then create a simple weekly budget \u2014 list income and expenses and check if the budget balances.',
+      'Measurement and proportions \u{1F7E1}':'Convert between units (e.g. cm to m, mL to L). Then calculate the volume of a box and convert cm\u00B3 to litres.',
+      'Reading data and probability \u{1F7E1}':'Read a bar chart and answer 3 questions about what the data shows. Then place 5 everyday events on a probability scale from impossible to certain.',
+      'Rates, time, and timetables \u{1F7E1}':'Read a bus timetable and plan a journey with one transfer. Calculate how long each leg takes and the total travel time.',
+      'Direction and angles \u{1F7E1}':'Use a compass rose to give directions between points on a simple map. Then estimate 3 different angles without using a protractor.',
+      _default:'Work through 5 mixed numeracy problems covering percentages, measurement, and basic calculations. Show your working.'
+    },
+    apply:'Solve a real-world problem: plan a small event budget including GST, timing, and quantities needed for catering.',
+    review:'Re-check your calculations. Make sure units are correct and your answers are reasonable for the real-world context.'
+  }
+};
+
+const $=id=>document.getElementById(id);
+function esc(s){const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
+
+function fmtDate(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function mapWeakSkills(rawSkills){
+  if(!Array.isArray(rawSkills)||!rawSkills.length) return ['Looking good \u2705'];
+  const matched=new Set();
+  rawSkills.forEach(raw=>{
+    const k=String(raw||'').trim().toLowerCase();
+    if(!k) return;
+    for(const group of SKILL_GROUPS){
+      let hit=false;
+      for(const trigger of group.triggers){
+        if(k.includes(trigger)||trigger.includes(k)){matched.add(group.label);hit=true;break;}
+      }
+      if(hit) break;
+    }
+  });
+  return matched.size?[...matched]:['Looking good \u2705'];
+}
+
+function scoreChip(pct){
+  if(pct==null||pct===0) return '<span class="chip chip-gray">\u2014</span>';
+  const cls=pct>=80?'chip-green':pct>=50?'chip-amber':'chip-red';
+  return '<span class="chip '+cls+'">'+pct+'%</span>';
+}
+
+function isMarkingFailed(s){
+  if(s.score_pct===0||s.score_pct==null) return true;
+  let fb=s.feedback_json;
+  if(typeof fb==='string'){try{fb=JSON.parse(fb);}catch(e){return true;}}
+  if(!fb||(typeof fb==='object'&&Object.keys(fb).length===0)) return true;
+  return false;
+}
+
+function parseFeedback(raw){
+  if(!raw) return null;
+  if(typeof raw==='string'){try{const p=JSON.parse(raw);return(p&&typeof p==='object')?p:null;}catch(e){return null;}}
+  return(typeof raw==='object')?raw:null;
+}
+
+function renderFeedbackHTML(fb,idx){
+  if(!fb) return '';
+  let html='<button class="fb-toggle" onclick="toggleFb('+idx+')">Show feedback details</button>';
+  html+='<div class="fb-detail" id="fb-'+idx+'">';
+  if(fb.criteria&&Array.isArray(fb.criteria)){
+    fb.criteria.forEach(c=>{
+      const cls=c.verdict==='met'?'fb-met':c.verdict==='partial'?'fb-partial':'fb-miss';
+      const label=c.verdict==='met'?'Met':c.verdict==='partial'?'Partial':'Missing';
+      html+='<div class="fb-crit"><span>'+esc(c.name)+'</span><span class="fb-crit-badge '+cls+'">'+label+'</span></div>';
+      if(c.note) html+='<div style="font-size:.75rem;color:var(--ink-3);padding:0 0 6px">'+esc(c.note)+'</div>';
+    });
+  }
+  if(fb.overall) html+='<div style="margin-top:6px;font-weight:600">'+esc(fb.overall)+'</div>';
+  html+='</div>';
+  return html;
+}
+
+function renderPracticePlan(standardName,mappedSkills,idx){
+  const plan=PRACTICE_PLANS[standardName]||PRACTICE_PLANS.Reading;
+  const focus=mappedSkills.filter(s=>s!=='Looking good \u2705').slice(0,2);
+  let focusedDesc;
+  if(focus.length===1){
+    focusedDesc=plan.focused[focus[0]]||plan.focused._default;
+  }else if(focus.length>=2){
+    const d1=plan.focused[focus[0]]||plan.focused._default;
+    const d2=plan.focused[focus[1]]||plan.focused._default;
+    focusedDesc=d1===d2?d1:d1+'<br><br><strong>Then:</strong> '+d2;
+  }else{
+    focusedDesc=plan.focused._default;
+  }
+
+  let h='<div class="practice-plan-card">';
+  h+='<button class="plan-toggle" onclick="togglePlan('+idx+')">\u{1F4CB} Your 45-minute practice plan \u25BE</button>';
+  h+='<div class="plan-body" id="plan-'+idx+'">';
+  h+='<div class="plan-step"><div class="plan-time">0\u201310 min: Warm-up</div><p class="plan-desc">'+plan.warmup+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">10\u201330 min: Focused practice</div><p class="plan-desc">'+focusedDesc+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">30\u201340 min: Apply it</div><p class="plan-desc">'+plan.apply+'</p></div>';
+  h+='<div class="plan-step"><div class="plan-time">40\u201345 min: Review</div><p class="plan-desc">'+plan.review+'</p></div>';
+  h+='</div></div>';
+  return h;
+}
+
+window.toggleFb=function(idx){
+  const el=$('fb-'+idx);if(!el) return;
+  const btn=el.previousElementSibling;
+  el.classList.toggle('open');
+  if(btn) btn.textContent=el.classList.contains('open')?'Hide details':'Show feedback details';
+};
+
+window.togglePlan=function(idx){
+  const el=$('plan-'+idx);if(!el) return;
+  const btn=el.previousElementSibling;
+  el.classList.toggle('open');
+  if(btn) btn.textContent=el.classList.contains('open')?'\u{1F4CB} Your 45-minute practice plan \u25B4':'\u{1F4CB} Your 45-minute practice plan \u25BE';
+};
+
+$('email-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search();}});
+$('search-btn').addEventListener('click',search);
+
+const saved=(localStorage.getItem('passit_email')||'').trim();
+if(saved) $('email-input').value=saved;
+
+async function search(){
+  const email=$('email-input').value.trim();
+  if(!email||!email.includes('@')) return;
+
+  $('search-btn').disabled=true;
+  $('search-btn').textContent='Searching\u2026';
+  $('loading').style.display='block';
+  $('summary').style.display='none';
+  $('sessions-list').innerHTML='';
+  $('empty').style.display='none';
+  $('sim-link-wrap').style.display='none';
+
+  try{
+    const url=SUPABASE_URL+'/rest/v1/practice_sessions?student_email=eq.'+encodeURIComponent(email)+'&order=session_date.desc&limit=100';
+    const res=await fetch(url,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+SUPABASE_ANON}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows=await res.json();
+    $('loading').style.display='none';
+
+    if(!rows.length){$('empty').style.display='block';return;}
+
+    $('meta-count').textContent=rows.length;
+    $('meta-email').textContent=email;
+    const dates=rows.map(r=>new Date(r.session_date)).filter(d=>!isNaN(d));
+    if(dates.length){
+      const fmt=d=>d.toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric'});
+      const oldest=fmt(new Date(Math.min(...dates)));
+      const newest=fmt(new Date(Math.max(...dates)));
+      $('meta-range').textContent=oldest===newest?newest:oldest+' \u2014 '+newest;
+    }
+    $('summary').style.display='block';
+
+    const list=$('sessions-list');
+    rows.forEach((s,i)=>{
+      const stdKey=String(s.standard||'');
+      const standardName=STD_MAP[stdKey]||s.standard||'Unknown';
+      const stdCls=stdKey==='32403'?'std-reading':stdKey==='32405'?'std-writing':stdKey==='32406'?'std-numeracy':'';
+      const chipCls=stdKey==='32403'?'chip-blue':stdKey==='32405'?'chip-green':stdKey==='32406'?'chip-amber':'';
+
+      let ws=s.weak_skills;
+      if(typeof ws==='string'){try{ws=JSON.parse(ws);}catch(e){ws=[];}}
+      const mappedSkills=mapWeakSkills(ws);
+
+      const failed=isMarkingFailed(s);
+      const fb=parseFeedback(s.feedback_json);
+
+      let html='<div class="session-card '+stdCls+'">';
+
+      html+='<div class="session-header">';
+      html+='<span class="session-date">'+esc(s.session_date?fmtDate(s.session_date):'\u2014')+'</span>';
+      html+='<span class="chip '+chipCls+'">'+esc(standardName)+'</span>';
+      if(!failed) html+=scoreChip(s.score_pct);
+      html+='</div>';
+
+      if(failed){
+        html+='<div class="marking-failed-box">\u2139\uFE0F <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
+      }
+
+      html+='<div class="session-skills">';
+      mappedSkills.forEach(label=>{html+='<span class="skill-tag">'+esc(label)+'</span>';});
+      html+='</div>';
+
+      if(!failed&&fb){
+        html+='<div class="session-feedback">'+renderFeedbackHTML(fb,i)+'</div>';
+      }
+
+      html+=renderPracticePlan(standardName,mappedSkills,i);
+      html+='</div>';
+      list.insertAdjacentHTML('beforeend',html);
+    });
+
+    $('sim-link-wrap').style.display='block';
+  }catch(err){
+    console.error('Search failed:',err);
+    $('loading').style.display='none';
+    $('empty-title').textContent='Something went wrong';
+    $('empty-body').innerHTML='Could not fetch sessions. Check the console for details.';
+    $('empty').style.display='block';
+  }finally{
+    $('search-btn').disabled=false;
+    $('search-btn').textContent='View my sessions';
+  }
+}
+</script>
+</body>
+</html>
