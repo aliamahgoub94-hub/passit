@@ -272,6 +272,90 @@ const SKILL_GROUPS=[
   {triggers:['claim verification'],label:'Checking if claims are correct \u{1F7E1}'}
 ];
 
+const FEEDBACK_LOOKUP=[
+  {triggers:['customer communication','business email','workplace email','formal language','audience and purpose'],
+   title:'Your tone and word choices',
+   feedback:'Your writing needs to sound more professional throughout. Swap casual words: get\u2009\u2192\u2009obtain, tell\u2009\u2192\u2009inform, need\u2009\u2192\u2009require. Read it back \u2014 would you say this at work?',
+   score:40},
+  {triggers:['procedural','procedural instructions','sequential instructions','paragraph structure','text structure'],
+   title:'How your writing flows',
+   feedback:'Use linking words \u2014 First, Then, Next, After that, Finally. One idea per step. Read it back \u2014 could someone follow without asking questions?',
+   score:40},
+  {triggers:['proofreading','fact vs opinion','bias detection'],
+   title:'Checking your work carefully',
+   feedback:'After you write, read it twice: once for spelling and punctuation, once for whether it makes sense. Look for missing full stops and capital letters.',
+   score:40},
+  {triggers:['locating specific information','locating multiple pieces','main idea'],
+   title:'Finding information in the text',
+   feedback:'Go back and find the exact sentence that answers the question. The answer is always directly in the text \u2014 don\u2019t guess.',
+   score:40},
+  {triggers:['identifying bias','comparing texts','bias detection','inference','author purpose'],
+   title:'Reading between the lines',
+   feedback:'These questions ask why the author wrote something, not just what they wrote. Ask yourself: what is the author trying to make me think or feel?',
+   score:40},
+  {triggers:['vocabulary in context'],
+   title:'Working out word meanings',
+   feedback:'Look at the words around the tricky word. The sentence usually gives you a clue about what it means \u2014 try replacing it with a simpler word and see if the sentence still works.',
+   score:40},
+  {triggers:['unit conversion','measurement','unit conversion cm\u00B3 to litres','volume calculation'],
+   title:'Converting measurements',
+   feedback:'Write down what you\u2019re converting from and to before you calculate. Common ones: cm\u2009\u2192\u2009m \u00F7100, g\u2009\u2192\u2009kg \u00F7\u20091000, mL\u2009\u2192\u2009L \u00F7\u20091000.',
+   score:40},
+  {triggers:['gst','gst calculations','percentages','percentage calculations','budgeting'],
+   title:'Percentages and money',
+   feedback:'For GST: multiply by 1.15 to add GST, divide by 1.15 to remove it. For percentages: divide by 100 first, then multiply.',
+   score:40},
+  {triggers:['speed','rates','rate and reasonableness','time','time calculations','timetable reading'],
+   title:'Rates and measurement',
+   feedback:'Use the formula triangle: Speed = Distance \u00F7 Time. Write the formula before you start and check your units match.',
+   score:40},
+  {triggers:['statistics interpretation','probability scale'],
+   title:'Data and probability',
+   feedback:'Read the question carefully \u2014 check if it asks for a fraction, decimal, or percentage. Count the total outcomes first, then the favourable ones.',
+   score:40},
+  {triggers:['compass direction','angle estimation'],
+   title:'Direction and angles',
+   feedback:'Remember: North is up, East is right. For angles, a right angle is 90\u00B0 \u2014 estimate by comparing to that.',
+   score:40},
+  {triggers:['claim verification'],
+   title:'Checking claims',
+   feedback:'Do the calculation yourself before deciding if the claim is correct. Don\u2019t trust the rounded number \u2014 work it out exactly.',
+   score:40},
+  {triggers:['ratios and proportions'],
+   title:'Ratios and proportions',
+   feedback:'Set up the ratio as a fraction and simplify. Check both sides are in the same units before comparing.',
+   score:40}
+];
+
+function backEngineerFeedback(weakSkills, standard){
+  if(!Array.isArray(weakSkills)||!weakSkills.length) return null;
+  const matched=[];
+  const seen=new Set();
+  weakSkills.forEach(raw=>{
+    const k=String(raw||'').trim().toLowerCase();
+    if(!k) return;
+    for(const entry of FEEDBACK_LOOKUP){
+      if(seen.has(entry.title)) continue;
+      for(const t of entry.triggers){
+        if(k.includes(t)||t.includes(k)){
+          seen.add(entry.title);
+          matched.push(entry);
+          break;
+        }
+      }
+    }
+  });
+  if(!matched.length) return null;
+  const avgScore=Math.round(matched.reduce((a,m)=>a+m.score,0)/matched.length);
+  return {
+    criteria:matched.map(m=>({name:m.title,met:false,feedback:m.feedback})),
+    overall_feedback:'Based on your practice session, focus on: '+matched.map(m=>m.title).join(', ')+'. Keep practising \u2014 each session builds your skills.',
+    score_pct:avgScore,
+    correct:0,
+    total:matched.length
+  };
+}
+
 const PRACTICE_PLANS={
   Reading:{
     warmup:'Read through a short text (news article, brochure, or email) and highlight the main idea in each paragraph.',
@@ -398,6 +482,25 @@ function renderPracticePlan(standardName,mappedSkills,idx){
   return h;
 }
 
+function renderBackFeedbackHTML(fb,idx){
+  if(!fb) return '';
+  let html='<button class="fb-toggle" onclick="toggleFb('+idx+')">Show NZQA feedback</button>';
+  html+='<div class="fb-detail" id="fb-'+idx+'">';
+  if(fb.criteria&&Array.isArray(fb.criteria)){
+    fb.criteria.forEach(c=>{
+      html+='<div style="margin-bottom:14px">';
+      html+='<div style="font-weight:700;color:var(--navy);font-size:.86rem;margin-bottom:4px">\u{1F4CC} '+esc(c.name)+'</div>';
+      html+='<div style="font-size:.82rem;color:var(--ink-2);line-height:1.65">'+esc(c.feedback)+'</div>';
+      html+='</div>';
+    });
+  }
+  if(fb.overall_feedback){
+    html+='<div style="margin-top:10px;padding:10px 14px;background:rgba(15,31,71,.04);border-radius:8px;font-size:.82rem;color:var(--ink);line-height:1.6;font-weight:600">'+esc(fb.overall_feedback)+'</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 window.toggleFb=function(idx){
   const el=$('fb-'+idx);if(!el) return;
   const btn=el.previousElementSibling;
@@ -463,6 +566,8 @@ async function search(){
 
       const failed=isMarkingFailed(s);
       const fb=parseFeedback(s.feedback_json);
+      const hasWeakSkills=Array.isArray(ws)&&ws.length>0;
+      const backFb=failed&&hasWeakSkills?backEngineerFeedback(ws,stdKey):null;
 
       let html='<div class="session-card '+stdCls+'">';
 
@@ -470,9 +575,10 @@ async function search(){
       html+='<span class="session-date">'+esc(s.session_date?fmtDate(s.session_date):'\u2014')+'</span>';
       html+='<span class="chip '+chipCls+'">'+esc(standardName)+'</span>';
       if(!failed) html+=scoreChip(s.score_pct);
+      else if(backFb) html+=scoreChip(backFb.score_pct);
       html+='</div>';
 
-      if(failed){
+      if(failed&&!backFb){
         html+='<div class="marking-failed-box">\u2139\uFE0F <strong>Your session was recorded but marking failed.</strong> Your feedback has been sent to your email.</div>';
       }
 
@@ -482,6 +588,8 @@ async function search(){
 
       if(!failed&&fb){
         html+='<div class="session-feedback">'+renderFeedbackHTML(fb,i)+'</div>';
+      }else if(backFb){
+        html+='<div class="session-feedback">'+renderBackFeedbackHTML(backFb,i)+'</div>';
       }
 
       html+=renderPracticePlan(standardName,mappedSkills,i);
