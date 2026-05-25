@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server'
-import { generateText } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { getPromptForStandard } from '@/lib/caa-feedback'
 import type { CaaStandard } from '@/types'
@@ -50,12 +48,31 @@ export async function POST(req: Request) {
     ? studentWork
     : JSON.stringify(studentWork)
 
-  const { text } = await generateText({
-    model: anthropic('claude-3-5-sonnet-20241022'),
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-    maxTokens: 2000,
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.ANTHROPIC_API_KEY!,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    }),
   })
+
+  if (!response.ok) {
+    const errBody = await response.text()
+    return NextResponse.json(
+      { error: 'Anthropic API error', detail: errBody },
+      { status: 502 }
+    )
+  }
+
+  const data = await response.json()
+  const text = data.content[0].text
 
   let feedback: any
   try {
