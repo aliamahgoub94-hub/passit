@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parent Dashboard — Passit CAA Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1c3557;--navy-mid:#2d5080;--navy-dark:#0f1f33;
+  --navy-light:#eef2f8;--navy-glow:rgba(28,53,87,.08);
+  --gold:#c08a28;--gold-light:#fdf5e4;--gold-mid:#e6a830;
+  --paper:#f7f4f0;--paper-2:#efecea;--paper-3:#e2ddd5;
+  --surface:#ffffff;
+  --ink:#12100e;--ink-2:#4a4540;--ink-3:#9a928a;
+  --green:#1a6040;--green-light:#ebf5ef;
+  --red:#aa3428;--red-light:#fdf0ee;
+  --amber:#b8860b;--amber-light:#fef9ec;
+  --shadow:0 2px 16px rgba(0,0,0,.06),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.10),0 4px 16px rgba(0,0,0,.06);
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(247,244,240,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--paper-3);
+  height:60px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;
+}
+.nav-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:var(--navy);letter-spacing:-1px;text-decoration:none}
+.nav-logo em{font-style:italic;color:var(--gold)}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-student{font-size:.82rem;font-weight:600;color:var(--ink-2)}
+.nav-badge{
+  background:var(--navy-light);color:var(--navy);
+  font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;
+}
+
+/* ── PAGE LAYOUT ── */
+.page{max-width:960px;margin:0 auto;padding:32px 5vw 80px}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:40px}
+.page-header h1{
+  font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.2rem);
+  font-weight:700;color:var(--navy);line-height:1.2;letter-spacing:-1px;
+  margin-bottom:6px;
+}
+.page-header h1 em{font-style:italic;color:var(--gold)}
+.page-header p{font-size:.9rem;color:var(--ink-2);max-width:540px;line-height:1.7}
+
+/* ── SUMMARY GRID ── */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
+.summary-card{
+  background:var(--surface);border:1.5px solid var(--paper-3);
+  border-radius:var(--r);padding:24px 20px;position:relative;overflow:hidden;
+  transition:all .2s ease;
+}
+.summary-card:hover{border-color:var(--navy-mid);box-shadow:var(--shadow);transform:translateY(-2px)}
+.summary-card-bar{position:absolute;top:0;left:0;right:0;height:3px}
+.summary-card[data-s="reading"] .summary-card-bar{background:#3d80cc}
+.summary-card[data-s="writing"] .summary-card-bar{background:var(--green)}
+.summary-card[data-s="numeracy"] .summary-card-bar{background:var(--gold)}
+.summary-card-code{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--ink-3);letter-spacing:.07em;margin-bottom:6px}
+.summary-card-name{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;margin-bottom:4px}
+.summary-card-sessions{font-size:.75rem;color:var(--ink-3);margin-bottom:14px}
+.summary-status{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.78rem;font-weight:600;padding:5px 14px;border-radius:20px;
+}
+.status-good{background:var(--green-light);color:var(--green)}
+.status-getting{background:var(--amber-light);color:var(--amber)}
+.status-needs{background:var(--red-light);color:var(--red)}
+.status-pending{background:var(--paper-2);color:var(--ink-3)}
+
+/* ── STANDARD SECTION ── */
+.standard-section{margin-bottom:56px}
+.section-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:24px;padding-bottom:16px;
+  border-bottom:1px solid var(--paper-3);
+}
+.section-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;flex-shrink:0;
+}
+.section-icon[data-s="writing"]{background:var(--green-light);color:var(--green)}
+.section-icon[data-s="reading"]{background:#e8f0fa;color:#3d80cc}
+.section-icon[data-s="numeracy"]{background:var(--gold-light);color:var(--gold)}
+.section-header h2{
+  font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--navy);
+}
+.section-header .section-tag{
+  display:inline-block;font-size:.6rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink-3);background:var(--paper-2);
+  padding:3px 10px;border-radius:20px;margin-left:auto;
+}
+
+/* ── CRITERIA/OUTCOME BARS ── */
+.criteria-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:28px}
+.criteria-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--surface);border:1px solid var(--paper-3);
+  border-radius:10px;padding:12px 16px;
+  transition:border-color .15s;
+}
+.criteria-bar:hover{border-color:var(--navy-mid)}
+.criteria-label{font-size:.82rem;font-weight:500;color:var(--ink)}
+.criteria-status{font-size:.75rem;font-weight:600;white-space:nowrap}
+.criteria-status.met{color:var(--green)}
+.criteria-status.partial{color:var(--amber)}
+.criteria-status.missing{color:var(--red)}
+.criteria-status.unassessed{color:var(--ink-3)}
+
+.criteria-bar.bar-met{border-left:3px solid var(--green);background:var(--green-light)}
+.criteria-bar.bar-partial{border-left:3px solid var(--amber);background:var(--amber-light)}
+.criteria-bar.bar-missing{border-left:3px solid var(--red);background:var(--red-light)}
+.criteria-bar.bar-unassessed{border-left:3px solid var(--paper-3)}
+
+/* ── SCORE BAR (reading/numeracy) ── */
+.outcome-bar{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--paper-3);
+  border-radius:10px;padding:12px 16px;
+  transition:border-color .15s;
+}
+.outcome-bar:hover{border-color:var(--navy-mid)}
+.outcome-label{font-size:.82rem;font-weight:500;color:var(--ink);flex:1}
+.outcome-score{
+  font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;
+  color:var(--ink-2);white-space:nowrap;
+}
+.outcome-meter{
+  width:80px;height:6px;background:var(--paper-3);border-radius:3px;overflow:hidden;flex-shrink:0;
+}
+.outcome-meter-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.meter-good{background:var(--green)}
+.meter-ok{background:var(--amber)}
+.meter-low{background:var(--red)}
+
+/* ── SESSION CARDS ── */
+.session-card{
+  background:var(--surface);border:1.5px solid var(--paper-3);
+  border-radius:var(--r);padding:24px;margin-bottom:16px;
+  transition:border-color .2s;
+}
+.session-card:hover{border-color:var(--navy-mid);box-shadow:var(--shadow)}
+.session-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:8px;
+}
+.session-card-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:var(--navy)}
+.session-card-date{font-size:.72rem;color:var(--ink-3)}
+.session-card-score{
+  font-family:'DM Mono',monospace;font-size:.9rem;font-weight:500;
+  padding:4px 14px;border-radius:20px;
+}
+.score-high{background:var(--green-light);color:var(--green)}
+.score-mid{background:var(--amber-light);color:var(--amber)}
+.score-low{background:var(--red-light);color:var(--red)}
+
+.session-criteria{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.session-tag{
+  font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:6px;
+}
+.tag-met{background:var(--green-light);color:var(--green)}
+.tag-partial{background:var(--amber-light);color:var(--amber)}
+.tag-missing{background:var(--red-light);color:var(--red)}
+.tag-unassessed{background:var(--paper-2);color:var(--ink-3)}
+
+.session-outcomes{margin-bottom:16px}
+.session-outcome-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--paper-3);
+  font-size:.82rem;
+}
+.session-outcome-row:last-child{border-bottom:none}
+.session-outcome-label{color:var(--ink-2)}
+.session-outcome-score{font-family:'DM Mono',monospace;font-weight:500}
+
+.session-feedback{
+  background:var(--paper);border-radius:10px;padding:16px;
+  font-size:.82rem;color:var(--ink-2);line-height:1.7;
+  margin-bottom:12px;
+}
+.session-feedback strong{color:var(--ink);font-weight:600}
+
+.session-tip{
+  display:flex;align-items:flex-start;gap:8px;
+  background:var(--navy-light);border-radius:10px;padding:14px 16px;
+  font-size:.8rem;color:var(--navy);line-height:1.6;
+}
+.session-tip-icon{flex-shrink:0;font-size:1rem;margin-top:1px}
+.session-tip-label{font-weight:700;color:var(--navy)}
+
+/* ── SKILL TAGS ── */
+.skill-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.skill-tag{
+  font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:20px;
+  background:var(--paper-2);color:var(--ink-2);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .summary-grid{grid-template-columns:1fr}
+  .criteria-grid{grid-template-columns:1fr}
+  .session-card-header{flex-direction:column;align-items:flex-start}
+  .nav-student{display:none}
+}
+@media(max-width:480px){
+  .page{padding:20px 4vw 60px}
+  .section-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .section-header .section-tag{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="/" class="nav-logo">pass<em>it</em></a>
+  <div class="nav-right">
+    <span class="nav-student">Aroha's results</span>
+    <span class="nav-badge">Parent view</span>
+  </div>
+</nav>
+
+<!-- ── PAGE ── -->
+<div class="page">
+
+  <!-- ── PAGE HEADER ── -->
+  <div class="page-header fade-up">
+    <h1>Aroha's <em>progress</em></h1>
+    <p>Here's how Aroha is tracking across the three CAA assessments. Each section shows the criteria the exam markers look for, and what to practise next.</p>
+  </div>
+
+  <!-- ── SUMMARY CARDS ── -->
+  <div class="summary-grid" id="summary-grid"></div>
+
+  <!-- ── WRITING SECTION ── -->
+  <div class="standard-section fade-up" id="writing-section"></div>
+
+  <!-- ── READING SECTION ── -->
+  <div class="standard-section fade-up" id="reading-section"></div>
+
+  <!-- ── NUMERACY SECTION ── -->
+  <div class="standard-section fade-up" id="numeracy-section"></div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// SAMPLE DATA — replace with Supabase queries later
+// ═══════════════════════════════════════════════════════════════════════════
+const STUDENT_NAME = 'Aroha';
+
+const WRITING_CRITERIA = [
+  'Your ideas and content',
+  'How your writing flows',
+  'Your tone and word choices',
+  'Spelling, grammar and punctuation',
+];
+
+const READING_OUTCOMES = [
+  'Understanding the text',
+  'Reading between the lines',
+  'Using information from the text',
+];
+
+const NUMERACY_OUTCOMES = [
+  'Setting up the problem',
+  'Doing the calculation',
+  'Explaining your answer',
+];
+
+const SKILL_TAG_MAP = {
+  'customer communication': 'Tone and word choices',
+  'business email': 'Tone and word choices',
+  'workplace email': 'Tone and word choices',
+  'procedural instructions': 'How writing flows',
+  'sequential instructions': 'How writing flows',
+  'identifying bias': 'Reading between the lines',
+  'locating specific information': 'Finding information',
+  'comparing texts': 'Reading between the lines',
+  'speed, distance, time': 'Rates and measurement',
+  'gst & percentages': 'Percentages and money',
+  'unit conversion': 'Converting measurements',
+};
+
+const DATA = {
+  writing: {
+    sessions: [
+      {
+        id: 'w1',
+        date: '22 May 2026',
+        prompt: 'Write an email to a customer about a delayed order',
+        score: 62,
+        skillTags: ['customer communication', 'business email'],
+        verdicts: {
+          'Your ideas and content': 'met',
+          'How your writing flows': 'partial',
+          'Your tone and word choices': 'missing',
+          'Spelling, grammar and punctuation': 'met',
+        },
+        feedback: 'Aroha covered the key points well and used correct spelling throughout. The email could flow better between paragraphs — try using linking words like "however" or "as a result." The tone was too casual for a business email; practise using polite, professional phrases.',
+        tipArea: 'Tone and word choices',
+        tip: 'Rewrite one sentence from your email using a more formal greeting and sign-off. For example, start with "Dear [name]" instead of "Hey."',
+      },
+      {
+        id: 'w2',
+        date: '25 May 2026',
+        prompt: 'Write instructions for a new staff member on how to close the shop',
+        score: 95,
+        skillTags: ['procedural instructions', 'sequential instructions'],
+        verdicts: {
+          'Your ideas and content': 'met',
+          'How your writing flows': 'met',
+          'Your tone and word choices': 'met',
+          'Spelling, grammar and punctuation': 'met',
+        },
+        feedback: 'Excellent work. The instructions were clear, in the right order, used appropriate workplace language, and had no spelling or grammar errors. All four criteria were met.',
+        tipArea: 'How writing flows',
+        tip: 'Great result! To keep improving, try writing instructions for a more complex task with 8+ steps to practise maintaining logical order over a longer piece.',
+      },
+    ],
+  },
+  reading: {
+    sessions: [
+      {
+        id: 'r1',
+        date: '20 May 2026',
+        prompt: 'Read a workplace health & safety notice and answer questions',
+        score: 67,
+        totalQuestions: 6,
+        correct: 4,
+        skillTags: ['locating specific information', 'identifying bias'],
+        outcomes: {
+          'Understanding the text': { correct: 2, total: 2 },
+          'Reading between the lines': { correct: 1, total: 2 },
+          'Using information from the text': { correct: 1, total: 2 },
+        },
+        feedback: 'Aroha found the key facts in the notice well but missed a question about the author\'s purpose. When a question asks "why" the writer chose certain words, look for clues about who the audience is and what the writer wants them to do.',
+        tipArea: 'Reading between the lines',
+        tip: 'Before answering "why" questions, underline any words that seem chosen to persuade, warn, or inform — then ask yourself: what does the writer want the reader to do?',
+      },
+      {
+        id: 'r2',
+        date: '18 May 2026',
+        prompt: 'Compare two product labels and answer questions',
+        score: 0,
+        totalQuestions: 6,
+        correct: 0,
+        skillTags: ['comparing texts', 'locating specific information'],
+        outcomes: {
+          'Understanding the text': { correct: 0, total: 2 },
+          'Reading between the lines': { correct: 0, total: 2 },
+          'Using information from the text': { correct: 0, total: 2 },
+        },
+        feedback: 'Based on your session, focus on Reading between the lines — this means understanding why the writer chose certain words or layout, not just what the text says. Try this: read a product label at home and write down three things the label is trying to make you feel or do.',
+        tipArea: 'Reading between the lines',
+        tip: 'Pick up any two products at home (e.g. two cereals). List three differences in how each label tries to persuade you to buy it.',
+      },
+    ],
+  },
+  numeracy: {
+    sessions: [
+      {
+        id: 'n1',
+        date: '21 May 2026',
+        prompt: 'Calculate GST, unit prices, and travel times from a NZ scenario',
+        score: 60,
+        totalQuestions: 5,
+        correct: 3,
+        skillTags: ['gst & percentages', 'speed, distance, time'],
+        outcomes: {
+          'Setting up the problem': { correct: 2, total: 2 },
+          'Doing the calculation': { correct: 1, total: 2 },
+          'Explaining your answer': { correct: 0, total: 1 },
+        },
+        feedback: 'Aroha set up the problems correctly and chose the right operations, but made calculation errors on the GST question (forgot to divide by 1.15 instead of multiplying by 0.15). The explanation question was left incomplete — always write at least one sentence explaining what your answer means in context.',
+        tipArea: 'Explaining your answer',
+        tip: 'After solving a maths problem, write one sentence that starts with "This means that…" to practise explaining your answer in everyday language.',
+      },
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function getParentStatus(score) {
+  if (score === null || score === undefined || score === 0) return { label: 'Feedback pending', cls: 'status-pending' };
+  if (score < 50) return { label: 'Needs more practice', cls: 'status-needs' };
+  if (score < 80) return { label: 'Getting there', cls: 'status-getting' };
+  return { label: 'Looking good — keep going', cls: 'status-good' };
+}
+
+function avgScore(sessions) {
+  if (!sessions || sessions.length === 0) return null;
+  const scores = sessions.map(s => s.score);
+  const nonZero = scores.filter(s => s > 0);
+  if (nonZero.length === 0) return 0;
+  return Math.round(nonZero.reduce((a, b) => a + b, 0) / nonZero.length);
+}
+
+function mapSkillTag(raw) {
+  return SKILL_TAG_MAP[raw] || raw;
+}
+
+function scoreClass(score) {
+  if (score >= 80) return 'score-high';
+  if (score >= 50) return 'score-mid';
+  return 'score-low';
+}
+
+function meterClass(pct) {
+  if (pct >= 80) return 'meter-good';
+  if (pct >= 50) return 'meter-ok';
+  return 'meter-low';
+}
+
+function verdictLabel(v) {
+  switch (v) {
+    case 'met': return 'Looking good ✅';
+    case 'partial': return 'Almost there 🟡';
+    case 'missing': return 'Needs work 🔴';
+    default: return 'Not yet assessed';
+  }
+}
+
+function verdictCss(v) {
+  switch (v) {
+    case 'met': return 'met';
+    case 'partial': return 'partial';
+    case 'missing': return 'missing';
+    default: return 'unassessed';
+  }
+}
+
+function barCss(v) {
+  switch (v) {
+    case 'met': return 'bar-met';
+    case 'partial': return 'bar-partial';
+    case 'missing': return 'bar-missing';
+    default: return 'bar-unassessed';
+  }
+}
+
+function tagCss(v) {
+  switch (v) {
+    case 'met': return 'tag-met';
+    case 'partial': return 'tag-partial';
+    case 'missing': return 'tag-missing';
+    default: return 'tag-unassessed';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER — SUMMARY CARDS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderSummary() {
+  const grid = document.getElementById('summary-grid');
+  const standards = [
+    { key: 'writing', code: 'US 32405', name: 'Writing', sessions: DATA.writing.sessions },
+    { key: 'reading', code: 'US 32403', name: 'Reading', sessions: DATA.reading.sessions },
+    { key: 'numeracy', code: 'US 32406', name: 'Numeracy', sessions: DATA.numeracy.sessions },
+  ];
+
+  standards.forEach(std => {
+    const avg = avgScore(std.sessions);
+    const status = getParentStatus(avg);
+    const count = std.sessions.length;
+    const card = document.createElement('div');
+    card.className = 'summary-card fade-up';
+    card.dataset.s = std.key;
+    card.innerHTML = `
+      <div class="summary-card-bar"></div>
+      <div class="summary-card-code">${std.code}</div>
+      <div class="summary-card-name">${std.name}</div>
+      <div class="summary-card-sessions">${count} session${count !== 1 ? 's' : ''} completed</div>
+      <div class="summary-status ${status.cls}">${status.label}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER — WRITING SECTION
+// ═══════════════════════════════════════════════════════════════════════════
+function renderWriting() {
+  const el = document.getElementById('writing-section');
+
+  const latestSession = DATA.writing.sessions[DATA.writing.sessions.length - 1];
+  const aggregated = {};
+  WRITING_CRITERIA.forEach(c => { aggregated[c] = 'unassessed'; });
+
+  DATA.writing.sessions.forEach(s => {
+    WRITING_CRITERIA.forEach(c => {
+      const v = s.verdicts[c];
+      if (v === 'met') aggregated[c] = 'met';
+      else if (v === 'partial' && aggregated[c] !== 'met') aggregated[c] = 'partial';
+      else if (v === 'missing' && aggregated[c] === 'unassessed') aggregated[c] = 'missing';
+    });
+  });
+
+  let html = `
+    <div class="section-header">
+      <div class="section-icon" data-s="writing">✍️</div>
+      <h2>Writing</h2>
+      <span class="section-tag">US 32405</span>
+    </div>
+    <div class="criteria-grid">
+      ${WRITING_CRITERIA.map(c => `
+        <div class="criteria-bar ${barCss(aggregated[c])}">
+          <span class="criteria-label">${c}</span>
+          <span class="criteria-status ${verdictCss(aggregated[c])}">${verdictLabel(aggregated[c])}</span>
+        </div>
+      `).join('')}
+    </div>
+    <h3 style="font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:16px">Sessions</h3>
+  `;
+
+  DATA.writing.sessions.forEach(s => {
+    html += `
+      <div class="session-card">
+        <div class="session-card-header">
+          <div>
+            <div class="session-card-title">${s.prompt}</div>
+            <div class="session-card-date">${s.date}</div>
+          </div>
+          <div class="session-card-score ${scoreClass(s.score)}">${s.score}%</div>
+        </div>
+        <div class="skill-tags">
+          ${s.skillTags.map(t => `<span class="skill-tag">${mapSkillTag(t)}</span>`).join('')}
+        </div>
+        <div class="session-criteria">
+          ${WRITING_CRITERIA.map(c => `
+            <span class="session-tag ${tagCss(s.verdicts[c])}">${c}: ${verdictLabel(s.verdicts[c])}</span>
+          `).join('')}
+        </div>
+        <div class="session-feedback">${s.feedback}</div>
+        <div class="session-tip">
+          <span class="session-tip-icon">💡</span>
+          <div><span class="session-tip-label">What to practise next:</span> ${s.tip}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER — READING SECTION
+// ═══════════════════════════════════════════════════════════════════════════
+function renderReading() {
+  const el = document.getElementById('reading-section');
+
+  const totals = {};
+  READING_OUTCOMES.forEach(o => { totals[o] = { correct: 0, total: 0 }; });
+  DATA.reading.sessions.forEach(s => {
+    READING_OUTCOMES.forEach(o => {
+      if (s.outcomes[o]) {
+        totals[o].correct += s.outcomes[o].correct;
+        totals[o].total += s.outcomes[o].total;
+      }
+    });
+  });
+
+  let html = `
+    <div class="section-header">
+      <div class="section-icon" data-s="reading">📖</div>
+      <h2>Reading</h2>
+      <span class="section-tag">US 32403</span>
+    </div>
+    <div class="criteria-grid">
+      ${READING_OUTCOMES.map(o => {
+        const pct = totals[o].total > 0 ? Math.round((totals[o].correct / totals[o].total) * 100) : 0;
+        return `
+        <div class="outcome-bar">
+          <span class="outcome-label">${o}</span>
+          <span class="outcome-score">${totals[o].correct}/${totals[o].total}</span>
+          <div class="outcome-meter"><div class="outcome-meter-fill ${meterClass(pct)}" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <h3 style="font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:16px">Sessions</h3>
+  `;
+
+  DATA.reading.sessions.forEach(s => {
+    const isZero = s.score === 0;
+
+    html += `
+      <div class="session-card">
+        <div class="session-card-header">
+          <div>
+            <div class="session-card-title">${s.prompt}</div>
+            <div class="session-card-date">${s.date}</div>
+          </div>
+          <div class="session-card-score ${scoreClass(s.score)}">${s.correct}/${s.totalQuestions}</div>
+        </div>
+        <div class="skill-tags">
+          ${s.skillTags.map(t => `<span class="skill-tag">${mapSkillTag(t)}</span>`).join('')}
+        </div>
+        <div class="session-outcomes">
+          ${READING_OUTCOMES.map(o => {
+            const oc = s.outcomes[o];
+            return `
+            <div class="session-outcome-row">
+              <span class="session-outcome-label">${o}</span>
+              <span class="session-outcome-score" style="color:${oc.correct === oc.total ? 'var(--green)' : oc.correct === 0 ? 'var(--red)' : 'var(--amber)'}">${oc.correct}/${oc.total}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="session-feedback">${s.feedback}</div>
+        <div class="session-tip">
+          <span class="session-tip-icon">💡</span>
+          <div><span class="session-tip-label">What to practise next:</span> ${s.tip}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER — NUMERACY SECTION
+// ═══════════════════════════════════════════════════════════════════════════
+function renderNumeracy() {
+  const el = document.getElementById('numeracy-section');
+
+  const totals = {};
+  NUMERACY_OUTCOMES.forEach(o => { totals[o] = { correct: 0, total: 0 }; });
+  DATA.numeracy.sessions.forEach(s => {
+    NUMERACY_OUTCOMES.forEach(o => {
+      if (s.outcomes[o]) {
+        totals[o].correct += s.outcomes[o].correct;
+        totals[o].total += s.outcomes[o].total;
+      }
+    });
+  });
+
+  let html = `
+    <div class="section-header">
+      <div class="section-icon" data-s="numeracy">🔢</div>
+      <h2>Numeracy</h2>
+      <span class="section-tag">US 32406</span>
+    </div>
+    <div class="criteria-grid">
+      ${NUMERACY_OUTCOMES.map(o => {
+        const pct = totals[o].total > 0 ? Math.round((totals[o].correct / totals[o].total) * 100) : 0;
+        return `
+        <div class="outcome-bar">
+          <span class="outcome-label">${o}</span>
+          <span class="outcome-score">${totals[o].correct}/${totals[o].total}</span>
+          <div class="outcome-meter"><div class="outcome-meter-fill ${meterClass(pct)}" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <h3 style="font-family:'Fraunces',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:16px">Sessions</h3>
+  `;
+
+  DATA.numeracy.sessions.forEach(s => {
+    html += `
+      <div class="session-card">
+        <div class="session-card-header">
+          <div>
+            <div class="session-card-title">${s.prompt}</div>
+            <div class="session-card-date">${s.date}</div>
+          </div>
+          <div class="session-card-score ${scoreClass(s.score)}">${s.correct}/${s.totalQuestions}</div>
+        </div>
+        <div class="skill-tags">
+          ${s.skillTags.map(t => `<span class="skill-tag">${mapSkillTag(t)}</span>`).join('')}
+        </div>
+        <div class="session-outcomes">
+          ${NUMERACY_OUTCOMES.map(o => {
+            const oc = s.outcomes[o];
+            return `
+            <div class="session-outcome-row">
+              <span class="session-outcome-label">${o}</span>
+              <span class="session-outcome-score" style="color:${oc.correct === oc.total ? 'var(--green)' : oc.correct === 0 ? 'var(--red)' : 'var(--amber)'}">${oc.correct}/${oc.total}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="session-feedback">${s.feedback}</div>
+        <div class="session-tip">
+          <span class="session-tip-icon">💡</span>
+          <div><span class="session-tip-label">What to practise next:</span> ${s.tip}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════
+renderSummary();
+renderWriting();
+renderReading();
+renderNumeracy();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
