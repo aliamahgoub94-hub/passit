@@ -134,9 +134,9 @@ export async function POST(req: Request) {
     model: anthropic('claude-3-5-sonnet-20241022'),
     system,
     messages: contextMessages,
-    maxTokens: 900,
+    maxOutputTokens: 900,
   })
 
-  return result.toDataStreamResponse()
+  return result.toTextStreamResponse()
 }
 

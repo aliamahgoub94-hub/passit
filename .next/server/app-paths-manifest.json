@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/api/caa/mark/route": "app/api/caa/mark/route.js",
+  "/api/chat/route": "app/api/chat/route.js",
+  "/api/progress/route": "app/api/progress/route.js",
+  "/api/usage/route": "app/api/usage/route.js",
+  "/(app)/onboarding/page": "app/(app)/onboarding/page.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
+  "/(marketing)/page": "app/(marketing)/page.js",
+  "/(app)/parent/dashboard/page": "app/(app)/parent/dashboard/page.js"
+}
