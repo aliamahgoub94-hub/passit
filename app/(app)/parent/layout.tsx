@@ -3,14 +3,11 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Logo } from '@/components/ui/Logo'
 
-const NAV: { href: string; label: string; comingSoon?: boolean }[] = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/parent/dashboard', label: 'Parent View' },
-  { href: '/subjects', label: 'Subjects', comingSoon: true },
-  { href: '/coach', label: 'AI Coach', comingSoon: true },
-]
+const NAV = [
+  { href: '/parent/dashboard', label: 'Dashboard' },
+] as const
 
-export default async function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function ParentLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
   const { data } = await supabase.auth.getUser()
 
@@ -22,9 +19,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6">
           <aside className="bg-white border border-passit-border rounded-2xl shadow-brand-sm p-4 lg:sticky lg:top-6 h-fit">
             <div className="flex items-center justify-between gap-3">
-              <Logo href="/dashboard" size="sm" />
-              <span className="text-[10px] font-extrabold uppercase tracking-[.14em] text-brand-orange bg-orange-50 border border-orange-100 px-2.5 py-1 rounded-full">
-                Student
+              <Logo href="/parent/dashboard" size="sm" />
+              <span className="text-[10px] font-extrabold uppercase tracking-[.14em] text-brand-blue bg-brand-sky border border-[#dbe7ff] px-2.5 py-1 rounded-full">
+                Parent
               </span>
             </div>
 
@@ -33,37 +30,26 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 <div key={item.href} className="flex items-center justify-between gap-2">
                   <Link
                     href={item.href}
-                    aria-disabled={item.comingSoon ? true : undefined}
-                    className={[
-                      'flex-1 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors no-underline',
-                      item.comingSoon
-                        ? 'text-passit-light bg-passit-off cursor-not-allowed pointer-events-none'
-                        : 'text-navy hover:bg-brand-sky hover:text-brand-blue',
-                    ].join(' ')}
+                    className="flex-1 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors no-underline text-navy hover:bg-brand-sky hover:text-brand-blue"
                   >
                     {item.label}
                   </Link>
-                  {item.comingSoon ? (
-                    <span className="text-[10px] font-bold text-passit-muted bg-passit-off border border-passit-border px-2 py-1 rounded-full">
-                      Soon
-                    </span>
-                  ) : null}
                 </div>
               ))}
             </div>
 
             <div className="mt-5 rounded-2xl bg-[#0f1f47] text-white p-4">
               <div className="text-[11px] font-bold uppercase tracking-[.14em] text-white/70 mb-2">
-                Readiness
+                Parent View
               </div>
               <div className="text-sm font-semibold leading-snug mb-3">
-                Keep your credits and deadlines in one place.
+                Track your child&apos;s CAA progress across all three standards.
               </div>
               <Link
-                href="/dashboard"
+                href="/parent/dashboard"
                 className="inline-flex items-center justify-center w-full bg-brand-orange text-white py-2.5 rounded-xl text-sm font-bold hover:bg-brand-orange-dark transition-colors no-underline"
               >
-                Check your readiness →
+                View progress →
               </Link>
             </div>
           </aside>
@@ -74,4 +60,3 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </div>
   )
 }
-
