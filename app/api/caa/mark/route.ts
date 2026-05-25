@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { generateText } from 'ai'
+import { anthropic } from '@ai-sdk/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { getPromptForStandard } from '@/lib/caa-feedback'
 import type { CaaStandard } from '@/types'
-
-const client = new Anthropic()
 
 const VALID_STANDARDS: CaaStandard[] = ['US32405', 'US32403', 'US32406']
 
@@ -51,16 +50,21 @@ export async function POST(req: Request) {
     ? studentWork
     : JSON.stringify(studentWork)
 
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 1000,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
-  })
-
-  const text = message.content[0].type === 'text'
-    ? message.content[0].text
-    : ''
+  let text: string
+  try {
+    const result = await generateText({
+      model: anthropic('claude-3-5-sonnet-20241022') as any,
+      system: systemPrompt,
+      messages: [{ role: 'user' as const, content: userMessage }],
+      maxTokens: 2000,
+    })
+    text = result.text
+  } catch (aiErr: any) {
+    return NextResponse.json(
+      { error: 'AI call failed.', detail: aiErr?.message ?? String(aiErr) },
+      { status: 502 }
+    )
+  }
 
   let feedback: any
   try {
