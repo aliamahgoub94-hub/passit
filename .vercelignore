@@ -1,0 +1,13 @@
+.next
+app
+components
+lib/supabase
+middleware.ts
+next.config.js
+postcss.config.js
+tailwind.config.ts
+tsconfig.json
+tsconfig.tsbuildinfo
+scripts
+.env*
+*.ts

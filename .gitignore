@@ -1,3 +1,6 @@
 .vercel
 .env*.local
+.env.production
+.env.backfill
 node_modules/
+.next/

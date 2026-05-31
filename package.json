@@ -1,33 +1,9 @@
 {
-  "name": "passit",
-  "version": "0.1.0",
+  "name": "passit-caa",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.79",
-    "@anthropic-ai/sdk": "^0.24.3",
-    "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.4",
-    "ai": "^6.0.191",
-    "clsx": "^2.1.1",
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "autoprefixer": "^10.0.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.5",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "stripe": "^14.25.0"
   }
 }

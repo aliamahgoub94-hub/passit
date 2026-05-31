@@ -9,6 +9,7 @@ function setCorsHeaders(req, res) {
   const origin = req.headers.origin;
   if (
     origin === "https://www.passit.co.nz" ||
+    origin === "https://passit.co.nz" ||
     origin === "http://localhost:3000" ||
     origin === "http://127.0.0.1:3000"
   ) {
