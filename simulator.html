@@ -1334,7 +1334,7 @@ const S = {
   std: null, questions: [], idx: 0,
   answers: {}, flags: new Set(),
   secsLeft: 0, timer: null, elapsed: 0,
-  hintCache: {}
+  hintCache: {}, writingFeedback: {}
 };
 
 const STD_TIMES = { '32406': 40*60, '32403': 30*60, '32405': 30*60 };
@@ -1345,12 +1345,15 @@ const STD_NAMES = { '32406':'CAA Numeracy', '32403':'CAA Reading', '32405':'CAA 
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 function fmtTime(s){ const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0'); return `${m}:${ss}`; }
 function wordCount(str){ return str.trim().split(/\s+/).filter(Boolean).length; }
+function getTolerance(q){ return Number(q.tolerance ?? q.tol ?? 0); }
+function getGapSkill(q){ return (q.gap_label || q.topic || '').toString().trim(); }
+function normalizeSkillLabel(skill){ return String(skill || '').trim().toLowerCase(); }
 
 // ── START ────────────────────────────────────────────────────────────────
 function startExam(std){
   S.std = std;
   S.questions = [...BANK[std]].sort(()=>Math.random()-.5).slice(0,6);
-  S.idx = 0; S.answers = {}; S.flags = new Set(); S.elapsed = 0; S.hintCache = {};
+  S.idx = 0; S.answers = {}; S.flags = new Set(); S.elapsed = 0; S.hintCache = {}; S.writingFeedback = {};
   S.secsLeft = STD_TIMES[std];
   document.getElementById('topbar-std-label').textContent = STD_LABELS[std];
   buildNav(); renderQ(0); startTimer(); show('s-exam');
@@ -1540,7 +1543,7 @@ async function checkAnswer(){
   }
   let correct=false;
   if(q.type==='mc') correct=ua===q.answer;
-  else correct=Math.abs(Number(ua)-Number(q.answer))<=(q.tol??0);
+  else correct=Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q);
 
   fb.className=`feedback show ${correct?'ok':'err'}`;
   if(correct) fb.innerHTML=`<div class="feedback-label">✓ Correct!</div>${q.explain}`;
@@ -1555,23 +1558,21 @@ async function markWritingWithAI(q, response){
   const fb = document.getElementById('feedback');
   const aiFb = document.getElementById('ai-write-fb');
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res = await fetch('/api/caa/mark',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:600,
-        system:`You are an NCEA NZ writing assessor. Given a student's response and a rubric, return ONLY valid JSON in this exact format:
-{"criteria":[{"name":"criterion name","verdict":"met"|"partial"|"missing","note":"one short sentence max"}],"overall":"One sentence overall feedback, specific and constructive."}
-Be honest but encouraging. Use NZ English.`,
-        messages:[{role:'user',content:`Task: ${q.task}\nRubric criteria: ${q.rubric.join(', ')}\nStudent response:\n${response}`}]
+        response_text:response,
+        question:q.task,
+        task:q.task,
+        rubric:q.rubric,
+        standard:'32405'
       })
     });
     const data = await res.json();
-    const text = data?.content?.[0]?.text ?? '';
-    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(!res.ok||!data.ok) throw new Error(data.error||'Marking failed');
+    const json = data.result;
 
-    // Render criteria rows
     const rows = json.criteria.map(c=>{
       const cls = c.verdict==='met'?'cb-met':c.verdict==='partial'?'cb-partial':'cb-miss';
       const label = c.verdict==='met'?'✓ Met':c.verdict==='partial'?'~ Partial':'✗ Missing';
@@ -1585,9 +1586,14 @@ Be honest but encouraging. Use NZ English.`,
     }
     fb.className='feedback show ok';
     fb.innerHTML=`<div class="feedback-label">✓ AI marking complete</div>See the detailed breakdown below.`;
+    if(!S.writingFeedback) S.writingFeedback={};
+    S.writingFeedback[q.id]=json;
   } catch(e){
-    fb.className='feedback show ok';
-    fb.innerHTML=`<div class="feedback-label">✓ Response submitted (${wordCount(response)} words)</div>${q.explain}<br><br>Check your response against the rubric above.`;
+    console.log('markWritingWithAI failed',e);
+    fb.className='feedback show err';
+    fb.innerHTML=`<div class="feedback-label">⚠ Marking issue</div>We had trouble marking your response — please try again or contact hello@passit.co.nz`;
+    if(aiFb) aiFb.className='ai-writing-fb';
+    return null;
   }
 }
 
@@ -1604,21 +1610,130 @@ async function loadHint(q){
   }catch{el.textContent=q.hint??'Think step by step.';}
 }
 
+// ── SUPABASE SESSION SAVE ───────────────────────────────────────────────
+function collectWeakSkills(qs){
+  const topics=[];
+  qs.forEach(q=>{
+    let status='ok';
+    if(q.type==='writing'){
+      const ua=S.answers[q.id];
+      status=(!ua||wordCount(String(ua))<(q.wordMin||40))?'miss':'ok';
+    } else {
+      const ua=S.answers[q.id];
+      if(ua===undefined||ua==='') status='miss';
+      else if(q.type==='mc') status=ua===q.answer?'ok':'miss';
+      else status=Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q)?'ok':'miss';
+    }
+    const skillLabel = getGapSkill(q);
+    if(status==='miss'&&skillLabel) topics.push(normalizeSkillLabel(skillLabel));
+  });
+  return topics;
+}
+
+async function fetchLookupFeedback(standard, weakSkills){
+  if(!Array.isArray(weakSkills)||!weakSkills.length) return null;
+  try{
+    const res=await fetch('/api/caa/mark',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ standard, weak_skills:weakSkills, backfill:true })
+    });
+    const data=await res.json();
+    if(!res.ok||!data.ok) throw new Error(data.error||'Lookup failed');
+    return data.result;
+  }catch(e){
+    console.log('fetchLookupFeedback failed',e);
+    return null;
+  }
+}
+
+function scoreFromWritingFeedback(json){
+  if(!json||!Array.isArray(json.criteria)||!json.criteria.length){
+    return json&&json.score_pct!=null?Number(json.score_pct):0;
+  }
+  const met=json.criteria.filter(c=>c.verdict==='met'||(c.met===true&&!c.verdict)).length;
+  const partial=json.criteria.filter(c=>c.verdict==='partial').length;
+  const total=json.criteria.length;
+  return Math.round(((met+partial*0.5)/total)*100);
+}
+
+async function saveSession(payload){
+  const rawEmail=localStorage.getItem('passit_email');
+  const student_email=rawEmail&&String(rawEmail).trim()?String(rawEmail).trim():null;
+  if(!student_email){
+    console.log('saveSession skipped — no student_email');
+    return null;
+  }
+  const body=Object.assign({},payload,{
+    student_email,
+    session_date:new Date().toISOString(),
+    standard:String(payload.standard)
+  });
+  try{
+    const res=await fetch('/api/save-session',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok){
+      console.log('saveSession failed',res.status,data.error||await res.text());
+      return null;
+    }
+    return data;
+  }catch(e){
+    console.log('saveSession error',e);
+    return null;
+  }
+}
+
 // ── SUBMIT ───────────────────────────────────────────────────────────────
-function submitExam(){
+async function submitExam(){
   clearInterval(S.timer);
   const qs=S.questions; let correct=0,scoreable=0;
   qs.forEach(q=>{
     if(q.type==='writing')return; scoreable++;
     const ua=S.answers[q.id]; if(ua===undefined||ua==='')return;
     if(q.type==='mc'){if(ua===q.answer)correct++;}
-    else{if(Math.abs(Number(ua)-Number(q.answer))<=(q.tol??0))correct++;}
+    else{if(Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q))correct++;}
   });
-  const pct = scoreable>0?Math.round(correct/scoreable*100):0;
+  let pct = scoreable>0?Math.round(correct/scoreable*100):0;
   const elapsed = S.elapsed;
   const m=Math.floor(elapsed/60), ss=String(elapsed%60).padStart(2,'0');
+  const weakSkills=collectWeakSkills(qs);
 
-  // Readiness level
+  let responseText=null, feedbackJson=null, errorState=false;
+  let sessionCorrect=correct, sessionTotal=qs.length;
+  let writingTask=null, writingRubric=null;
+
+  if(S.std==='32405'){
+    const wq=qs.find(q=>q.type==='writing');
+    if(wq){
+      const rawAns=S.answers[wq.id];
+      responseText=(rawAns&&String(rawAns).trim())?String(rawAns).trim():null;
+      writingTask=wq.task||null;
+      writingRubric=wq.rubric||null;
+      if(responseText&&!(S.writingFeedback&&S.writingFeedback[wq.id])){
+        await markWritingWithAI(wq, responseText);
+      }
+      feedbackJson=(S.writingFeedback&&S.writingFeedback[wq.id])||null;
+      if(feedbackJson){
+        pct=scoreFromWritingFeedback(feedbackJson);
+        sessionCorrect=feedbackJson.correct!=null?feedbackJson.correct:0;
+        sessionTotal=feedbackJson.total||feedbackJson.criteria?.length||1;
+        errorState=false;
+      }else if(responseText){
+        errorState=true;
+      }
+    }
+  }else if(S.std==='32403'||S.std==='32406'){
+    if(weakSkills.length){
+      feedbackJson=await fetchLookupFeedback(S.std, weakSkills);
+      if(!feedbackJson) errorState=true;
+    }
+  }
+
+  // Readiness level (free simulator labels)
   let rdLabel,rdClass,rdSub;
   if(pct>=80){rdLabel='✓ CAA-Ready';rdClass='rb-ready';rdSub='Strong performance — you\'re on track to achieve this standard.';}
   else if(pct>=55){rdLabel='◑ Developing';rdClass='rb-developing';rdSub='You\'re building the right skills. Unlock Pro for a skill-by-skill Gap Report.';}
@@ -1628,8 +1743,10 @@ function submitExam(){
   document.getElementById('readiness-badge').textContent=rdLabel;
   document.getElementById('results-sub').textContent=rdSub;
   document.getElementById('res-std-name').textContent=STD_NAMES[S.std];
-  document.getElementById('ring-pct').textContent=scoreable>0?`${pct}%`:'N/A';
-  document.getElementById('st-correct').textContent=scoreable>0?`${correct}/${scoreable}`:'—';
+  document.getElementById('ring-pct').textContent=(S.std==='32405'||scoreable>0)?`${pct}%`:'N/A';
+  document.getElementById('st-correct').textContent=S.std==='32405'
+    ? `${sessionCorrect}/${sessionTotal}`
+    : (scoreable>0?`${correct}/${scoreable}`:'—');
   document.getElementById('st-total').textContent=qs.length;
   document.getElementById('st-time').textContent=`${m}:${ss}`;
   document.getElementById('res-breakdown').textContent=S.std==='32405'
@@ -1640,8 +1757,22 @@ function submitExam(){
   setTimeout(()=>{
     const fill=document.getElementById('ring-fill');
     fill.style.stroke=pct>=80?'var(--green)':pct>=55?'var(--amber)':'var(--red)';
-    fill.style.strokeDashoffset=scoreable>0?String(264-(264*pct/100)):'264';
+    fill.style.strokeDashoffset=(S.std==='32405'||scoreable>0)?String(264-(264*pct/100)):'264';
   },100);
+
+  await saveSession({
+    standard:S.std,
+    score_pct:pct,
+    correct:sessionCorrect,
+    total:sessionTotal,
+    time_seconds:S.elapsed,
+    weak_skills:weakSkills,
+    response_text:responseText,
+    feedback_json:feedbackJson,
+    writing_task:writingTask,
+    writing_rubric:writingRubric,
+    error_state:errorState
+  });
 
   setUpgradeHeadline();
   show('s-results');
