@@ -1,6 +1,17 @@
+const {
+  feedbackFromWeakSkills,
+  normalizeWritingResult,
+  matchSkills,
+} = require("../../lib/caa-marking-lookup.js");
+const { getAdminClient } = require("../../lib/supabase-admin.js");
+
 function setCorsHeaders(req, res) {
   const origin = req.headers.origin;
-  if (origin === "https://www.passit.co.nz") {
+  if (
+    origin === "https://www.passit.co.nz" ||
+    origin === "http://localhost:3000" ||
+    origin === "http://127.0.0.1:3000"
+  ) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Vary", "Origin");
@@ -20,11 +31,51 @@ function parseBody(req) {
   return req.body;
 }
 
-const STANDARD_LABELS = {
-  "32403": "Reading",
-  "32405": "Writing",
-  "32406": "Numeracy",
-};
+async function markWritingWithAnthropic(apiKey, body) {
+  const question = body.question || body.task || "";
+  const rubric = Array.isArray(body.rubric)
+    ? body.rubric.join(", ")
+    : body.rubric || "";
+  const responseText = body.response_text || "";
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: `You are an NCEA NZ writing assessor. Given a student's response and a rubric, return ONLY valid JSON in this exact format:
+{"criteria":[{"name":"criterion name","verdict":"met"|"partial"|"missing","note":"one short sentence max"}],"overall":"One sentence overall feedback, specific and constructive."}
+Be honest but encouraging. Use NZ English.`,
+      messages: [
+        {
+          role: "user",
+          content: `Task: ${question}\nRubric criteria: ${rubric}\nStudent response:\n${responseText}`,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Anthropic API error: ${response.status} ${errText}`);
+  }
+
+  const data = await response.json();
+  const text = (data.content && data.content[0] && data.content[0].text) || "";
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("Could not parse JSON from AI response");
+  return normalizeWritingResult(JSON.parse(jsonMatch[0]));
+}
+
+async function updateSession(admin, sessionId, payload) {
+  if (!sessionId || !admin) return;
+  await admin.from("practice_sessions").update(payload).eq("id", sessionId);
+}
 
 module.exports = async function handler(req, res) {
   setCorsHeaders(req, res);
@@ -37,80 +88,85 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ ok: false, error: "ANTHROPIC_API_KEY is not configured" });
-  }
-
   const body = parseBody(req);
   if (!body) {
     return res.status(400).json({ ok: false, error: "Invalid JSON body" });
   }
 
-  const { weak_skills, standard, backfill } = body;
+  const {
+    response_text,
+    question,
+    task,
+    rubric,
+    session_id,
+    weak_skills,
+    standard,
+    backfill,
+  } = body;
 
-  if (!Array.isArray(weak_skills) || weak_skills.length === 0) {
-    return res.status(400).json({ ok: false, error: "weak_skills must be a non-empty array" });
-  }
-
-  if (!standard || !STANDARD_LABELS[standard]) {
-    return res.status(400).json({
-      ok: false,
-      error: "standard must be one of: 32403, 32405, 32406",
-    });
-  }
-
-  const standardLabel = STANDARD_LABELS[standard];
-  const skillsList = weak_skills.join(", ");
-
-  const prompt = `Based on these weak skill areas identified during a practice session: ${skillsList}, generate feedback aligned to the NZQA CAA marking criteria. Be specific and actionable. Use plain English.
-
-Standard: ${standardLabel}
-
-Return a JSON object with:
-{
-  "criteria": [
-    { "name": "criterion name", "met": true/false, "feedback": "specific actionable feedback" }
-  ],
-  "overall_feedback": "2-3 sentence summary",
-  "score_pct": number (percentage of criteria met),
-  "correct": number (criteria met count),
-  "total": number (total criteria)
-}
-
-Return ONLY the JSON object, no other text.`;
+  const admin = getAdminClient();
+  const isWriting =
+    !backfill &&
+    response_text &&
+    String(response_text).trim() &&
+    (standard === "32405" || standard === 32405);
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 2048,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    let result = null;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return res.status(502).json({ ok: false, error: `Anthropic API error: ${response.status} ${errText}` });
+    if (isWriting) {
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        return res
+          .status(500)
+          .json({ ok: false, error: "ANTHROPIC_API_KEY is not configured" });
+      }
+      result = await markWritingWithAnthropic(apiKey, {
+        response_text,
+        question: question || task,
+        rubric,
+      });
+    } else if (Array.isArray(weak_skills) && standard) {
+      const matched = matchSkills(weak_skills, standard);
+      if (!matched.length && !backfill) {
+        return res.status(400).json({
+          ok: false,
+          error: "No matching feedback for provided weak_skills",
+        });
+      }
+      result = feedbackFromWeakSkills(
+        standard,
+        weak_skills,
+        body.score_pct != null ? Number(body.score_pct) : null
+      );
+    } else {
+      return res.status(400).json({
+        ok: false,
+        error:
+          "Provide response_text for writing marking, or weak_skills + standard for lookup feedback",
+      });
     }
 
-    const data = await response.json();
-    const text = (data.content && data.content[0] && data.content[0].text) || "";
-
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return res.status(502).json({ ok: false, error: "Could not parse JSON from AI response" });
+    if (session_id && admin) {
+      await updateSession(admin, session_id, {
+        feedback_json: result,
+        score_pct: result.score_pct,
+        correct: result.correct,
+        total: result.total,
+        error_state: false,
+      });
     }
 
-    const result = JSON.parse(jsonMatch[0]);
     return res.status(200).json({ ok: true, result });
   } catch (err) {
-    return res.status(500).json({ ok: false, error: err.message || "Internal server error" });
+    if (session_id && admin) {
+      await updateSession(admin, session_id, { error_state: true }).catch(
+        () => {}
+      );
+    }
+    return res.status(500).json({
+      ok: false,
+      error: err.message || "Marking failed",
+    });
   }
 };

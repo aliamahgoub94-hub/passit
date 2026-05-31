@@ -1,18 +1,23 @@
 /**
  * Backfill marking script for practice_sessions.
  *
- * Prefer: node scripts/backfill-marking.js
- * Or:     npx ts-node scripts/backfill-marking.ts
+ * Uses a pure lookup-table approach — no API calls, no Anthropic key needed.
+ * Matches each row's weak_skills against known skill tags and generates
+ * feedback_json locally.
+ *
+ * Usage:
+ *   node scripts/backfill-marking.js
  *
  * Env:
  *   SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY)
  */
 
-import { createClient } from "@supabase/supabase-js";
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { matchSkills, buildFeedbackJson } = require("../lib/caa-marking-lookup.js");
+const { createClient } = require("@supabase/supabase-js");
+const {
+  matchSkills,
+  buildFeedbackJson,
+} = require("../lib/caa-marking-lookup.js");
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL ||
@@ -25,7 +30,9 @@ const SUPABASE_KEY =
   process.env.SUPABASE_ANON_KEY;
 
 if (!SUPABASE_KEY) {
-  console.error("Missing SUPABASE_SERVICE_ROLE_KEY");
+  console.error(
+    "Missing SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY if RLS allows UPDATE)"
+  );
   process.exit(1);
 }
 
@@ -58,9 +65,7 @@ async function main() {
   let skipped = 0;
 
   for (const row of rows) {
-    const weakSkills: string[] = Array.isArray(row.weak_skills)
-      ? row.weak_skills
-      : [];
+    const weakSkills = Array.isArray(row.weak_skills) ? row.weak_skills : [];
 
     if (weakSkills.length === 0) {
       console.log(`[${row.id}] Skipping — empty weak_skills`);

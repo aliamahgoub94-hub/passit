@@ -2079,21 +2079,20 @@ async function markWritingWithAI(q, response){
   const fb = document.getElementById('feedback');
   const aiFb = document.getElementById('ai-write-fb');
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res = await fetch('/api/caa/mark',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:600,
-        system:`You are an NCEA NZ writing assessor. Given a student's response and a rubric, return ONLY valid JSON in this exact format:
-{"criteria":[{"name":"criterion name","verdict":"met"|"partial"|"missing","note":"one short sentence max"}],"overall":"One sentence overall feedback, specific and constructive."}
-Be honest but encouraging. Use NZ English.`,
-        messages:[{role:'user',content:`Task: ${q.task}\nRubric criteria: ${q.rubric.join(', ')}\nStudent response:\n${response}`}]
+        response_text:response,
+        question:q.task,
+        task:q.task,
+        rubric:q.rubric,
+        standard:'32405'
       })
     });
     const data = await res.json();
-    const text = data?.content?.[0]?.text ?? '';
-    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if(!res.ok||!data.ok) throw new Error(data.error||'Marking failed');
+    const json = data.result;
 
     // Render criteria rows
     const rows = json.criteria.map(c=>{
@@ -2112,8 +2111,11 @@ Be honest but encouraging. Use NZ English.`,
     if(!S.writingFeedback) S.writingFeedback={};
     S.writingFeedback[q.id]=json;
   } catch(e){
-    fb.className='feedback show ok';
-    fb.innerHTML=`<div class="feedback-label">✓ Response submitted (${wordCount(response)} words)</div>${getExplanation(q)}<br><br>Check your response against the rubric above.`;
+    console.log('markWritingWithAI failed',e);
+    fb.className='feedback show err';
+    fb.innerHTML=`<div class="feedback-label">⚠ Marking issue</div>We had trouble marking your response — please try again or contact hello@passit.co.nz`;
+    if(aiFb) aiFb.className='ai-writing-fb';
+    return null;
   }
 }
 
@@ -2161,57 +2163,65 @@ function collectWeakSkills(qs){
   return topics;
 }
 
-async function getSupabaseUserId(){
+async function fetchLookupFeedback(standard, weakSkills){
+  if(!Array.isArray(weakSkills)||!weakSkills.length) return null;
   try{
-    const key='sb-soojtogwwakrkcvpudnu-auth-token';
-    const raw=localStorage.getItem(key);
-    if(!raw) return null;
-    const session=JSON.parse(raw);
-    const token=session&&(session.access_token||(session.currentSession&&session.currentSession.access_token));
-    if(!token) return null;
-    const r=await fetch(`${SUPABASE_URL}/auth/v1/user`,{
-      headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${token}`}
+    const res=await fetch('/api/caa/mark',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ standard, weak_skills:weakSkills, backfill:true })
     });
-    if(!r.ok) return null;
-    const u=await r.json();
-    return (u&&u.id)?u.id:null;
-  }catch(e){ return null; }
+    const data=await res.json();
+    if(!res.ok||!data.ok) throw new Error(data.error||'Lookup failed');
+    return data.result;
+  }catch(e){
+    console.log('fetchLookupFeedback failed',e);
+    return null;
+  }
 }
 
-async function saveSession({standard,score_pct,correct,total,time_seconds,weak_skills,response_text,feedback_json}){
+function scoreFromWritingFeedback(json){
+  if(!json||!Array.isArray(json.criteria)||!json.criteria.length){
+    return json&&json.score_pct!=null?Number(json.score_pct):0;
+  }
+  const met=json.criteria.filter(c=>c.verdict==='met'||(c.met===true&&!c.verdict)).length;
+  const partial=json.criteria.filter(c=>c.verdict==='partial').length;
+  const total=json.criteria.length;
+  return Math.round(((met+partial*0.5)/total)*100);
+}
+
+async function saveSession(payload){
   const rawEmail=localStorage.getItem('passit_email');
   const student_email=rawEmail&&String(rawEmail).trim()?String(rawEmail).trim():null;
-  const user_id=await getSupabaseUserId();
-  const body={
-    standard,
-    score_pct,
-    correct,
-    total,
-    time_seconds,
-    weak_skills,
-    session_date:new Date().toISOString(),
+  if(!student_email){
+    console.log('saveSession skipped — no student_email');
+    return null;
+  }
+  const body=Object.assign({},payload,{
     student_email,
-    user_id,
-    response_text:response_text||null,
-    feedback_json:feedback_json||null
-  };
+    session_date:new Date().toISOString(),
+    standard:String(payload.standard)
+  });
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/practice_sessions`,{
+    const res=await fetch('/api/save-session',{
       method:'POST',
-      headers:{
-        apikey:SUPABASE_ANON_KEY,
-        Authorization:`Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type':'application/json',
-        Prefer:'return=minimal'
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
     });
-    if(!res.ok) console.log('saveSession failed',res.status,await res.text());
-  }catch(e){ console.log(e); }
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok){
+      console.log('saveSession failed',res.status,data.error||await res.text());
+      return null;
+    }
+    return data;
+  }catch(e){
+    console.log('saveSession error',e);
+    return null;
+  }
 }
 
 // ── SUBMIT ───────────────────────────────────────────────────────────────
-function submitExam(){
+async function submitExam(){
   clearInterval(S.timer);
   const qs=S.questions; let correct=0,scoreable=0;
   qs.forEach(q=>{
@@ -2220,9 +2230,41 @@ function submitExam(){
     if(q.type==='mc'){if(ua===q.answer)correct++;}
     else{if(Math.abs(Number(ua)-Number(q.answer))<=getTolerance(q))correct++;}
   });
-  const pct = scoreable>0?Math.round(correct/scoreable*100):0;
+  let pct = scoreable>0?Math.round(correct/scoreable*100):0;
   const elapsed = S.elapsed;
   const m=Math.floor(elapsed/60), ss=String(elapsed%60).padStart(2,'0');
+  const weakSkills=collectWeakSkills(qs);
+
+  let responseText=null, feedbackJson=null, errorState=false;
+  let sessionCorrect=correct, sessionTotal=qs.length;
+  let writingTask=null, writingRubric=null;
+
+  if(S.std==='32405'){
+    const wq=qs.find(q=>q.type==='writing');
+    if(wq){
+      const rawAns=S.answers[wq.id];
+      responseText=(rawAns&&String(rawAns).trim())?String(rawAns).trim():null;
+      writingTask=wq.task||null;
+      writingRubric=wq.rubric||null;
+      if(responseText&&!(S.writingFeedback&&S.writingFeedback[wq.id])){
+        await markWritingWithAI(wq, responseText);
+      }
+      feedbackJson=(S.writingFeedback&&S.writingFeedback[wq.id])||null;
+      if(feedbackJson){
+        pct=scoreFromWritingFeedback(feedbackJson);
+        sessionCorrect=feedbackJson.correct!=null?feedbackJson.correct:0;
+        sessionTotal=feedbackJson.total||feedbackJson.criteria?.length||1;
+        errorState=false;
+      }else if(responseText){
+        errorState=true;
+      }
+    }
+  }else if(S.std==='32403'||S.std==='32406'){
+    if(weakSkills.length){
+      feedbackJson=await fetchLookupFeedback(S.std, weakSkills);
+      if(!feedbackJson) errorState=true;
+    }
+  }
 
   // Readiness level
   let rdLabel,rdClass,rdSub;
@@ -2235,8 +2277,10 @@ function submitExam(){
   document.getElementById('readiness-badge').textContent=rdLabel;
   document.getElementById('results-sub').textContent=rdSub;
   document.getElementById('res-std-name').textContent=STD_NAMES[S.std];
-  document.getElementById('ring-pct').textContent=scoreable>0?`${pct}%`:'N/A';
-  document.getElementById('st-correct').textContent=scoreable>0?`${correct}/${scoreable}`:'—';
+  document.getElementById('ring-pct').textContent=(S.std==='32405'||scoreable>0)?`${pct}%`:'N/A';
+  document.getElementById('st-correct').textContent=S.std==='32405'
+    ? `${sessionCorrect}/${sessionTotal}`
+    : (scoreable>0?`${correct}/${scoreable}`:'—');
   document.getElementById('st-total').textContent=qs.length;
   document.getElementById('st-time').textContent=`${m}:${ss}`;
   document.getElementById('res-breakdown').textContent=S.std==='32405'
@@ -2253,32 +2297,24 @@ function submitExam(){
   setTimeout(()=>{
     const fill=document.getElementById('ring-fill');
     fill.style.stroke=pct>=80?'#16a34a':pct>=65?'#3b82f6':pct>=50?'#d97706':'#dc2626';
-    fill.style.strokeDashoffset=scoreable>0?String(264-(264*pct/100)):'264';
+    fill.style.strokeDashoffset=(S.std==='32405'||scoreable>0)?String(264-(264*pct/100)):'264';
   },100);
 
   // Gap report
   buildGapReport(qs);
 
-  // Collect writing response and AI feedback for writing standard
-  let responseText=null, feedbackJson=null;
-  if(S.std==='32405'){
-    const wq=qs.find(q=>q.type==='writing');
-    if(wq){
-      const rawAns=S.answers[wq.id];
-      responseText=(rawAns&&String(rawAns).trim())?String(rawAns).trim():null;
-      feedbackJson=(S.writingFeedback&&S.writingFeedback[wq.id])||null;
-    }
-  }
-
-  saveSession({
+  await saveSession({
     standard:S.std,
     score_pct:pct,
-    correct,
-    total:qs.length,
+    correct:sessionCorrect,
+    total:sessionTotal,
     time_seconds:S.elapsed,
-    weak_skills:collectWeakSkills(qs),
+    weak_skills:weakSkills,
     response_text:responseText,
-    feedback_json:feedbackJson
+    feedback_json:feedbackJson,
+    writing_task:writingTask,
+    writing_rubric:writingRubric,
+    error_state:errorState
   });
 
   // ── CHECK YOUR READINESS METER ──
